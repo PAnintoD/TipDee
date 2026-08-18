@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Streamer {
+  id               String          @id @default("streamerza")
+  username         String          @unique
+  displayName      String
+  bio              String?
+  avatarUrl        String?
+  bannerUrl        String?
+  promptpayTarget  String?
+  promptpayName    String?
+  truemoneyPhone   String?
+  minAmount        Float           @default(5)
+  presetAmounts    String          @default("[20, 50, 100, 300, 500, 1000]")
+  socialLinks      String?
+  widgetToken      String          @default("widget_token_abc123")
+  enableAutoSlip   Boolean         @default(true)
+  slipApiKey       String?
+  slipBranchId     String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  donations        Donation[]
+  widgetSettings   WidgetSettings?
+  goalSettings     GoalSettings?
+}
+
+model Donation {
+  id            String    @id
+  streamerId    String
+  donorName     String
+  amount        Float
+  message       String?
+  paymentMethod String    // 'promptpay' | 'truemoney' | 'slip' | 'test'
+  paymentRef    String?
+  status        String    @default("pending") // 'completed' | 'pending' | 'failed'
+  enableTTS     Boolean   @default(true)
+  isTest        Boolean   @default(false)
+  slipImage     String?   // Base64 or URL of uploaded slip
+  slipRef       String?   // Bank transaction reference / QR payload
+  slipHash      String?   // MD5 / SHA hash to prevent duplicate reuse
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  streamer      Streamer  @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+}
+
+model WidgetSettings {
+  id                String   @id @default(cuid())
+  streamerId        String   @unique
+  template          String   @default("{name} โดเนท {amount} บาท: {message}")
+  minAmountForAlert Float    @default(5)
+  minAmountForTTS   Float    @default(10)
+  duration          Int      @default(7)
+  soundUrl          String   @default("levelup")
+  soundVolume       Int      @default(80)
+  imageUrl          String   @default("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1anE4d2dmaHk4NXVycG43dnEycW10M2d4YWR0NmsyMzB5enFqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif")
+  ttsEnabled        Boolean  @default(true)
+  ttsVoice          String   @default("th-TH")
+  ttsSpeed          Float    @default(1.0)
+  ttsPitch          Float    @default(1.0)
+  ttsVolume         Int      @default(90)
+  textColor         String   @default("#ffffff")
+  highlightColor    String   @default("#22c55e")
+
+  streamer          Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+}
+
+model GoalSettings {
+  id             String   @id @default(cuid())
+  streamerId     String   @unique
+  title          String   @default("🎯 เป้าหมาย: อัปเกรดการ์ดจอ RTX 4070")
+  targetAmount   Float    @default(20000)
+  currentAmount  Float    @default(8450)
+  endDate        String?  @default("2026-12-31")
+  barColor       String   @default("#22c55e")
+  backgroundColor String  @default("rgba(15, 23, 42, 0.85)")
+  textColor      String   @default("#ffffff")
+  showPercentage Boolean  @default(true)
+
+  streamer       Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+}
