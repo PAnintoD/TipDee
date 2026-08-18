@@ -1,11 +1,12 @@
 {
-  "name": "donate",
+  "name": "tipdee",
   "version": "1.0.0",
-  "description": "",
+  "description": "TipDee - Streamer Donation Platform",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint"
   },
