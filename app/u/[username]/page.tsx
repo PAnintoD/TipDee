@@ -233,7 +233,7 @@ export default function PublicDonatePage() {
       <div className="mb-4 flex items-center gap-2 text-xs text-slate-400">
         <span>ขับเคลื่อนด้วย</span>
         <span className="font-extrabold text-white flex items-center gap-1">
-          Easy<span className="text-brand-400">Donate</span>
+          Tip<span className="text-brand-400">Dee</span>
         </span>
         <ShieldCheck className="h-4 w-4 text-brand-400" />
       </div>

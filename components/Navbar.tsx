@@ -68,7 +68,7 @@ export function Navbar({ streamerId = 'streamerza' }: NavbarProps) {
               </div>
               <div>
                 <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                  Easy<span className="text-brand-400">Donate</span>
+                  Tip<span className="text-brand-400">Dee</span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/10 text-brand-400 font-semibold border border-brand-500/20">V2</span>
                 </span>
                 <p className="text-[11px] text-slate-400 hidden sm:block -mt-1">ระบบโดเนทสตรีมเมอร์ & ครีเอเตอร์</p>

@@ -2,8 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'EasyDonate - ระบบโดเนทสำหรับสตรีมเมอร์ & ครีเอเตอร์',
-  description: 'ระบบรับเงินโดเนท พร้อมเพย์ Dynamic QR, ซอง TrueMoney, แจ้งเตือนขึ้นจอ OBS Studio พร้อมเสียงอ่านข้อความ TTS ภาษาไทย',
+  title: 'TipDee - ระบบโดเนทสำหรับสตรีมเมอร์ & ครีเอเตอร์',
+  description: 'ระบบรับเงินโดเนท พร้อมเพย์ Dynamic QR, สแกนสลิปออโต้, ซอง TrueMoney, แจ้งเตือนขึ้นจอ OBS Studio พร้อมเสียงอ่านข้อความ TTS ภาษาไทย',
 };
 
 export default function RootLayout({
