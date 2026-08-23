@@ -146,7 +146,7 @@ export default function WidgetsPage() {
         streamerId,
         donorName: 'ผู้ชมตัวอย่าง ⭐',
         amount: 150,
-        message: 'ทดสอบป๊อปอัปแจ้งเตือน EasyDonate สวยงาม 100%!',
+        message: 'ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงาม 100%!',
         enableTTS: alertSettings.ttsEnabled,
       }),
     });

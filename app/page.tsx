@@ -215,7 +215,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-8 text-center text-xs text-slate-500">
-        <p>EasyDonate System &copy; 2026 - ระบบบริจาคสำหรับสตรีมเมอร์และคอนเทนต์ครีเอเตอร์</p>
+        <p>TipDee System &copy; 2026 - ระบบบริจาคสำหรับสตรีมเมอร์และคอนเทนต์ครีเอเตอร์</p>
       </footer>
     </div>
   );

@@ -1,6 +1,6 @@
-# EasyDonate - ระบบรับเงินโดเนทสตรีมเมอร์ & ครีเอเตอร์
+# TipDee - ระบบรับเงินโดเนทสตรีมเมอร์ & ครีเอเตอร์
 
-ระบบรับบริจาค/โดเนทสำหรับสตรีมเมอร์และคอนเทนต์ครีเอเตอร์แบบครบวงจร (Full-Stack) ถอดแบบระบบจาก EasyDonate พร้อม OBS Widgets, Dynamic PromptPay QR, ระบบสแกนสลิปอัตโนมัติ (Slip Verification), เสียงอ่านภาษาไทย (TTS) และเชื่อมต่อฐานข้อมูล Prisma ORM / Firebase
+ระบบรับบริจาค/โดเนทสำหรับสตรีมเมอร์และคอนเทนต์ครีเอเตอร์แบบครบวงจร (Full-Stack) พร้อม OBS Widgets, Dynamic PromptPay QR, ระบบสแกนสลิปอัตโนมัติ (Slip Verification), เสียงอ่านภาษาไทย (TTS) และเชื่อมต่อฐานข้อมูล Prisma ORM / Firebase
 
 ---
 

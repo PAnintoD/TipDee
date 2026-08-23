@@ -12,7 +12,7 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ['images.unsplash.com', 'api.dicebear.com', 'easydonate.app'],
+    domains: ['images.unsplash.com', 'api.dicebear.com', 'tipdee.vercel.app'],
   },
 };
 

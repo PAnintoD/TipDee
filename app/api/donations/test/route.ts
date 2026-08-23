@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       streamerId = 'streamerza',
       donorName = 'Tester Gamer 🚀',
       amount = 100,
-      message = 'ทดสอบระบบแจ้งเตือน EasyDonate โดเนทสำเร็จ เสียง TTS และภาพแสดงผลปกติ!',
+      message = 'ทดสอบระบบแจ้งเตือน TipDee โดเนทสำเร็จ เสียง TTS และภาพแสดงผลปกติ!',
       enableTTS = true,
     } = body;
 

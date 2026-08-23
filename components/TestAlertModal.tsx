@@ -13,7 +13,7 @@ interface TestAlertModalProps {
 export function TestAlertModal({ streamerId = 'streamerza', onClose }: TestAlertModalProps) {
   const [donorName, setDonorName] = useState('Tester Gamer 🚀');
   const [amount, setAmount] = useState('100');
-  const [message, setMessage] = useState('ทดสอบระบบแจ้งเตือน EasyDonate โดเนทสำเร็จ เสียง TTS และภาพแสดงผลปกติ!');
+  const [message, setMessage] = useState('ทดสอบระบบแจ้งเตือน TipDee โดเนทสำเร็จ เสียง TTS และภาพแสดงผลปกติ!');
   const [enableTTS, setEnableTTS] = useState(true);
   const [selectedSound, setSelectedSound] = useState('levelup');
   const [isSending, setIsSending] = useState(false);

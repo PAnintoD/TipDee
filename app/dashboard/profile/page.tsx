@@ -143,7 +143,7 @@ export default function ProfilePage() {
                 />
                 <div className="text-center sm:text-left space-y-1">
                   <h3 className="text-xl font-bold text-white">{profile.displayName}</h3>
-                  <p className="text-xs text-brand-400 font-mono">easydonate.app/u/{streamerId}</p>
+                  <p className="text-xs text-brand-400 font-mono">tipdee.vercel.app/u/{streamerId}</p>
                 </div>
               </div>
             </div>

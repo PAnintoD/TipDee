@@ -141,7 +141,7 @@ export default function DashboardPage() {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold mb-3">
                   <Zap className="h-3.5 w-3.5" />
-                  <span>ระบบ EasyDonate พร้อมใช้งานแล้ว</span>
+                  <span>ระบบ TipDee พร้อมใช้งานแล้ว</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
                   ยินดีต้อนรับ, <span className="text-brand-400">{streamer?.displayName || 'StreamerZa TH'}</span> 👋
