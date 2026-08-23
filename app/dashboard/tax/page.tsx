@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
@@ -9,19 +9,27 @@ import {
   Calculator,
   Download,
   AlertCircle,
-  HelpCircle,
-  TrendingUp,
   Percent,
-  CheckCircle2,
 } from 'lucide-react';
 
 export default function TaxAssistantPage() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username || 'streamerza';
 
-  const [annualIncome, setAnnualIncome] = useState(250000);
+  const [annualIncome, setAnnualIncome] = useState(0);
   const [personalAllowance] = useState(60000); // ค่าลดหย่อนส่วนตัว 60,000฿
   const [otherAllowance, setOtherAllowance] = useState(0); // ประกันสังคม / ประกันชีวิต
+
+  useEffect(() => {
+    fetch(`/api/analytics?streamerId=${username}&period=all`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && typeof res.data?.totalRevenue === 'number') {
+          setAnnualIncome(res.data.totalRevenue);
+        }
+      })
+      .catch((e) => console.error(e));
+  }, [username]);
 
   // 40(8) Streamer income: 50% max 100,000฿ standard deduction
   const expenseDeduction = Math.min(100000, annualIncome * 0.5);
@@ -59,7 +67,7 @@ export default function TaxAssistantPage() {
                 <span>ผู้ช่วยภาษีสตรีมเมอร์ (Tax Assistant ภ.ง.ด. 90/91)</span>
               </h1>
               <p className="text-xs text-slate-400 mt-1">
-                สรุปรายรับโดเนทและคำนวณประมาณการภาษีเงินได้บุคคลธรรมดาตามหลักเกณฑ์กรมสรรพากร
+                สรุปรายรับโดเนทจริงจากระบบและคำนวณประมาณการภาษีเงินได้บุคคลธรรมดาตามหลักเกณฑ์สรรพากร
               </p>
             </div>
 
@@ -85,7 +93,7 @@ export default function TaxAssistantPage() {
             <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-5">
               <div className="flex items-center gap-2 border-b border-white/5 pb-3">
                 <FileText className="h-5 w-5 text-brand-400" />
-                <h3 className="text-base font-bold text-white">กรอกข้อมูลรายรับ & ค่าลดหย่อน</h3>
+                <h3 className="text-base font-bold text-white">ข้อมูลรายรับจริงจากระบบ & ค่าลดหย่อน</h3>
               </div>
 
               <div className="space-y-4">
@@ -100,6 +108,7 @@ export default function TaxAssistantPage() {
                     min={0}
                     className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-sm font-bold text-white focus:outline-none focus:border-brand-500"
                   />
+                  <p className="text-[11px] text-slate-500 mt-1">ดึงยอดจริงจากประวัติโดเนทที่สำเร็จของคุณ</p>
                 </div>
 
                 <div>

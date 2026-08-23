@@ -1,83 +1,33 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Globe,
   Search,
   Flame,
   Tv,
-  Users,
   ExternalLink,
-  Sparkles,
-  Award,
-  ArrowRight,
-  TrendingUp,
-  Heart,
+  RefreshCw,
 } from 'lucide-react';
-import { Navbar } from '@/components/Navbar';
 
 export default function DiscoveryPage() {
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('ALL');
+  const [streamers, setStreamers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const streamers = [
-    {
-      username: 'streamerza',
-      displayName: 'StreamerZa TH',
-      bio: '🎮 สตรีมเกมเมอร์ ROV / Valorant ทุกวัน 19:00 เป็นต้นไป ยินดีต้อนรับทุกคนครับ!',
-      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=streamerza',
-      category: 'Gaming',
-      followers: '14.2K',
-      totalDonations: '48,500 ฿',
-      isLive: true,
-      tags: ['Valorant', 'ROV', 'Chill'],
-    },
-    {
-      username: 'panin_todd',
-      displayName: 'PAnin_ToDD',
-      bio: '🐱 สตรีมคุยเล่น ร้องเพลง และเล่นเกมเนื้อเรื่อง ชุมชนคนรักแมวเหมียว',
-      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=panin',
-      category: 'Music & Talk',
-      followers: '8.9K',
-      totalDonations: '25,200 ฿',
-      isLive: true,
-      tags: ['Music', 'JustChatting'],
-    },
-    {
-      username: 'micky_pro',
-      displayName: 'Micky Speedrunner',
-      bio: '⚡ สปีดรันเกมคลาสสิก Mario, Dark Souls, Elden Ring ระดับพระกาฬ',
-      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=micky',
-      category: 'Gaming',
-      followers: '21.5K',
-      totalDonations: '94,000 ฿',
-      isLive: false,
-      tags: ['EldenRing', 'Speedrun'],
-    },
-    {
-      username: 'art_studio',
-      displayName: 'Art & Motion TH',
-      bio: '🎨 วาดรูป Live 2D, ทำแอนิเมชัน และสอนเทคนิค Digital Art สดๆ',
-      avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=art',
-      category: 'Art & Creative',
-      followers: '6.4K',
-      totalDonations: '18,300 ฿',
-      isLive: false,
-      tags: ['Art', 'Illustration'],
-    },
-  ];
-
-  const filteredStreamers = streamers.filter((s) => {
-    const matchesSearch =
-      !search.trim() ||
-      s.displayName.toLowerCase().includes(search.toLowerCase()) ||
-      s.username.toLowerCase().includes(search.toLowerCase()) ||
-      s.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-
-    const matchesCategory = category === 'ALL' || s.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/discovery?search=${encodeURIComponent(search)}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setStreamers(res.data);
+        }
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
@@ -112,10 +62,10 @@ export default function DiscoveryPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white">
-            ค้นพบและร่วมสนับสนุน <span className="text-brand-400">สตรีมเมอร์คนโปรด</span>
+            ค้นพบและร่วมสนับสนุน <span className="text-brand-400">สตรีมเมอร์ในระบบ</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
-            รวมช่องสตรีมเมอร์และครีเอเตอร์ชั้นนำที่เปิดรับเงินโดเนทผ่าน PromptPay และ TrueMoney
+            รายชื่อช่องสตรีมเมอร์และครีเอเตอร์จริงที่ลงทะเบียนบนแพลตฟอร์ม TipDee
           </p>
 
           {/* Search bar */}
@@ -125,91 +75,66 @@ export default function DiscoveryPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ค้นหาชื่อสตรีมเมอร์, เกม, แท็ก..."
+              placeholder="ค้นหาชื่อสตรีมเมอร์, username..."
               className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 shadow-xl"
             />
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {['ALL', 'Gaming', 'Music & Talk', 'Art & Creative'].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                category === cat
-                  ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
-                  : 'bg-slate-900 border border-white/5 text-slate-400 hover:text-white'
-              }`}
-            >
-              {cat === 'ALL' ? 'ทั้งหมด (All Categories)' : cat}
-            </button>
-          ))}
-        </div>
-
         {/* Streamers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredStreamers.map((s) => (
-            <div
-              key={s.username}
-              className="p-5 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-xl hover:border-brand-500/30 hover:scale-[1.02] transition-all flex flex-col justify-between space-y-4 group"
-            >
-              <div className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="relative">
+        {loading ? (
+          <div className="py-20 text-center flex flex-col items-center justify-center gap-3 text-slate-500">
+            <RefreshCw className="h-6 w-6 animate-spin text-brand-400" />
+            <span className="text-xs">กำลังโหลดรายชื่อสตรีมเมอร์...</span>
+          </div>
+        ) : streamers.length === 0 ? (
+          <div className="py-20 text-center text-xs text-slate-500">
+            ไม่พบสตรีมเมอร์ที่ตรงกับคำค้นหา
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {streamers.map((s) => (
+              <div
+                key={s.username}
+                className="p-5 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-xl hover:border-brand-500/30 hover:scale-[1.02] transition-all flex flex-col justify-between space-y-4 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
                     <img
                       src={s.avatar}
                       alt={s.displayName}
                       className="h-14 w-14 rounded-2xl bg-slate-800 border border-white/10 p-1 object-cover"
                     />
-                    {s.isLive && (
-                      <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-full bg-red-500 text-white font-black text-[9px] uppercase tracking-wider animate-pulse shadow-md">
-                        LIVE
-                      </span>
-                    )}
                   </div>
 
-                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-semibold">
-                    {s.category}
-                  </span>
+                  <div>
+                    <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition-colors">
+                      {s.displayName}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-mono">@{s.username}</p>
+                    <p className="text-xs text-slate-300 line-clamp-2 mt-2 leading-relaxed">{s.bio}</p>
+                  </div>
                 </div>
 
-                <div>
-                  <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition-colors">
-                    {s.displayName}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-mono">@{s.username}</p>
-                  <p className="text-xs text-slate-300 line-clamp-2 mt-2 leading-relaxed">{s.bio}</p>
-                </div>
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                  <div className="text-[11px] text-slate-400">
+                    <span>ยอดสะสม </span>
+                    <span className="text-brand-400 font-bold">{s.totalDonations}</span>
+                  </div>
 
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {s.tags.map((t) => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800/80 text-slate-400">
-                      #{t}
-                    </span>
-                  ))}
+                  <Link
+                    href={`/u/${s.username}`}
+                    target="_blank"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs font-bold shadow-md transition-all hover:scale-105"
+                  >
+                    <span>โดเนท</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
                 </div>
               </div>
-
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                <div className="text-[11px] text-slate-400">
-                  <span>ยอดสะสม </span>
-                  <span className="text-brand-400 font-bold">{s.totalDonations}</span>
-                </div>
-
-                <Link
-                  href={`/u/${s.username}`}
-                  target="_blank"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs font-bold shadow-md transition-all hover:scale-105"
-                >
-                  <span>โดเนท</span>
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

@@ -9,51 +9,23 @@ import {
   Crown,
   Sparkles,
   Plus,
-  Edit2,
   Trash2,
   CheckCircle2,
-  DollarSign,
   Heart,
-  ShieldAlert,
 } from 'lucide-react';
 
 export default function MembershipsPage() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username || 'streamerza';
 
-  const [tiers, setTiers] = useState([
-    {
-      id: '1',
-      name: '🥉 แฟนคลับตัวยง (Tier 1)',
-      price: 50,
-      badge: '🥉',
-      membersCount: 18,
-      perks: ['ยศพิเศษในช่องแชท & จอสตรีม', 'ไอคอนเหรียญบรอนซ์ข้างชื่อ', 'สิทธิ์เข้า Discord ห้องแฟนคลับ'],
-    },
-    {
-      id: '2',
-      name: '🥈 ซูเปอร์แฟน (Tier 2)',
-      price: 150,
-      badge: '🥈',
-      membersCount: 7,
-      perks: ['ทุกสิทธิ์ของ Tier 1', 'เสียง TTS สีพิเศษบนจอสตรีม', 'เลือกเกมให้สตรีมเมอร์เล่นสัปดาห์ละ 1 ครั้ง'],
-    },
-    {
-      id: '3',
-      name: '🥇 สปอนเซอร์หลัก (VIP Tier 3)',
-      price: 300,
-      badge: '👑',
-      membersCount: 4,
-      perks: ['ทุกสิทธิ์ของ Tier 1-2', 'ป้ายแบนเนอร์ชื่อขอบคุณท้ายสตรีม', 'ร่วมเล่นเกมในปาร์ตี้ทุกวันเสาร์'],
-    },
-  ]);
-
+  const [tiers, setTiers] = useState<any[]>([]);
   const [newTierName, setNewTierName] = useState('');
   const [newTierPrice, setNewTierPrice] = useState(50);
+  const [newTierPerk, setNewTierPerk] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const totalMRR = tiers.reduce((sum, t) => sum + t.price * t.membersCount, 0);
-  const totalMembers = tiers.reduce((sum, t) => sum + t.membersCount, 0);
+  const totalMRR = tiers.reduce((sum, t) => sum + (t.price || 0) * (t.membersCount || 0), 0);
+  const totalMembers = tiers.reduce((sum, t) => sum + (t.membersCount || 0), 0);
 
   const handleAddTier = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,14 +34,15 @@ export default function MembershipsPage() {
       ...tiers,
       {
         id: String(Date.now()),
-        name: newTierName,
+        name: newTierName.trim(),
         price: Number(newTierPrice),
         badge: '⭐',
         membersCount: 0,
-        perks: ['สิทธิ์สมาชิกพิเศษในช่อง'],
+        perks: newTierPerk ? newTierPerk.split('\n').filter((x) => x.trim()) : ['สิทธิ์สมาชิกพิเศษในช่อง'],
       },
     ]);
     setNewTierName('');
+    setNewTierPerk('');
     setShowAddModal(false);
   };
 
@@ -109,7 +82,7 @@ export default function MembershipsPage() {
               <p className="text-2xl font-black text-white">
                 {totalMRR.toLocaleString('th-TH')} <span className="text-sm font-bold text-brand-400">฿ / เดือน</span>
               </p>
-              <p className="text-[11px] text-emerald-400 font-medium">คำนวณจากสมาชิกที่ยัง Active</p>
+              <p className="text-[11px] text-emerald-400 font-medium">คำนวณจากสมาชิกที่ Active</p>
             </div>
 
             <div className="p-5 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-xl space-y-2">
@@ -130,50 +103,68 @@ export default function MembershipsPage() {
           </div>
 
           {/* Tiers List */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {tiers.map((t) => (
-              <div
-                key={t.id}
-                className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl flex flex-col justify-between space-y-4 relative group hover:border-brand-500/30 transition-all"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl">{t.badge}</span>
-                    <span className="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-black">
-                      {t.membersCount} สมาชิก
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-bold text-white">{t.name}</h3>
-                    <p className="text-2xl font-black text-white mt-1">
-                      {t.price} <span className="text-xs text-slate-400 font-semibold">บาท / เดือน</span>
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 pt-3 border-t border-white/5">
-                    <p className="text-xs font-semibold text-slate-400">สิทธิพิเศษ:</p>
-                    {t.perks.map((p, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-brand-400 flex-shrink-0 mt-0.5" />
-                        <span>{p}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => setTiers(tiers.filter((x) => x.id !== t.id))}
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
-                    title="ลบระดับสมาชิกนี้"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+          {tiers.length === 0 ? (
+            <div className="p-12 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3">
+              <Crown className="h-12 w-12 text-slate-600 mx-auto" />
+              <h3 className="text-base font-bold text-white">ยังไม่มีระดับสมาชิกของช่อง</h3>
+              <p className="text-xs text-slate-400">
+                คุณสามารถสร้างระดับสมาชิก Tier 1, 2, 3 เพื่อให้ผู้ชมสมัครสนับสนุนรายเดือนได้
+              </p>
+              <div className="pt-2">
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-black font-bold text-xs transition-all shadow-md"
+                >
+                  + สร้างระดับสมาชิกแรก
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {tiers.map((t) => (
+                <div
+                  key={t.id}
+                  className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl flex flex-col justify-between space-y-4 relative group hover:border-brand-500/30 transition-all"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{t.badge}</span>
+                      <span className="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-black">
+                        {t.membersCount} สมาชิก
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-base font-bold text-white">{t.name}</h3>
+                      <p className="text-2xl font-black text-white mt-1">
+                        {t.price} <span className="text-xs text-slate-400 font-semibold">บาท / เดือน</span>
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-3 border-t border-white/5">
+                      <p className="text-xs font-semibold text-slate-400">สิทธิพิเศษ:</p>
+                      {t.perks.map((p: string, idx: number) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-brand-400 flex-shrink-0 mt-0.5" />
+                          <span>{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setTiers(tiers.filter((x) => x.id !== t.id))}
+                      className="p-2 rounded-xl bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                      title="ลบระดับสมาชิกนี้"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Add Modal */}
           {showAddModal && (
@@ -187,7 +178,7 @@ export default function MembershipsPage() {
                       type="text"
                       value={newTierName}
                       onChange={(e) => setNewTierName(e.target.value)}
-                      placeholder="เช่น ซูเปอร์แฟนคลับ Tier 4"
+                      placeholder="เช่น แฟนคลับตัวยง Tier 1"
                       required
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-white/10 text-xs text-white"
                     />
@@ -200,6 +191,16 @@ export default function MembershipsPage() {
                       onChange={(e) => setNewTierPrice(Number(e.target.value))}
                       min={10}
                       required
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-white/10 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-300 mb-1">สิทธิพิเศษ (บรรทัดละ 1 ข้อ)</label>
+                    <textarea
+                      value={newTierPerk}
+                      onChange={(e) => setNewTierPerk(e.target.value)}
+                      placeholder="ยศพิเศษใน Discord&#10;ไอคอนข้างชื่อบนจอสตรีม"
+                      rows={3}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-white/10 text-xs text-white"
                     />
                   </div>

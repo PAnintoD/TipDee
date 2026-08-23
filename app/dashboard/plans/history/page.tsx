@@ -1,36 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
-import { History, ArrowLeft, CheckCircle2, Receipt, Download } from 'lucide-react';
+import { History, ArrowLeft, Receipt, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PlanHistoryPage() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username || 'streamerza';
 
-  const history = [
-    {
-      id: 'INV-2026-08',
-      plan: 'Streamer Pro',
-      amount: 99,
-      date: '2026-08-23',
-      method: 'PromptPay QR',
-      status: 'ชำระแล้ว',
-      nextBilling: '2026-09-23',
-    },
-    {
-      id: 'INV-2026-07',
-      plan: 'Streamer Pro',
-      amount: 99,
-      date: '2026-07-23',
-      method: 'PromptPay QR',
-      status: 'ชำระแล้ว',
-      nextBilling: '2026-08-23',
-    },
-  ];
+  const [history] = useState<any[]>([]);
 
   return (
     <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
@@ -61,36 +42,50 @@ export default function PlanHistoryPage() {
           </div>
 
           <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-4">
-            <div className="rounded-2xl border border-white/10 overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
-                  <tr>
-                    <th className="px-5 py-3.5 font-bold">เลขที่ใบเสร็จ</th>
-                    <th className="px-5 py-3.5 font-bold">แพลน</th>
-                    <th className="px-5 py-3.5 font-bold">จำนวนเงิน</th>
-                    <th className="px-5 py-3.5 font-bold">ช่องทางชำระ</th>
-                    <th className="px-5 py-3.5 font-bold">สถานะ</th>
-                    <th className="px-5 py-3.5 font-bold">วันที่ทำรายการ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {history.map((item) => (
-                    <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-5 py-3.5 font-mono text-brand-400 font-bold">{item.id}</td>
-                      <td className="px-5 py-3.5 font-bold text-white">{item.plan}</td>
-                      <td className="px-5 py-3.5 font-black text-white">{item.amount} ฿</td>
-                      <td className="px-5 py-3.5 text-slate-300">{item.method}</td>
-                      <td className="px-5 py-3.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px] border border-emerald-500/30">
-                          <CheckCircle2 className="h-3 w-3" /> {item.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-400 font-mono">{item.date}</td>
+            {history.length === 0 ? (
+              <div className="py-16 text-center space-y-3">
+                <Receipt className="h-12 w-12 text-slate-600 mx-auto" />
+                <h3 className="text-base font-bold text-white">ยังไม่มีประวัติการชำระเงินสำหรับแพลน</h3>
+                <p className="text-xs text-slate-400">
+                  คุณกำลังใช้งานแพลนพื้นฐานฟรี สามารถอัปเกรดเพื่อปลดล็อกฟังก์ชันเพิ่มเติมได้
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/dashboard/plans"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-black font-bold text-xs transition-all shadow-md"
+                  >
+                    <span>ดูแพลนทั้งหมด</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/10 overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
+                    <tr>
+                      <th className="px-5 py-3.5 font-bold">เลขที่ใบเสร็จ</th>
+                      <th className="px-5 py-3.5 font-bold">แพลน</th>
+                      <th className="px-5 py-3.5 font-bold">จำนวนเงิน</th>
+                      <th className="px-5 py-3.5 font-bold">ช่องทางชำระ</th>
+                      <th className="px-5 py-3.5 font-bold">สถานะ</th>
+                      <th className="px-5 py-3.5 font-bold">วันที่ทำรายการ</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {history.map((item) => (
+                      <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-brand-400 font-bold">{item.id}</td>
+                        <td className="px-5 py-3.5 font-bold text-white">{item.plan}</td>
+                        <td className="px-5 py-3.5 font-black text-white">{item.amount} ฿</td>
+                        <td className="px-5 py-3.5 text-slate-300">{item.method}</td>
+                        <td className="px-5 py-3.5 text-slate-400 font-mono">{item.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </main>
       </div>

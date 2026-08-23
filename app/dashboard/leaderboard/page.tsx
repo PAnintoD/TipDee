@@ -7,41 +7,36 @@ import { Sidebar } from '@/components/Sidebar';
 import {
   Trophy,
   Crown,
-  Medal,
   Calendar,
   Sparkles,
-  ArrowUpRight,
-  Gift,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function LeaderboardPage() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username || 'streamerza';
 
-  const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'all'>('month');
+  const [period, setPeriod] = useState<'7days' | '30days' | 'this_month' | 'all'>('30days');
   const [donors, setDonors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/analytics?streamerId=${username}&period=30days`)
+    fetch(`/api/analytics?streamerId=${username}&period=${period}`)
       .then((res) => res.json())
       .then((res) => {
-        if (res.success && res.data?.topDonors) {
+        if (res.success && Array.isArray(res.data?.topDonors)) {
           setDonors(res.data.topDonors);
+        } else {
+          setDonors([]);
         }
       })
-      .catch((e) => console.error(e))
+      .catch((e) => {
+        console.error(e);
+        setDonors([]);
+      })
       .finally(() => setLoading(false));
   }, [username, period]);
-
-  const mockDonors = donors.length > 0 ? donors : [
-    { name: 'พี่เบิ้ม ใจสปอร์ต', amount: 5000, count: 12 },
-    { name: 'น้องแมว ส้มจอมซน', amount: 3200, count: 8 },
-    { name: 'สไนเปอร์ สายเปย์', amount: 1500, count: 4 },
-    { name: 'FC ช่างแอร์ในตำนาน', amount: 900, count: 3 },
-    { name: 'น้องนุ่น ยิ้มหวาน', amount: 500, count: 2 },
-  ];
 
   return (
     <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
@@ -65,9 +60,9 @@ export default function LeaderboardPage() {
             {/* Period Filter */}
             <div className="flex items-center gap-2">
               {[
-                { id: 'day', label: 'วันนี้' },
-                { id: 'week', label: 'สัปดาห์นี้' },
-                { id: 'month', label: 'เดือนนี้' },
+                { id: '7days', label: '7 วันล่าสุด' },
+                { id: '30days', label: '30 วันล่าสุด' },
+                { id: 'this_month', label: 'เดือนนี้' },
                 { id: 'all', label: 'ตลอดกาล' },
               ].map((tab) => (
                 <button
@@ -85,86 +80,109 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Top 3 Podium Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-            {/* Rank 2 */}
-            <div className="order-2 md:order-1 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
-              <div className="text-3xl">🥈</div>
-              <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-slate-400 flex items-center justify-center font-black text-lg text-white">
-                {mockDonors[1]?.name?.slice(0, 2) || '2'}
-              </div>
-              <div>
-                <span className="text-xs font-bold text-slate-400">อันดับ 2</span>
-                <h3 className="text-sm font-bold text-white mt-0.5">{mockDonors[1]?.name || '-'}</h3>
-                <p className="text-lg font-black text-slate-200 mt-1">
-                  {(mockDonors[1]?.amount || 0).toLocaleString('th-TH')} ฿
-                </p>
-              </div>
+          {loading ? (
+            <div className="py-20 text-center flex flex-col items-center justify-center gap-3 text-slate-500">
+              <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
+              <span className="text-xs">กำลังโหลดอันดับผู้สนับสนุน...</span>
             </div>
-
-            {/* Rank 1 (Champion) */}
-            <div className="order-1 md:order-2 p-7 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-950/30 via-[#121622] to-[#0e1219] text-center space-y-3 shadow-2xl shadow-amber-500/10 scale-105">
-              <div className="text-4xl animate-bounce">👑</div>
-              <div className="h-16 w-16 mx-auto rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 border-2 border-yellow-300 flex items-center justify-center font-black text-xl text-black shadow-lg">
-                {mockDonors[0]?.name?.slice(0, 2) || '1'}
-              </div>
-              <div>
-                <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                  🥇 แชมป์เปย์สูงสุด
-                </span>
-                <h3 className="text-base font-extrabold text-white mt-0.5">{mockDonors[0]?.name || '-'}</h3>
-                <p className="text-2xl font-black text-amber-300 mt-1">
-                  {(mockDonors[0]?.amount || 0).toLocaleString('th-TH')} ฿
-                </p>
-              </div>
+          ) : donors.length === 0 ? (
+            <div className="p-12 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3">
+              <Trophy className="h-12 w-12 text-slate-600 mx-auto" />
+              <h3 className="text-base font-bold text-white">ยังไม่มีข้อมูลผู้สนับสนุนในช่วงเวลานี้</h3>
+              <p className="text-xs text-slate-400">
+                เมื่อมีผู้ชมโดเนทผ่านหน้าช่องของคุณ อันดับ Top Donors จะปรากฏขึ้นที่นี่อัตโนมัติ
+              </p>
             </div>
+          ) : (
+            <>
+              {/* Podium for top supporters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                {/* Rank 2 */}
+                {donors[1] && (
+                  <div className="order-2 md:order-1 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
+                    <div className="text-3xl">🥈</div>
+                    <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-slate-400 flex items-center justify-center font-black text-lg text-white">
+                      {donors[1].name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-400">อันดับ 2</span>
+                      <h3 className="text-sm font-bold text-white mt-0.5">{donors[1].name}</h3>
+                      <p className="text-lg font-black text-slate-200 mt-1">
+                        {donors[1].amount.toLocaleString('th-TH')} ฿
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-            {/* Rank 3 */}
-            <div className="order-3 md:order-3 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
-              <div className="text-3xl">🥉</div>
-              <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-amber-700 flex items-center justify-center font-black text-lg text-white">
-                {mockDonors[2]?.name?.slice(0, 2) || '3'}
-              </div>
-              <div>
-                <span className="text-xs font-bold text-slate-400">อันดับ 3</span>
-                <h3 className="text-sm font-bold text-white mt-0.5">{mockDonors[2]?.name || '-'}</h3>
-                <p className="text-lg font-black text-slate-200 mt-1">
-                  {(mockDonors[2]?.amount || 0).toLocaleString('th-TH')} ฿
-                </p>
-              </div>
-            </div>
-          </div>
+                {/* Rank 1 (Champion) */}
+                {donors[0] && (
+                  <div className="order-1 md:order-2 p-7 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-950/30 via-[#121622] to-[#0e1219] text-center space-y-3 shadow-2xl shadow-amber-500/10 scale-105">
+                    <div className="text-4xl animate-bounce">👑</div>
+                    <div className="h-16 w-16 mx-auto rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 border-2 border-yellow-300 flex items-center justify-center font-black text-xl text-black shadow-lg">
+                      {donors[0].name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                        🥇 แชมป์เปย์สูงสุด
+                      </span>
+                      <h3 className="text-base font-extrabold text-white mt-0.5">{donors[0].name}</h3>
+                      <p className="text-2xl font-black text-amber-300 mt-1">
+                        {donors[0].amount.toLocaleString('th-TH')} ฿
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-          {/* Full Leaderboard Table */}
-          <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-4">
-            <div className="rounded-2xl border border-white/10 overflow-hidden">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
-                  <tr>
-                    <th className="px-5 py-3.5 font-bold">อันดับ</th>
-                    <th className="px-5 py-3.5 font-bold">ผู้สนับสนุน</th>
-                    <th className="px-5 py-3.5 font-bold">จำนวนครั้ง</th>
-                    <th className="px-5 py-3.5 font-bold text-right">ยอดโดเนทรวม</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {mockDonors.map((d, idx) => {
-                    const medals = ['🥇 1', '🥈 2', '🥉 3', '4', '5'];
-                    return (
-                      <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-3.5 font-black text-sm text-slate-300">{medals[idx]}</td>
-                        <td className="px-5 py-3.5 font-bold text-white">{d.name}</td>
-                        <td className="px-5 py-3.5 text-slate-400 font-mono">{d.count || 1} ครั้ง</td>
-                        <td className="px-5 py-3.5 text-right font-black text-sm text-brand-400">
-                          {d.amount.toLocaleString('th-TH')} ฿
-                        </td>
+                {/* Rank 3 */}
+                {donors[2] && (
+                  <div className="order-3 md:order-3 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
+                    <div className="text-3xl">🥉</div>
+                    <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-amber-700 flex items-center justify-center font-black text-lg text-white">
+                      {donors[2].name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-400">อันดับ 3</span>
+                      <h3 className="text-sm font-bold text-white mt-0.5">{donors[2].name}</h3>
+                      <p className="text-lg font-black text-slate-200 mt-1">
+                        {donors[2].amount.toLocaleString('th-TH')} ฿
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Full Leaderboard Table */}
+              <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-4">
+                <div className="rounded-2xl border border-white/10 overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
+                      <tr>
+                        <th className="px-5 py-3.5 font-bold">อันดับ</th>
+                        <th className="px-5 py-3.5 font-bold">ผู้สนับสนุน</th>
+                        <th className="px-5 py-3.5 font-bold">จำนวนครั้ง</th>
+                        <th className="px-5 py-3.5 font-bold text-right">ยอดโดเนทรวม</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {donors.map((d, idx) => {
+                        const medals = ['🥇 1', '🥈 2', '🥉 3', '4', '5', '6', '7', '8', '9', '10'];
+                        return (
+                          <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="px-5 py-3.5 font-black text-sm text-slate-300">{medals[idx] || idx + 1}</td>
+                            <td className="px-5 py-3.5 font-bold text-white">{d.name}</td>
+                            <td className="px-5 py-3.5 text-slate-400 font-mono">{d.count} ครั้ง</td>
+                            <td className="px-5 py-3.5 text-right font-black text-sm text-brand-400">
+                              {d.amount.toLocaleString('th-TH')} ฿
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </main>
       </div>
     </div>
