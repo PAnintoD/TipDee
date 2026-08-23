@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Flame,
   Radio,
@@ -25,13 +26,16 @@ interface NavbarProps {
   streamerId?: string;
 }
 
-export function Navbar({ streamerId = 'streamerza' }: NavbarProps) {
+export function Navbar({ streamerId }: NavbarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const activeStreamerId = streamerId || (session?.user as any)?.username || 'streamerza';
+
   const [showTestModal, setShowTestModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const publicDonateUrl = typeof window !== 'undefined' ? `${window.location.origin}/u/${streamerId}` : `/u/${streamerId}`;
+  const publicDonateUrl = typeof window !== 'undefined' ? `${window.location.origin}/u/${activeStreamerId}` : `/u/${activeStreamerId}`;
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -109,7 +113,7 @@ export function Navbar({ streamerId = 'streamerza' }: NavbarProps) {
 
             {/* Open Public Donation Page */}
             <Link
-              href={`/u/${streamerId}`}
+              href={`/u/${activeStreamerId}`}
               target="_blank"
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs sm:text-sm font-semibold shadow-md shadow-brand-500/25 transition-all hover:scale-[1.02] active:scale-95"
             >
@@ -147,7 +151,7 @@ export function Navbar({ streamerId = 'streamerza' }: NavbarProps) {
 
       {/* Test Alert Modal */}
       {showTestModal && (
-        <TestAlertModal streamerId={streamerId} onClose={() => setShowTestModal(false)} />
+        <TestAlertModal streamerId={activeStreamerId} onClose={() => setShowTestModal(false)} />
       )}
     </>
   );

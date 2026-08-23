@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   ReceiptText,
@@ -13,14 +14,20 @@ import {
   Volume2,
   Sparkles,
   HelpCircle,
+  LogOut,
 } from 'lucide-react';
 
 interface SidebarProps {
   streamerId?: string;
 }
 
-export function Sidebar({ streamerId = 'streamerza' }: SidebarProps) {
+export function Sidebar({ streamerId }: SidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const user = session?.user as any;
+  const username = streamerId || user?.username || 'streamerza';
+  const displayName = user?.name || user?.username || 'สตรีมเมอร์';
+  const initials = (displayName || 'SZ').slice(0, 2).toUpperCase();
 
   const navItems = [
     {
@@ -56,14 +63,23 @@ export function Sidebar({ streamerId = 'streamerza' }: SidebarProps) {
     <aside className="w-64 flex-shrink-0 hidden lg:block border-r border-white/5 bg-[#0b0e14] p-4 min-h-[calc(100vh-4rem)]">
       <div className="space-y-6">
         {/* User Card */}
-        <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md overflow-hidden">
-            <span className="text-sm">SZ</span>
+        <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md overflow-hidden flex-shrink-0">
+              <span className="text-sm">{initials}</span>
+            </div>
+            <div className="overflow-hidden">
+              <h4 className="text-sm font-semibold text-white truncate">{displayName}</h4>
+              <p className="text-xs text-brand-400 font-medium truncate">@{username}</p>
+            </div>
           </div>
-          <div className="overflow-hidden">
-            <h4 className="text-sm font-semibold text-white truncate">StreamerZa TH</h4>
-            <p className="text-xs text-brand-400 font-medium">@streamerza</p>
-          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0"
+            title="ออกจากระบบ"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
 
         {/* Navigation Menu */}

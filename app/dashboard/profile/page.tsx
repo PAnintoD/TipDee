@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import {
@@ -16,22 +17,23 @@ import { YouTubeIcon, TwitchIcon, FacebookIcon } from '@/components/SocialIcons'
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const streamerId = 'streamerza';
+  const { data: session } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [profile, setProfile] = useState({
-    displayName: 'StreamerZa TH 🎮',
-    bio: 'ยินดีต้อนรับสู่ช่องสตรีมเกม สนับสนุนเพื่อเป็นกำลังใจและพัฒนาช่องได้ที่นี่เลยครับ! ขอบคุณทุกการโดเนทครับ ❤️',
-    avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=400&auto=format&fit=crop&q=80',
-    bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
+    displayName: '',
+    bio: '',
+    avatarUrl: '',
+    bannerUrl: '',
     socialLinks: {
-      youtube: 'https://youtube.com',
-      twitch: 'https://twitch.tv',
-      facebook: 'https://facebook.com',
-      discord: 'https://discord.gg',
-      tiktok: 'https://tiktok.com',
+      youtube: '',
+      twitch: '',
+      facebook: '',
+      discord: '',
+      tiktok: '',
     },
   });
 
@@ -56,7 +58,7 @@ export default function ProfilePage() {
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [streamerId]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

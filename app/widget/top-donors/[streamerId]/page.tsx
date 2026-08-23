@@ -12,12 +12,22 @@ export default function TopDonorsWidgetPage() {
   const [title, setTitle] = useState('🏆 ผู้สนับสนุนสูงสุด');
 
   const fetchTopDonors = () => {
-    fetch(`/api/donations?streamerId=${streamerId}&type=top&period=month&limit=5`)
+    fetch(`/api/streamer?id=${streamerId}`)
       .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setTopDonors(data.data || []);
-        }
+      .then((streamerRes) => {
+        const topSettings = streamerRes.data?.topDonorsSettings || {};
+        if (topSettings.title) setTitle(topSettings.title);
+        const period = topSettings.period || 'month';
+        const limit = topSettings.limit || 5;
+
+        fetch(`/api/donations?streamerId=${streamerId}&type=top&period=${period}&limit=${limit}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              setTopDonors(data.data || []);
+            }
+          })
+          .catch((e) => console.error(e));
       })
       .catch((e) => console.error(e));
   };

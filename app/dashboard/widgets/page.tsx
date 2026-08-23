@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import {
@@ -32,7 +33,8 @@ const GIF_PRESETS = [
 ];
 
 export default function WidgetsPage() {
-  const streamerId = 'streamerza';
+  const { data: session } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
   const [activeTab, setActiveTab] = useState<'alert' | 'goal' | 'top'>('alert');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -88,7 +90,7 @@ export default function WidgetsPage() {
         }
       })
       .catch((e) => console.error(e));
-  }, []);
+  }, [streamerId]);
 
   const copyToClipboard = (path: string, id: string) => {
     if (typeof window !== 'undefined') {

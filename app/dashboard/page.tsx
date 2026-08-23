@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import { StatCard } from '@/components/StatCard';
@@ -24,6 +25,8 @@ import {
 import Link from 'next/link';
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
   const [streamer, setStreamer] = useState<any>(null);
   const [donations, setDonations] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({
@@ -37,8 +40,6 @@ export default function DashboardPage() {
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [showTestModal, setShowTestModal] = useState(false);
   const [replayingId, setReplayingId] = useState<string | null>(null);
-
-  const streamerId = 'streamerza';
 
   // Fetch initial data
   const fetchData = async () => {
