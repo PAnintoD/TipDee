@@ -35,10 +35,11 @@ const GIF_PRESETS = [
 export default function WidgetsPage() {
   const { data: session } = useSession();
   const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
-  const [activeTab, setActiveTab] = useState<'alert' | 'goal' | 'top'>('alert');
+  const [activeTab, setActiveTab] = useState<'alert' | 'goal' | 'top' | 'recent'>('alert');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [recentMode, setRecentMode] = useState<'list' | 'ticker'>('list');
 
   // Streamer alert settings state
   const [alertSettings, setAlertSettings] = useState({
@@ -225,6 +226,18 @@ export default function WidgetsPage() {
             >
               <Trophy className="h-4 w-4" />
               <span>อันดับผู้บริจาค (Top Donors)</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('recent')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                activeTab === 'recent'
+                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Layers className="h-4 w-4" />
+              <span>ผู้บริจาคล่าสุด (Recent Feed)</span>
             </button>
           </div>
 
@@ -682,6 +695,78 @@ export default function WidgetsPage() {
                     <option value="day">ประจำวันนี้ (Daily)</option>
                     <option value="all_time">ตลอดกาล (All-Time)</option>
                   </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: Recent Donors Feed */}
+          {activeTab === 'recent' && (
+            <div className="space-y-5">
+              <div className="p-4 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 to-slate-900/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-brand-300">ลิงก์ URL สำหรับ Recent Donors (OBS)</span>
+                  <span className="text-[10px] text-slate-400">
+                    {recentMode === 'ticker' ? 'ขนาดแนะนำ: 800 x 80 px (Ticker)' : 'ขนาดแนะนำ: 360 x 480 px (List)'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      typeof window !== 'undefined'
+                        ? `${window.location.origin}/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
+                        : `/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
+                    }
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                  />
+                  <button
+                    onClick={() => copyToClipboard(`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`, 'recent-box')}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all flex-shrink-0"
+                  >
+                    {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                  </button>
+                  <Link
+                    href={`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`}
+                    target="_blank"
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex-shrink-0"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4 max-w-xl">
+                <h3 className="text-sm font-bold text-white">รูปแบบการแสดงผล (Display Layout)</h3>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRecentMode('list')}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      recentMode === 'list'
+                        ? 'border-brand-500 bg-brand-500/10 text-white font-bold'
+                        : 'border-white/10 bg-slate-900 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="text-xs font-semibold mb-1">📋 แบบรายการแนวตั้ง (Vertical List)</div>
+                    <p className="text-[11px] text-slate-400 font-normal">เหมาะสำหรับวางมุมซ้าย/ขวาของจอ</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRecentMode('ticker')}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      recentMode === 'ticker'
+                        ? 'border-brand-500 bg-brand-500/10 text-white font-bold'
+                        : 'border-white/10 bg-slate-900 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="text-xs font-semibold mb-1">🏃 แถบวิ่งแนวนอน (Horizontal Ticker)</div>
+                    <p className="text-[11px] text-slate-400 font-normal">เหมาะสำหรับวางขอบบน/ล่างของจอ</p>
+                  </button>
                 </div>
               </div>
             </div>
