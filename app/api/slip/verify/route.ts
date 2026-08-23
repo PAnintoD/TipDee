@@ -5,6 +5,7 @@ import { broadcastDonation } from '@/lib/events';
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/rateLimit';
 import { sanitizeDonorName, sanitizeMessage } from '@/lib/sanitize';
 import { prisma } from '@/lib/prisma';
+import { triggerStreamerWebhook } from '@/lib/webhook';
 
 export async function POST(request: NextRequest) {
   try {
@@ -106,6 +107,17 @@ export async function POST(request: NextRequest) {
 
     // Broadcast to OBS and Dashboard immediately!
     broadcastDonation(donation, false);
+
+    // Fire Discord / Webhook asynchronously
+    triggerStreamerWebhook(activeStreamerId, {
+      id: donation.id,
+      donorName: donation.donorName,
+      amount: donation.amount,
+      message: donation.message,
+      paymentMethod: 'slip',
+      createdAt: typeof donation.createdAt === 'string' ? donation.createdAt : new Date().toISOString(),
+      isTest: false,
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

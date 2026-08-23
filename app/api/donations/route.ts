@@ -5,6 +5,7 @@ import { generatePromptPayQRCode, generatePromptPayPayload } from '@/lib/promptp
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/rateLimit';
 import { sanitizeDonorName, sanitizeMessage } from '@/lib/sanitize';
+import { triggerStreamerWebhook } from '@/lib/webhook';
 
 export async function GET(request: NextRequest) {
   try {
@@ -169,6 +170,17 @@ export async function POST(request: NextRequest) {
     // If completed, broadcast to OBS and Dashboard
     if (donation.status === 'completed') {
       broadcastDonation(donation, donation.isTest);
+
+      // Fire Discord / Webhook asynchronously
+      triggerStreamerWebhook(streamerId, {
+        id: donation.id,
+        donorName: donation.donorName,
+        amount: donation.amount,
+        message: donation.message,
+        paymentMethod: donation.paymentMethod,
+        createdAt: donation.createdAt,
+        isTest: donation.isTest,
+      }).catch(() => {});
     }
 
     return NextResponse.json({
