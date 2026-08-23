@@ -467,6 +467,19 @@ export default function PublicDonatePage() {
                 placeholder="พิมพ์ข้อความส่งกำลังใจ หรือขอเพลง..."
                 className="w-full rounded-xl bg-slate-900 border border-white/10 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none"
               />
+              {/* Quick Emojis */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                {['❤️', '🎉', '🔥', '👏', '🎮', '⭐', '💰', '🚀', '🐱', '✨'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setMessage((prev) => (prev + emoji).slice(0, 200))}
+                    className="h-7 w-7 rounded-lg bg-slate-900 border border-white/10 hover:border-brand-500 text-xs flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* TTS Option */}

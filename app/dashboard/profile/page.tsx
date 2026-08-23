@@ -256,6 +256,19 @@ export default function ProfilePage() {
                     className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-pink-400" /> TikTok:
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.socialLinks.tiktok}
+                    onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, tiktok: e.target.value } })}
+                    placeholder="https://tiktok.com/@..."
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                  />
+                </div>
               </div>
             </div>
           </form>
