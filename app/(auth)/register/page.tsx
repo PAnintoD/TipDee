@@ -11,7 +11,12 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'username') {
+      setForm({ ...form, username: value.toLowerCase().replace(/[^a-z0-9_]/g, '') });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {

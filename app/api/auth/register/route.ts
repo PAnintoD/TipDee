@@ -12,13 +12,19 @@ const registerSchema = z.object({
     .string()
     .min(3, 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร')
     .max(30)
-    .regex(/^[a-z0-9_]+$/, 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวเล็ก a-z, ตัวเลข 0-9 และ _'),
+    .regex(/^[a-z0-9_]+$/, 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร a-z, 0-9 และ _'),
   displayName: z.string().min(1, 'กรุณาใส่ชื่อที่แสดง').max(50),
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rawBody = await req.json();
+    const body = {
+      ...rawBody,
+      email: (rawBody.email || '').toLowerCase().trim(),
+      username: (rawBody.username || '').toLowerCase().trim(),
+      displayName: (rawBody.displayName || '').trim(),
+    };
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -75,15 +81,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send verification email
-    await sendVerificationEmail(email, displayName, token);
+    // Send verification email safely (non-blocking)
+    try {
+      await sendVerificationEmail(email, displayName, token);
+    } catch (emailErr) {
+      console.warn('Could not send verification email (dev/unconfigured):', emailErr);
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชีของคุณ',
+      message: 'สมัครสมาชิกสำเร็จ! คุณสามารถเข้าสู่ระบบได้ทันที',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Register error:', error);
-    return NextResponse.json({ error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' },
+      { status: 500 }
+    );
   }
 }
