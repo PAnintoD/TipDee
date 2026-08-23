@@ -56,7 +56,17 @@ export default function PublicDonatePage() {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // TrueMoney QR
+  const [truemoneyQR, setTruemoneyQR] = useState('');
+  const [truemoneyUrl, setTruemoneyUrl] = useState('');
+
   useEffect(() => {
+    // Load saved donor name
+    try {
+      const saved = localStorage.getItem('tipdee_donor_name');
+      if (saved) setDonorName(saved);
+    } catch {}
+
     fetch(`/api/streamer?id=${username}`)
       .then((res) => res.json())
       .then((data) => {
@@ -113,6 +123,10 @@ export default function PublicDonatePage() {
     }
 
     const finalDonorName = isAnonymous ? 'ผู้ไม่ประสงค์ออกนาม' : donorName.trim() || 'ผู้ไม่ประสงค์ออกนาม';
+    // Save donor name for next visit
+    if (!isAnonymous && donorName.trim()) {
+      try { localStorage.setItem('tipdee_donor_name', donorName.trim()); } catch {}
+    }
 
     // If Slip Upload method
     if (paymentMethod === 'slip') {
@@ -591,20 +605,56 @@ export default function PublicDonatePage() {
               </div>
             )}
 
-            {/* TrueMoney Voucher Input */}
+            {/* TrueMoney Section */}
             {paymentMethod === 'truemoney' && (
-              <div className="space-y-1.5 p-3.5 rounded-2xl bg-amber-950/20 border border-amber-500/20">
-                <label className="text-xs font-semibold text-amber-300">วางลิงก์ซองของขวัญ TrueMoney:</label>
-                <input
-                  type="url"
-                  value={voucherUrl}
-                  onChange={(e) => setVoucherUrl(e.target.value)}
-                  placeholder="https://gift.truemoney.com/campaign/?v=..."
-                  className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
-                  required
-                />
+              <div className="space-y-3 p-4 rounded-2xl bg-amber-950/20 border border-amber-500/20">
+                {streamer?.truemoneyPhone ? (
+                  <div className="text-center space-y-3">
+                    <p className="text-xs font-semibold text-amber-300">โอนเงินผ่าน TrueMoney Wallet</p>
+                    <p className="text-amber-200 font-bold text-lg">{streamer.truemoneyPhone}</p>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await fetch('/api/payment/truemoney', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ phone: streamer.truemoneyPhone, amount: Number(amount) }),
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          setTruemoneyQR(data.qrDataUrl);
+                          setTruemoneyUrl(data.url);
+                        }
+                      }}
+                      className="text-xs text-amber-300 underline hover:text-amber-200"
+                    >
+                      📱 สร้าง QR Code จำนวน {Number(amount).toLocaleString('th-TH')} บาท
+                    </button>
+                    {truemoneyQR && (
+                      <div className="flex flex-col items-center gap-2">
+                        <img src={truemoneyQR} alt="TrueMoney QR" className="w-40 h-40 bg-white rounded-lg p-1" />
+                        <a href={truemoneyUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-amber-400 underline">เปิดลิงก์ TrueMoney →</a>
+                      </div>
+                    )}
+                    <p className="text-xs text-slate-500">หลังโอนเงินแล้ว กรุณาอัปโหลดสลิปในช่องสลิปด้านบน</p>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-xs font-semibold text-amber-300 block mb-1.5">วางลิงก์ซองของขวัญ TrueMoney:</label>
+                    <input
+                      type="url"
+                      value={voucherUrl}
+                      onChange={(e) => setVoucherUrl(e.target.value)}
+                      placeholder="https://gift.truemoney.com/campaign/?v=..."
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                      required
+                    />
+                  </div>
+                )}
               </div>
             )}
+
 
             {/* Submit Button */}
             <button

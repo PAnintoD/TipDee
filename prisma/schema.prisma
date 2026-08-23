@@ -106,6 +106,7 @@ model Streamer {
   enableAutoSlip   Boolean         @default(true)
   slipApiKey       String?
   slipBranchId     String?
+  webhookUrl       String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 

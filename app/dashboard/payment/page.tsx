@@ -1,322 +1,376 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
+import { BankSelector } from '@/components/BankSelector';
 import {
-  Wallet,
-  QrCode,
-  Gift,
-  Save,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  Sparkles,
-  ScanLine,
-  ShieldCheck,
-  Key,
+  Wallet, QrCode, Save, CheckCircle2, AlertCircle,
+  Sparkles, ScanLine, ShieldCheck, Key, Webhook,
+  ToggleLeft, ToggleRight, RefreshCw, Send, Loader2,
 } from 'lucide-react';
 
+interface FormState {
+  promptpayTarget: string;
+  promptpayName: string;
+  bankName: string;
+  truemoneyPhone: string;
+  minAmount: number;
+  presetAmountsStr: string;
+  enableAutoSlip: boolean;
+  slipApiKey: string;
+  slipBranchId: string;
+  webhookUrl: string;
+}
+
 export default function PaymentPage() {
-  const streamerId = 'streamerza';
+  const { data: session } = useSession();
+  const username = (session?.user as any)?.username ?? '';
+
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [qrLoading, setQrLoading] = useState(false);
+  const [webhookTesting, setWebhookTesting] = useState(false);
+  const [webhookResult, setWebhookResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [streamerId, setStreamerId] = useState('');
 
-  const [form, setForm] = useState({
-    promptpayTarget: '0812345678',
-    promptpayName: 'สตรีมเมอร์ ซ่า',
-    truemoneyPhone: '0812345678',
+  const [form, setForm] = useState<FormState>({
+    promptpayTarget: '',
+    promptpayName: '',
+    bankName: '',
+    truemoneyPhone: '',
     minAmount: 5,
     presetAmountsStr: '20, 50, 100, 300, 500, 1000',
     enableAutoSlip: true,
     slipApiKey: '',
     slipBranchId: '',
+    webhookUrl: '',
   });
 
   useEffect(() => {
-    fetch(`/api/streamer?id=${streamerId}`)
-      .then((res) => res.json())
+    fetch('/api/payment/channels')
+      .then((r) => r.json())
       .then((data) => {
         if (data.success && data.data) {
+          const s = data.data;
+          setStreamerId(s.id);
           setForm({
-            promptpayTarget: data.data.promptpayTarget || '0812345678',
-            promptpayName: data.data.promptpayName || '',
-            truemoneyPhone: data.data.truemoneyPhone || '',
-            minAmount: data.data.minAmount || 5,
-            presetAmountsStr: (data.data.presetAmounts || [20, 50, 100, 300, 500, 1000]).join(', '),
-            enableAutoSlip: data.data.enableAutoSlip !== false,
-            slipApiKey: data.data.slipApiKey || '',
-            slipBranchId: data.data.slipBranchId || '',
+            promptpayTarget: s.promptpayTarget || '',
+            promptpayName: s.promptpayName || '',
+            bankName: '',
+            truemoneyPhone: s.truemoneyPhone || '',
+            minAmount: s.minAmount || 5,
+            presetAmountsStr: s.presetAmounts
+              ? JSON.parse(s.presetAmounts).join(', ')
+              : '20, 50, 100, 300, 500, 1000',
+            enableAutoSlip: s.enableAutoSlip !== false,
+            slipApiKey: s.slipApiKey || '',
+            slipBranchId: s.slipBranchId || '',
+            webhookUrl: s.webhookUrl || '',
           });
         }
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const refreshQR = useCallback(() => {
+    if (!username) return;
+    setQrLoading(true);
+    fetch(`/api/streamer?id=${username}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.data?.promptpayQR) {
+          setQrDataUrl(data.data.promptpayQR);
+        }
+      })
+      .finally(() => setQrLoading(false));
+  }, [username]);
+
+  useEffect(() => {
+    if (username) refreshQR();
+  }, [username, refreshQR]);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
     setSaveSuccess(false);
+    setSaveError('');
 
-    try {
-      const presetAmounts = form.presetAmountsStr
-        .split(',')
-        .map((s) => Number(s.trim()))
-        .filter((n) => !isNaN(n) && n > 0);
+    const presetAmounts = form.presetAmountsStr
+      .split(',')
+      .map((s) => Number(s.trim()))
+      .filter((n) => !isNaN(n) && n > 0);
 
-      const res = await fetch('/api/streamer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: streamerId,
-          promptpayTarget: form.promptpayTarget.trim(),
-          promptpayName: form.promptpayName.trim(),
-          truemoneyPhone: form.truemoneyPhone.trim(),
-          minAmount: Number(form.minAmount) || 5,
-          presetAmounts,
-          enableAutoSlip: form.enableAutoSlip,
-          slipApiKey: form.slipApiKey.trim(),
-          slipBranchId: form.slipBranchId.trim(),
-        }),
-      });
+    const res = await fetch('/api/payment/channels', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        promptpayTarget: form.promptpayTarget,
+        promptpayName: form.promptpayName,
+        truemoneyPhone: form.truemoneyPhone,
+        minAmount: form.minAmount,
+        presetAmounts,
+        enableAutoSlip: form.enableAutoSlip,
+        slipApiKey: form.slipApiKey,
+        slipBranchId: form.slipBranchId,
+        webhookUrl: form.webhookUrl,
+      }),
+    });
 
-      if (res.ok) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSaving(false);
+    const data = await res.json();
+    setIsSaving(false);
+
+    if (res.ok) {
+      setSaveSuccess(true);
+      refreshQR();
+      setTimeout(() => setSaveSuccess(false), 4000);
+    } else {
+      setSaveError(data.error || 'บันทึกไม่สำเร็จ');
     }
-  };
+  }
+
+  async function handleTestWebhook() {
+    if (!streamerId || !form.webhookUrl) return;
+    setWebhookTesting(true);
+    setWebhookResult(null);
+    const res = await fetch('/api/webhook/trigger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        streamerId,
+        donation: {
+          id: `test_${Date.now()}`,
+          donorName: 'ทดสอบ Webhook',
+          amount: 100,
+          message: 'ทดสอบ Webhook จาก TipDee Dashboard',
+          paymentMethod: 'test',
+          createdAt: new Date().toISOString(),
+        },
+      }),
+    });
+    const data = await res.json();
+    setWebhookTesting(false);
+    setWebhookResult({ ok: data.success, msg: data.message });
+    setTimeout(() => setWebhookResult(null), 5000);
+  }
+
+  const InputRow = ({ label, name, type = 'text', placeholder = '', help = '' }: any) => (
+    <div>
+      <label className="block text-sm font-medium text-slate-300 mb-1.5">{label}</label>
+      <input
+        type={type} name={name} value={(form as any)[name]} onChange={handleChange}
+        placeholder={placeholder}
+        className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+      />
+      {help && <p className="text-xs text-slate-500 mt-1">{help}</p>}
+    </div>
+  );
+
+  const SectionCard = ({ icon: Icon, title, color = 'text-brand-400', children }: any) => (
+    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6">
+      <div className="flex items-center gap-3 mb-5">
+        <div className={`p-2 bg-slate-800 rounded-lg`}><Icon className={`h-5 w-5 ${color}`} /></div>
+        <h2 className="text-lg font-semibold text-white">{title}</h2>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-slate-950">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 text-brand-400 animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
-      <Navbar streamerId={streamerId} />
-
-      <div className="flex flex-1">
-        <Sidebar streamerId={streamerId} />
-
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
-            <div>
-              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-                <Wallet className="h-6 w-6 text-brand-400" />
-                <span>บัญชีรับเงินและระบบตรวจสลิป (Payment & Slip Engine)</span>
-              </h1>
-              <p className="text-xs text-slate-400 mt-1">
-                ตั้งค่าบัญชี PromptPay, TrueMoney และระบบสแกนสลิปอัจฉริยะแบบป้องกันสลิปซ้ำ
-              </p>
-            </div>
-
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-brand-500/25 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-            >
-              {saveSuccess ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-              <span>{isSaving ? 'กำลังบันทึก...' : saveSuccess ? 'บันทึกเรียบร้อย!' : 'บันทึกการตั้งค่า'}</span>
-            </button>
+    <div className="flex min-h-screen bg-slate-950">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Navbar />
+        <div className="flex-1 p-4 sm:p-6 max-w-4xl mx-auto w-full">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-white">ตั้งค่าช่องทางรับเงิน</h1>
+            <p className="text-slate-400 text-sm mt-1">จัดการช่องทางรับโดเนทและการแจ้งเตือน</p>
           </div>
 
+          {saveSuccess && (
+            <div className="mb-4 p-4 bg-brand-500/10 border border-brand-500/30 rounded-xl flex items-center gap-3 text-brand-400">
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+              <span>บันทึกการตั้งค่าสำเร็จแล้ว!</span>
+            </div>
+          )}
+          {saveError && (
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{saveError}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSave} className="space-y-6">
-            {/* PromptPay Card */}
-            <div className="p-6 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-5">
-              <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-                <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <QrCode className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">1. ตั้งค่าพร้อมเพย์ (PromptPay Dynamic QR)</h3>
-                  <p className="text-xs text-slate-400">ระบบจะสร้าง Dynamic QR Code ระบุยอดเงินอัตโนมัติตามมาตรฐานธนาคารไทย</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    เบอร์พร้อมเพย์ หรือ เลขบัตรประชาชน (PromptPay ID):
-                  </label>
-                  <input
-                    type="text"
-                    value={form.promptpayTarget}
-                    onChange={(e) => setForm({ ...form, promptpayTarget: e.target.value })}
-                    placeholder="เช่น 0812345678 หรือ 1100400xxxxxx"
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
-                    required
-                  />
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    รองรับเบอร์โทร 10 หลัก (08x...), เลขบัตร 13 หลัก, หรือ e-Wallet ID
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    ชื่อบัญชีผู้รับเงิน (Account Name):
-                  </label>
-                  <input
-                    type="text"
-                    value={form.promptpayName}
-                    onChange={(e) => setForm({ ...form, promptpayName: e.target.value })}
-                    placeholder="เช่น นายสตรีมเมอร์ สู้ไม่ถอย"
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
-                  />
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    ชื่อจะแสดงบนหน้าชำระเงินเพื่อให้ผู้บริจาคตรวจทาน
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Slip Verification Settings Card */}
-            <div className="p-6 rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/20 to-[#0e1219]/90 space-y-5">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <ScanLine className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <span>2. ระบบสแกนและตรวจสอบสลิปอัตโนมัติ (Slip Scanner & Anti-Duplicate)</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">
-                        Active
-                      </span>
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      ถอดรหัส QR Code บนสลิปธนาคาร ป้องกันการอัปโหลดสลิปซ้ำ และยิงแจ้งเตือน OBS อัตโนมัติ
-                    </p>
-                  </div>
-                </div>
-
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.enableAutoSlip}
-                    onChange={(e) => setForm({ ...form, enableAutoSlip: e.target.checked })}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                </label>
-              </div>
-
-              {form.enableAutoSlip && (
-                <div className="space-y-4 pt-1">
-                  <div className="p-3.5 rounded-xl bg-slate-900/80 border border-white/5 text-xs text-slate-300 space-y-1.5">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Smart Built-in Slip Scanner (ทำงานอัตโนมัติ 100%)</span>
-                    </div>
-                    <p className="text-slate-400 leading-relaxed">
-                      ระบบจะสแกน QR Code จากภาพสลิปที่คนดูแนบเข้ามา ตรวจสอบความถูกต้องและแฮชสลิป หากสลิปเดิมถูกนำมาใช้ซ้ำระบบจะบล็อกทันทีโดยอัตโนมัติ
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                        <Key className="h-3.5 w-3.5 text-brand-400" /> SlipOK API Key (ตัวเลือกเสริม):
-                      </label>
-                      <input
-                        type="text"
-                        value={form.slipApiKey}
-                        onChange={(e) => setForm({ ...form, slipApiKey: e.target.value })}
-                        placeholder="กรอก API Key จาก slipok.com (ถ้ามี)"
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
-                      />
-                      <p className="text-[11px] text-slate-500 mt-1">
-                        สำหรับตรวจเช็คการรับเงินจริงกับธนาคารแบบ Real-time (ไม่ใส่ก็ได้ ระบบใช้ Smart Scanner ในตัว)
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                        SlipOK Branch ID (ตัวเลือกเสริม):
-                      </label>
-                      <input
-                        type="text"
-                        value={form.slipBranchId}
-                        onChange={(e) => setForm({ ...form, slipBranchId: e.target.value })}
-                        placeholder="เช่น 1234"
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* TrueMoney Card */}
-            <div className="p-6 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-5">
-              <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  <Gift className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">3. ซองของขวัญทรูมันนี่ (TrueMoney Gift Voucher)</h3>
-                  <p className="text-xs text-slate-400">อนุญาตให้ผู้ชมโดเนทผ่านลิงก์ซองของขวัญ TrueMoney</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  เบอร์โทรศัพท์ TrueMoney Wallet:
-                </label>
-                <input
-                  type="text"
-                  value={form.truemoneyPhone}
-                  onChange={(e) => setForm({ ...form, truemoneyPhone: e.target.value })}
-                  placeholder="เช่น 0812345678"
-                  className="w-full max-w-md rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
+            {/* Section 1: PromptPay */}
+            <SectionCard icon={QrCode} title="1. ตั้งค่าพร้อมเพย์ (PromptPay)">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <InputRow
+                  label="เบอร์ / เลขบัตรประชาชน (PromptPay ID)"
+                  name="promptpayTarget"
+                  placeholder="0812345678"
+                  help="รองรับเบอร์โทร 10 หลัก (08x...), เลขบัตร 13 หลัก"
+                />
+                <InputRow
+                  label="ชื่อบัญชีผู้รับเงิน (Account Name)"
+                  name="promptpayName"
+                  placeholder="ชื่อ-นามสกุล"
+                  help="ชื่อที่แสดงให้ผู้บริจาคตรวจสอบ"
                 />
               </div>
-            </div>
+              <BankSelector value={form.bankName} onChange={(v) => setForm((f) => ({ ...f, bankName: v }))} label="ธนาคารหลัก" />
 
-            {/* Constraints Card */}
-            <div className="p-6 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-5">
-              <div className="flex items-center gap-3 border-b border-white/5 pb-3">
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <Sparkles className="h-5 w-5" />
+              {/* QR Preview */}
+              <div className="bg-slate-800/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-medium text-slate-300">ตัวอย่าง QR Code</p>
+                  <button
+                    type="button" onClick={refreshQR}
+                    className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> รีเฟรช
+                  </button>
                 </div>
+                {qrLoading ? (
+                  <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 text-brand-400 animate-spin" /></div>
+                ) : qrDataUrl ? (
+                  <div className="flex justify-center">
+                    <img src={qrDataUrl} alt="PromptPay QR" className="w-40 h-40 rounded-lg bg-white p-2" />
+                  </div>
+                ) : (
+                  <p className="text-center text-slate-500 text-sm py-6">
+                    บันทึกการตั้งค่าพร้อมเพย์ก่อนเพื่อดู QR Code
+                  </p>
+                )}
+              </div>
+            </SectionCard>
+
+            {/* Section 2: TrueMoney */}
+            <SectionCard icon={Wallet} title="2. TrueMoney Wallet" color="text-orange-400">
+              <InputRow
+                label="เบอร์โทรศัพท์ TrueMoney Wallet"
+                name="truemoneyPhone"
+                placeholder="0812345678"
+                help="ผู้ชมจะจ่ายเงินเข้า wallet ของคุณโดยตรง ไม่ผ่านระบบ"
+              />
+              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-300 text-xs">
+                💡 เงินเข้า TrueMoney Wallet ของคุณโดยตรง TipDee ไม่เก็บค่าธรรมเนียมใด ๆ
+              </div>
+            </SectionCard>
+
+            {/* Section 3: Slip Verification */}
+            <SectionCard icon={ScanLine} title="3. ตรวจสอบสลิปอัตโนมัติ" color="text-blue-400">
+              <div className="flex items-center justify-between p-4 bg-slate-800 rounded-xl">
                 <div>
-                  <h3 className="text-base font-bold text-white">4. เงื่อนไขและปุ่มยอดเงินแนะนำ (Donation Rules)</h3>
-                  <p className="text-xs text-slate-400">กำหนดยอดขั้นต่ำและปุ่มลัดจำนวนเงินบนหน้าโดเนท</p>
+                  <p className="font-medium text-white">เปิดใช้งานตรวจสลิปอัตโนมัติ</p>
+                  <p className="text-xs text-slate-400 mt-0.5">ระบบจะสแกน QR Code ในสลิปเพื่อยืนยันการโอน</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, enableAutoSlip: !f.enableAutoSlip }))}
+                  className="transition-colors"
+                >
+                  {form.enableAutoSlip
+                    ? <ToggleRight className="h-9 w-9 text-brand-400" />
+                    : <ToggleLeft className="h-9 w-9 text-slate-600" />}
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    ยอดโดเนทขั้นต่ำ (Min Amount บาท):
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={form.minAmount}
-                    onChange={(e) => setForm({ ...form, minAmount: Number(e.target.value) })}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    ปุ่มลัดจำนวนเงินแนะนำ (คั่นด้วยเครื่องหมายจุลภาค ,):
-                  </label>
-                  <input
-                    type="text"
-                    value={form.presetAmountsStr}
-                    onChange={(e) => setForm({ ...form, presetAmountsStr: e.target.value })}
-                    placeholder="20, 50, 100, 300, 500, 1000"
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
-                  />
-                </div>
+              <InputRow
+                label="SlipOK API Key (ไม่บังคับ — ตรวจสอบแม่นยำสูง)"
+                name="slipApiKey"
+                placeholder="sk-xxxxxxxxxxxxxxxx"
+                help="สมัครที่ slipok.com เพื่อรับ API Key ตรวจสลิปอัตโนมัติ"
+              />
+              <InputRow
+                label="SlipOK Branch ID (ไม่บังคับ)"
+                name="slipBranchId"
+                placeholder="branch_01"
+              />
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-300 text-xs">
+                🛡️ ระบบตรวจสลิปมีการป้องกัน Duplicate — ไม่สามารถใช้สลิปเดิมซ้ำได้
               </div>
-            </div>
+            </SectionCard>
+
+            {/* Section 4: Webhook */}
+            <SectionCard icon={Send} title="4. Webhook (Developer)" color="text-purple-400">
+              <InputRow
+                label="Webhook URL"
+                name="webhookUrl"
+                placeholder="https://your-bot.example.com/webhook"
+                help="ระบบจะส่ง POST request ไปที่ URL นี้ทุกครั้งที่มีโดเนทเข้า"
+              />
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleTestWebhook}
+                  disabled={!form.webhookUrl || webhookTesting}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-lg text-sm hover:bg-purple-600/30 disabled:opacity-40 transition-colors"
+                >
+                  {webhookTesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  ทดสอบ Webhook
+                </button>
+                {webhookResult && (
+                  <span className={`text-sm ${webhookResult.ok ? 'text-brand-400' : 'text-red-400'}`}>
+                    {webhookResult.ok ? '✅' : '❌'} {webhookResult.msg}
+                  </span>
+                )}
+              </div>
+              <div className="p-3 bg-slate-800 rounded-lg text-xs text-slate-400 font-mono overflow-x-auto">
+                {`POST ${form.webhookUrl || 'https://your-url.com/webhook'}\n{ "event": "donation.completed", "donation": { "donorName": "...", "amount": 100 } }`}
+              </div>
+            </SectionCard>
+
+            {/* Section 5: Amount Settings */}
+            <SectionCard icon={Sparkles} title="5. ตั้งค่าจำนวนเงิน" color="text-yellow-400">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    ยอดขั้นต่ำ (บาท)
+                  </label>
+                  <input
+                    type="number" name="minAmount" value={form.minAmount} min={1}
+                    onChange={(e) => setForm((f) => ({ ...f, minAmount: Number(e.target.value) }))}
+                    className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors"
+                  />
+                </div>
+                <InputRow
+                  label="ปุ่มจำนวนเงินสำเร็จรูป (คั่นด้วยจุลภาค)"
+                  name="presetAmountsStr"
+                  placeholder="20, 50, 100, 300, 500, 1000"
+                />
+              </div>
+            </SectionCard>
+
+            {/* Save Button */}
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-black font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-lg"
+            >
+              {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+              บันทึกการตั้งค่าทั้งหมด
+            </button>
           </form>
-        </main>
+        </div>
       </div>
     </div>
   );
