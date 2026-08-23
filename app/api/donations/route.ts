@@ -3,6 +3,8 @@ import { getDonations, addDonation, getDonationStats, getTopDonors, getStreamer 
 import { broadcastDonation } from '@/lib/events';
 import { generatePromptPayQRCode, generatePromptPayPayload } from '@/lib/promptpay';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/rateLimit';
+import { sanitizeDonorName, sanitizeMessage } from '@/lib/sanitize';
 
 export async function GET(request: NextRequest) {
   try {
@@ -84,12 +86,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+
+    // Rate limit: max 20 donation submissions per minute per IP
+    const rateCheck = checkRateLimit(`donate:${ip}`, 20, 60);
+    if (!rateCheck.success) {
+      return rateLimitExceededResponse(rateCheck.resetInSeconds);
+    }
+
     const body = await request.json();
     const {
       streamerId = 'streamerza',
-      donorName = 'ผู้ไม่ประสงค์ออกนาม',
+      donorName: rawDonorName = 'ผู้ไม่ประสงค์ออกนาม',
       amount,
-      message = '',
+      message: rawMessage = '',
       paymentMethod = 'promptpay',
       enableTTS = true,
       autoComplete = false,
@@ -98,6 +108,9 @@ export async function POST(request: NextRequest) {
       slipRef = '',
       slipHash = '',
     } = body;
+
+    const donorName = sanitizeDonorName(rawDonorName);
+    const message = sanitizeMessage(rawMessage);
 
     if (!amount || amount <= 0) {
       return NextResponse.json(
