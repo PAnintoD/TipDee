@@ -1,6 +1,13 @@
 /**
- * Text-to-Speech Engine using Web Speech API with Thai / English voice matching
+ * Text-to-Speech Engine for TipDee
+ * Features:
+ * - Web Speech API with automatic Thai voice detection
+ * - Profanity and abusive language filtering
+ * - Speech text normalization (555 -> ฮ่าฮ่า, symbols, length limits)
+ * - Safe audio unlock for OBS Browser Sources
  */
+
+import { normalizeTextForTTS } from './badWords';
 
 export interface TTSOptions {
   voiceLang?: string;
@@ -9,57 +16,97 @@ export interface TTSOptions {
   volume?: number; // 0 - 100
 }
 
-export function speakText(text: string, options: TTSOptions = {}): Promise<void> {
+/**
+ * Ensures voices are loaded in Chrome / OBS browser source
+ */
+export function getAvailableVoices(): Promise<SpeechSynthesisVoice[]> {
   return new Promise((resolve) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      resolve();
+      resolve([]);
       return;
     }
 
-    if (!text || text.trim() === '') {
-      resolve();
-      return;
-    }
-
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = options.speed || 1.0;
-    utterance.pitch = options.pitch || 1.0;
-    utterance.volume = options.volume !== undefined ? options.volume / 100 : 0.9;
-    utterance.lang = options.voiceLang || 'th-TH';
-
-    // Try finding the best Thai voice if available
     const voices = window.speechSynthesis.getVoices();
-    const thaiVoice = voices.find(
-      (v) => v.lang.includes('th') || v.name.toLowerCase().includes('thai') || v.lang.toLowerCase().includes('th-th')
-    );
-
-    if (thaiVoice) {
-      utterance.voice = thaiVoice;
+    if (voices.length > 0) {
+      resolve(voices);
+      return;
     }
 
-    utterance.onend = () => {
-      resolve();
+    // Chrome loads voices asynchronously
+    window.speechSynthesis.onvoiceschanged = () => {
+      resolve(window.speechSynthesis.getVoices());
     };
 
-    utterance.onerror = (e) => {
-      console.warn('TTS Speech error:', e);
-      resolve();
-    };
+    // Fallback timeout after 1s
+    setTimeout(() => {
+      resolve(window.speechSynthesis.getVoices());
+    }, 1000);
+  });
+}
 
-    // Safety timeout in case onend never fires
-    const maxDuration = Math.max(3000, text.length * 200);
-    const timeout = setTimeout(() => {
-      resolve();
-    }, maxDuration);
+/**
+ * Speaks text using normalized speech synthesis
+ */
+export async function speakText(rawText: string, options: TTSOptions = {}): Promise<void> {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return;
+  }
 
-    utterance.onend = () => {
-      clearTimeout(timeout);
-      resolve();
-    };
+  const text = normalizeTextForTTS(rawText);
+  if (!text || text.trim() === '') {
+    return;
+  }
 
-    window.speechSynthesis.speak(utterance);
+  return new Promise(async (resolve) => {
+    try {
+      // Cancel any current utterance
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = Math.max(0.5, Math.min(2.0, options.speed || 1.0));
+      utterance.pitch = Math.max(0.5, Math.min(2.0, options.pitch || 1.0));
+      utterance.volume = Math.max(0, Math.min(1, (options.volume !== undefined ? options.volume : 90) / 100));
+      utterance.lang = options.voiceLang || 'th-TH';
+
+      const voices = await getAvailableVoices();
+
+      // Find best Thai voice (or fallback to user preferred)
+      const thaiVoice = voices.find(
+        (v) =>
+          v.lang.toLowerCase().startsWith('th') ||
+          v.lang.toLowerCase().includes('th-th') ||
+          v.name.toLowerCase().includes('thai') ||
+          v.name.toLowerCase().includes('kanya') ||
+          v.name.toLowerCase().includes('narisa') ||
+          v.name.toLowerCase().includes('prew')
+      );
+
+      if (thaiVoice) {
+        utterance.voice = thaiVoice;
+      }
+
+      let isFinished = false;
+      const finish = () => {
+        if (!isFinished) {
+          isFinished = true;
+          resolve();
+        }
+      };
+
+      utterance.onend = finish;
+      utterance.onerror = (err) => {
+        console.warn('TTS error', err);
+        finish();
+      };
+
+      // Safety timeout in case onend never fires (common in older Chrome / OBS CEF)
+      const maxTime = Math.max(3500, text.length * 250);
+      setTimeout(finish, maxTime);
+
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.error('TTS speakText execution error', err);
+      resolve();
+    }
   });
 }

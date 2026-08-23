@@ -96,7 +96,39 @@ export function TestAlertModal({ streamerId = 'streamerza', onClose }: TestAlert
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">จำนวนเงิน (Amount บาท)</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300">จำนวนเงิน (Amount บาท)</label>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => { setAmount('20'); setDonorName('แฟนคลับตัวน้อย 🥉'); }}
+                  className="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300 border border-white/10"
+                >
+                  🥉 20฿
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAmount('100'); setDonorName('ผู้สนับสนุนใจดี 🥈'); }}
+                  className="px-2 py-0.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 text-[10px] font-bold text-cyan-300 border border-cyan-500/30"
+                >
+                  🥈 100฿
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAmount('500'); setDonorName('เสี่ยสั่งลุย 🥇'); }}
+                  className="px-2 py-0.5 rounded-lg bg-amber-950/60 hover:bg-amber-900/60 text-[10px] font-bold text-amber-300 border border-amber-500/30"
+                >
+                  🥇 500฿
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setAmount('1000'); setDonorName('สุลต่านแห่งเมืองไทย 💎'); }}
+                  className="px-2 py-0.5 rounded-lg bg-purple-950/60 hover:bg-purple-900/60 text-[10px] font-bold text-pink-300 border border-pink-500/30 animate-pulse"
+                >
+                  💎 1,000฿
+                </button>
+              </div>
+            </div>
             <input
               type="number"
               value={amount}
