@@ -257,31 +257,33 @@ export default function PublicDonatePage() {
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl backdrop-blur-xl">
           {/* Banner */}
           <div
-            className="h-32 sm:h-40 w-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${
-                streamer?.bannerUrl ||
-                'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80'
-              })`,
-            }}
+            className="h-32 sm:h-40 w-full bg-cover bg-center relative bg-gradient-to-r from-brand-950 via-slate-900 to-indigo-950"
+            style={
+              streamer?.bannerUrl
+                ? { backgroundImage: `url(${streamer.bannerUrl})` }
+                : undefined
+            }
           >
             <div className="h-full w-full bg-gradient-to-t from-[#0e1219] via-black/30 to-transparent" />
           </div>
 
           {/* Profile details */}
           <div className="p-6 pt-0 relative flex flex-col items-center text-center -mt-12 space-y-3">
-            <img
-              src={
-                streamer?.avatarUrl ||
-                'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=400&auto=format&fit=crop&q=80'
-              }
-              alt={streamer?.displayName}
-              className="h-24 w-24 rounded-2xl object-cover border-4 border-[#0e1219] shadow-2xl ring-2 ring-brand-500/50"
-            />
+            {streamer?.avatarUrl ? (
+              <img
+                src={streamer.avatarUrl}
+                alt={streamer?.displayName || username}
+                className="h-24 w-24 rounded-2xl object-cover border-4 border-[#0e1219] shadow-2xl ring-2 ring-brand-500/50"
+              />
+            ) : (
+              <div className="h-24 w-24 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white border-4 border-[#0e1219] shadow-2xl ring-2 ring-brand-500/50">
+                {(streamer?.displayName || username).slice(0, 2).toUpperCase()}
+              </div>
+            )}
 
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2">
-                <span>{streamer?.displayName || 'StreamerZa TH'}</span>
+                <span>{streamer?.displayName || username}</span>
                 <span className="inline-flex h-4 w-4 rounded-full bg-brand-500 items-center justify-center text-[10px] text-white">✓</span>
               </h1>
               <p className="text-xs text-brand-400 font-mono mt-0.5">@{username}</p>
