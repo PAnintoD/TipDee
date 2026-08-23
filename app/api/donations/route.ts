@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDonations, addDonation, getDonationStats, getTopDonors, getStreamer } from '@/lib/db';
 import { broadcastDonation } from '@/lib/events';
 import { generatePromptPayQRCode, generatePromptPayPayload } from '@/lib/promptpay';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +10,13 @@ export async function GET(request: NextRequest) {
     const streamerId = searchParams.get('streamerId') || 'streamerza';
     const type = searchParams.get('type');
     const period = (searchParams.get('period') as any) || 'month';
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const page = parseInt(searchParams.get('page') || '1');
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
+    const status = searchParams.get('status');
+    const paymentMethod = searchParams.get('paymentMethod');
+    const search = searchParams.get('search');
 
     if (type === 'stats') {
       const stats = await getDonationStats(streamerId);
@@ -21,10 +28,51 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: top });
     }
 
-    const donations = await getDonations(streamerId);
+    // Build where clause for filtered queries
+    const where: any = { streamerId };
+    if (status) where.status = status;
+    if (paymentMethod) where.paymentMethod = paymentMethod;
+    if (search) {
+      where.OR = [
+        { donorName: { contains: search } },
+        { message: { contains: search } },
+      ];
+    }
+    if (dateFrom || dateTo) {
+      where.createdAt = {};
+      if (dateFrom) where.createdAt.gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    const skip = (page - 1) * limit;
+    const [donations, total] = await Promise.all([
+      prisma.donation.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+      prisma.donation.count({ where }),
+    ]);
+
+    // Aggregate stats for filtered set
+    const agg = await prisma.donation.aggregate({
+      where,
+      _sum: { amount: true },
+      _count: true,
+    });
+
     return NextResponse.json({
       success: true,
       data: donations,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalAmount: agg._sum.amount ?? 0,
     });
   } catch (error: any) {
     return NextResponse.json(
