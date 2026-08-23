@@ -78,18 +78,25 @@ export default function LandingPage() {
             <Link
               href="/u/streamerza"
               target="_blank"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold border border-white/10 transition-all"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold border border-white/10 transition-all"
             >
               <span>หน้าโดเนทตัวอย่าง</span>
               <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
             </Link>
 
             <Link
-              href="/dashboard"
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-brand-500/25 transition-all hover:scale-105 active:scale-95"
+              href="/login"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold border border-white/10 transition-all hover:scale-105"
             >
-              <LayoutDashboard className="h-4 w-4" />
-              <span>เข้าสู่ระบบ Dashboard</span>
+              เข้าสู่ระบบ
+            </Link>
+
+            <Link
+              href="/register"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-brand-500/25 transition-all hover:scale-105 active:scale-95"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>สมัครฟรี</span>
             </Link>
           </div>
         </div>
