@@ -19,6 +19,7 @@ import {
   Tv2,
   Wallet,
   UserCircle,
+  TrendingUp,
 } from 'lucide-react';
 import { TestAlertModal } from './TestAlertModal';
 
@@ -48,6 +49,7 @@ export function Navbar({ streamerId }: NavbarProps) {
   const navItems = [
     { name: 'ภาพรวม (Dashboard)', href: '/dashboard', icon: LayoutDashboard },
     { name: 'รายการโดเนท (Donations)', href: '/dashboard/donations', icon: ReceiptText },
+    { name: 'สถิติรายได้ (Analytics)', href: '/dashboard/analytics', icon: TrendingUp },
     { name: 'วิดเจ็ตสตรีม (Widgets)', href: '/dashboard/widgets', icon: Tv2 },
     { name: 'บัญชีรับเงิน (Payments)', href: '/dashboard/payment', icon: Wallet },
     { name: 'หน้าโดเนทของฉัน (Profile)', href: '/dashboard/profile', icon: UserCircle },

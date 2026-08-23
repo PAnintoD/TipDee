@@ -15,6 +15,7 @@ import {
   Sparkles,
   HelpCircle,
   LogOut,
+  TrendingUp,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,6 +41,11 @@ export function Sidebar({ streamerId }: SidebarProps) {
       name: 'รายการโดเนท (Donations)',
       href: '/dashboard/donations',
       icon: ReceiptText,
+    },
+    {
+      name: 'สถิติรายได้ (Analytics)',
+      href: '/dashboard/analytics',
+      icon: TrendingUp,
     },
     {
       name: 'วิดเจ็ตสตรีม (Widgets)',
