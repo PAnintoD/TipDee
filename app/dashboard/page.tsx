@@ -160,6 +160,22 @@ export default function DashboardPage() {
                   <Bell className="h-4 w-4 text-brand-400" />
                   <span>ทดสอบยิงแจ้งเตือน</span>
                 </button>
+
+                <button
+                  onClick={async () => {
+                    await fetch('/api/donations/skip', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ streamerId }),
+                    });
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold border border-white/10 transition-all hover:scale-105 active:scale-95 shadow-md"
+                  title="หยุดเสียงและข้ามการแจ้งเตือนที่กำลังเล่นอยู่บน OBS ทันที"
+                >
+                  <Volume2 className="h-4 w-4 text-amber-400" />
+                  <span>ข้ามแจ้งเตือน</span>
+                </button>
+
                 <Link
                   href={`/u/${streamerId}`}
                   target="_blank"

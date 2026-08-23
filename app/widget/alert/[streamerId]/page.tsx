@@ -156,6 +156,18 @@ export default function AlertBoxWidgetPage() {
     eventSource.onmessage = (e) => {
       try {
         const payload = JSON.parse(e.data);
+        if (payload.type === 'skip_alert') {
+          // Cancel speech and hide immediately
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+          setIsShowing(false);
+          setCurrentAlert(null);
+          isProcessingRef.current = false;
+          setTimeout(() => processQueue(), 200);
+          return;
+        }
+
         if (payload.type === 'donation' || payload.type === 'test_alert') {
           const d = payload.donation;
           if (d) {
