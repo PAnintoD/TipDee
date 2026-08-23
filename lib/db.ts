@@ -153,7 +153,8 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
     });
 
     if (!streamer) {
-      streamer = await prisma.streamer.create({
+      try {
+        streamer = await prisma.streamer.create({
         data: {
           userId: 'system',
           username: id,
@@ -201,17 +202,33 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
         },
         include: { widgetSettings: true, goalSettings: true },
       });
+      } catch (e: any) {
+        // If unique constraint violated (race condition), just fetch the existing record
+        if (e.code === 'P2002') {
+          streamer = await prisma.streamer.findFirst({
+            where: { username: id },
+            include: { widgetSettings: true, goalSettings: true },
+          });
+        } else {
+          throw e;
+        }
+      }
     }
 
     let presetAmounts = DEFAULT_STREAMER.presetAmounts;
     try {
-      if (streamer.presetAmounts) presetAmounts = JSON.parse(streamer.presetAmounts);
+      if (streamer?.presetAmounts) presetAmounts = JSON.parse(streamer.presetAmounts);
     } catch (e) {}
 
     let socialLinks = DEFAULT_STREAMER.socialLinks;
     try {
-      if (streamer.socialLinks) socialLinks = JSON.parse(streamer.socialLinks);
+      if (streamer?.socialLinks) socialLinks = JSON.parse(streamer.socialLinks);
     } catch (e) {}
+
+    // If streamer is still null after all attempts, return safe defaults
+    if (!streamer) {
+      return { ...DEFAULT_STREAMER, id };
+    }
 
     return {
       id: streamer.id,
