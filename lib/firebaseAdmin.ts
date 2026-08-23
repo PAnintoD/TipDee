@@ -6,11 +6,11 @@ let adminDb: Firestore | null = null;
 
 try {
   const apps = getApps();
-  if (apps.length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'panin-donate';
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'panin-donate';
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
+  if (apps.length === 0) {
     if (clientEmail && privateKey) {
       adminApp = initializeApp({
         credential: cert({
@@ -19,18 +19,17 @@ try {
           privateKey,
         }),
       });
-    } else if (projectId) {
-      adminApp = initializeApp({ projectId });
     }
   } else {
     adminApp = apps[0];
   }
 
-  if (adminApp) {
+  if (adminApp && clientEmail && privateKey) {
     adminDb = getFirestore(adminApp);
   }
 } catch (e) {
-  // Graceful fallback to client Firestore or Prisma
+  // Graceful fallback to Prisma
 }
 
 export { adminDb, adminApp };
+
