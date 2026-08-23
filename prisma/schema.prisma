@@ -4,11 +4,93 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
+// ==========================================
+// AUTH MODELS (NextAuth.js v5 / Auth.js)
+// ==========================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  emailVerified   DateTime?
+  passwordHash    String?
+  name            String?
+  image           String?
+  role            String    @default("STREAMER") // ADMIN | STREAMER | VIEWER
+  active          Boolean   @default(true)
+  twoFactorEnabled Boolean  @default(false)
+  twoFactorSecret  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  streamer        Streamer?
+  auditLogs       AuditLog[]
+  verificationTokens VerificationToken[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  userId     String?
+  identifier String
+  token      String   @unique
+  type       String   @default("EMAIL_VERIFY") // EMAIL_VERIFY | PASSWORD_RESET
+  expires    DateTime
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // LOGIN | LOGOUT | CHANGE_PASSWORD | CHANGE_PROMPTPAY | CHANGE_SETTINGS | etc.
+  detail     String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+// ==========================================
+// STREAMER MODELS
+// ==========================================
+
 model Streamer {
-  id               String          @id @default("streamerza")
+  id               String          @id @default(cuid())
+  userId           String          @unique
   username         String          @unique
   displayName      String
   bio              String?
@@ -18,7 +100,7 @@ model Streamer {
   promptpayName    String?
   truemoneyPhone   String?
   minAmount        Float           @default(5)
-  presetAmounts    String          @default("[20, 50, 100, 300, 500, 1000]")
+  presetAmounts    String          @default("[20,50,100,300,500,1000]")
   socialLinks      String?
   widgetToken      String          @default("widget_token_abc123")
   enableAutoSlip   Boolean         @default(true)
@@ -27,6 +109,7 @@ model Streamer {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   donations        Donation[]
   widgetSettings   WidgetSettings?
   goalSettings     GoalSettings?
@@ -43,9 +126,9 @@ model Donation {
   status        String    @default("pending") // 'completed' | 'pending' | 'failed'
   enableTTS     Boolean   @default(true)
   isTest        Boolean   @default(false)
-  slipImage     String?   // Base64 or URL of uploaded slip
-  slipRef       String?   // Bank transaction reference / QR payload
-  slipHash      String?   // MD5 / SHA hash to prevent duplicate reuse
+  slipImage     String?
+  slipRef       String?
+  slipHash      String?
   verifiedAt    DateTime?
   createdAt     DateTime  @default(now())
 
@@ -61,7 +144,7 @@ model WidgetSettings {
   duration          Int      @default(7)
   soundUrl          String   @default("levelup")
   soundVolume       Int      @default(80)
-  imageUrl          String   @default("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1anE4d2dmaHk4NXVycG43dnEycW10M2d4YWR0NmsyMzB5enFqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif")
+  imageUrl          String   @default("https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif")
   ttsEnabled        Boolean  @default(true)
   ttsVoice          String   @default("th-TH")
   ttsSpeed          Float    @default(1.0)
@@ -74,16 +157,16 @@ model WidgetSettings {
 }
 
 model GoalSettings {
-  id             String   @id @default(cuid())
-  streamerId     String   @unique
-  title          String   @default("🎯 เป้าหมาย: อัปเกรดการ์ดจอ RTX 4070")
-  targetAmount   Float    @default(20000)
-  currentAmount  Float    @default(8450)
-  endDate        String?  @default("2026-12-31")
-  barColor       String   @default("#22c55e")
-  backgroundColor String  @default("rgba(15, 23, 42, 0.85)")
-  textColor      String   @default("#ffffff")
-  showPercentage Boolean  @default(true)
+  id              String   @id @default(cuid())
+  streamerId      String   @unique
+  title           String   @default("🎯 เป้าหมายการโดเนท")
+  targetAmount    Float    @default(1000)
+  currentAmount   Float    @default(0)
+  endDate         String?
+  barColor        String   @default("#22c55e")
+  backgroundColor String   @default("rgba(15, 23, 42, 0.85)")
+  textColor       String   @default("#ffffff")
+  showPercentage  Boolean  @default(true)
 
-  streamer       Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamer        Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
 }

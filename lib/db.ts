@@ -155,7 +155,7 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
     if (!streamer) {
       streamer = await prisma.streamer.create({
         data: {
-          id,
+          userId: 'system',
           username: id,
           displayName: DEFAULT_STREAMER.displayName,
           bio: DEFAULT_STREAMER.bio,
