@@ -24,7 +24,7 @@ export default function RecentDonorsWidgetPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchRecent = () => {
-    fetch(`/api/donations?streamerId=${streamerId}&limit=${limit}`)
+    fetch(`/api/donations?streamerId=${streamerId}&type=recent&limit=${limit}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {

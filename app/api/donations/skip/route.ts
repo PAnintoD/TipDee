@@ -6,17 +6,12 @@ import { auth } from '@/auth';
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    const body = await request.json().catch(() => ({}));
-    let streamerId = body.streamerId;
-
-    if (!streamerId && session?.user?.id) {
-      const streamer = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
-      streamerId = streamer?.id || streamer?.username;
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-
-    if (!streamerId) {
-      streamerId = 'streamerza';
-    }
+    const owner = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+    if (!owner) return NextResponse.json({ success: false, error: 'Streamer not found' }, { status: 404 });
+    const streamerId = owner.id;
 
     // Resolve both id and username
     const streamer = await prisma.streamer.findFirst({

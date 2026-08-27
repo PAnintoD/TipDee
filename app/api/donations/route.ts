@@ -6,14 +6,15 @@ import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/rateLimit';
 import { sanitizeDonorName, sanitizeMessage } from '@/lib/sanitize';
 import { triggerStreamerWebhook } from '@/lib/webhook';
+import { auth } from '@/auth';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const streamerId = searchParams.get('streamerId') || 'streamerza';
+    const requestedStreamerId = searchParams.get('streamerId');
     const type = searchParams.get('type');
     const period = (searchParams.get('period') as any) || 'month';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 100);
     const page = parseInt(searchParams.get('page') || '1');
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
@@ -21,14 +22,43 @@ export async function GET(request: NextRequest) {
     const paymentMethod = searchParams.get('paymentMethod');
     const search = searchParams.get('search');
 
-    if (type === 'stats') {
-      const stats = await getDonationStats(streamerId);
-      return NextResponse.json({ success: true, data: stats });
+    const streamer = requestedStreamerId
+      ? await prisma.streamer.findFirst({ where: { OR: [{ id: requestedStreamerId }, { username: requestedStreamerId }] } })
+      : null;
+    const streamerId = streamer?.id;
+
+    if (!streamerId) {
+      return NextResponse.json({ success: false, error: 'Streamer not found' }, { status: 404 });
     }
 
+    // Widgets may only read completed, presentation-safe donor information.
     if (type === 'top') {
       const top = await getTopDonors(streamerId, limit, period);
       return NextResponse.json({ success: true, data: top });
+    }
+
+    if (type === 'recent') {
+      const donations = await prisma.donation.findMany({
+        where: { streamerId, status: 'completed' },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        select: { id: true, donorName: true, amount: true, message: true, createdAt: true },
+      });
+      return NextResponse.json({ success: true, data: donations });
+    }
+
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    const ownedStreamer = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+    if (!ownedStreamer || ownedStreamer.id !== streamerId) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (type === 'stats') {
+      const stats = await getDonationStats(streamerId);
+      return NextResponse.json({ success: true, data: stats });
     }
 
     // Build where clause for filtered queries
@@ -103,11 +133,6 @@ export async function POST(request: NextRequest) {
       message: rawMessage = '',
       paymentMethod = 'promptpay',
       enableTTS = true,
-      autoComplete = false,
-      voucherUrl = '',
-      slipImage = '',
-      slipRef = '',
-      slipHash = '',
     } = body;
 
     const donorName = sanitizeDonorName(rawDonorName);
@@ -120,7 +145,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const streamer = await getStreamer(streamerId);
+    const streamerRecord = await prisma.streamer.findFirst({
+      where: { OR: [{ id: streamerId }, { username: streamerId }] },
+      select: { id: true },
+    });
+    if (!streamerRecord) {
+      return NextResponse.json({ success: false, error: 'Streamer not found' }, { status: 404 });
+    }
+    const activeStreamerId = streamerRecord.id;
+    const streamer = await getStreamer(activeStreamerId);
     if (amount < (streamer.minAmount || 1)) {
       return NextResponse.json(
         { success: false, error: `ยอดบริจาคขั้นต่ำคือ ${streamer.minAmount} บาท` },
@@ -130,41 +163,27 @@ export async function POST(request: NextRequest) {
 
     let qrDataUrl = '';
     let qrPayload = '';
-    let status: 'completed' | 'pending' = 'pending';
+    let status: 'pending' = 'pending';
 
     if (paymentMethod === 'promptpay') {
       const target = streamer.promptpayTarget || '0812345678';
       qrPayload = generatePromptPayPayload(target, amount);
       qrDataUrl = await generatePromptPayQRCode(target, amount);
-      
-      if (autoComplete) {
-        status = 'completed';
-      }
-    } else if (paymentMethod === 'slip') {
-      // Slip verification was processed
-      status = 'completed';
     } else if (paymentMethod === 'truemoney') {
-      if (voucherUrl) {
-        status = 'completed';
-      } else {
-        status = autoComplete ? 'completed' : 'pending';
-      }
-    } else if (paymentMethod === 'test') {
-      status = 'completed';
+      // A TrueMoney voucher must be verified by a trusted server-side provider.
+    } else {
+      return NextResponse.json({ success: false, error: 'Unsupported payment method' }, { status: 400 });
     }
 
     const donation = await addDonation({
-      streamerId,
+      streamerId: activeStreamerId,
       donorName: donorName.trim() || 'ผู้ไม่ประสงค์ออกนาม',
       amount: Number(amount),
       message: message.trim(),
       paymentMethod,
       status,
       enableTTS: Boolean(enableTTS),
-      isTest: paymentMethod === 'test',
-      slipImage: slipImage || undefined,
-      slipRef: slipRef || undefined,
-      slipHash: slipHash || undefined,
+      isTest: false,
     });
 
     // If completed, broadcast to OBS and Dashboard
@@ -172,7 +191,7 @@ export async function POST(request: NextRequest) {
       broadcastDonation(donation, donation.isTest);
 
       // Fire Discord / Webhook asynchronously
-      triggerStreamerWebhook(streamerId, {
+      triggerStreamerWebhook(activeStreamerId, {
         id: donation.id,
         donorName: donation.donorName,
         amount: donation.amount,

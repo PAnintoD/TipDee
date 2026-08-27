@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { broadcastDonation } from '@/lib/events';
+import { auth } from '@/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     const { donationId } = await request.json();
     if (!donationId) {
       return NextResponse.json({ success: false, error: 'Missing donationId' }, { status: 400 });
@@ -15,6 +18,10 @@ export async function POST(request: NextRequest) {
 
     if (!donation) {
       return NextResponse.json({ success: false, error: 'Donation not found' }, { status: 404 });
+    }
+    const streamer = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+    if (!streamer || streamer.id !== donation.streamerId) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 
     const updated = await prisma.donation.update({

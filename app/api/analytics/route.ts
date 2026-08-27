@@ -2,18 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
     let streamerId = searchParams.get('streamerId');
     const period = searchParams.get('period') || '30days'; // '7days', '30days', 'this_month', 'all'
 
-    if (!streamerId && session?.user?.id) {
+    if (!streamerId) {
       const streamer = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
       streamerId = streamer?.id || streamer?.username || 'streamerza';
-    } else if (!streamerId) {
-      streamerId = 'streamerza';
     }
 
     // Resolve actual streamer ID
@@ -24,6 +27,10 @@ export async function GET(request: NextRequest) {
     });
 
     const activeStreamerId = streamer?.id || streamerId;
+    const ownedStreamer = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+    if (!ownedStreamer || ownedStreamer.id !== activeStreamerId) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
 
     // Calculate Date Range
     const now = new Date();

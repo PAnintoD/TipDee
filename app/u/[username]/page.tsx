@@ -40,7 +40,7 @@ export default function PublicDonatePage() {
   const [amount, setAmount] = useState<number | string>(50);
   const [message, setMessage] = useState('');
   const [enableTTS, setEnableTTS] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'slip' | 'truemoney' | 'test'>('promptpay');
+  const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'slip' | 'truemoney'>('promptpay');
   const [voucherUrl, setVoucherUrl] = useState('');
 
   // Slip Upload State
@@ -183,8 +183,6 @@ export default function PublicDonatePage() {
           message,
           paymentMethod,
           enableTTS,
-          autoComplete: paymentMethod === 'test',
-          voucherUrl: paymentMethod === 'truemoney' ? voucherUrl : undefined,
         }),
       });
 
@@ -193,7 +191,7 @@ export default function PublicDonatePage() {
         setCurrentDonation(data.data.donation);
         setQrDataUrl(data.data.qrDataUrl || '');
 
-        if (data.data.donation.status === 'completed' || paymentMethod === 'test') {
+        if (data.data.donation.status === 'completed') {
           triggerConfetti();
           setStep('success');
         } else {
@@ -204,29 +202,6 @@ export default function PublicDonatePage() {
       }
     } catch (err) {
       setErrorMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleConfirmPaid = async () => {
-    if (!currentDonation) return;
-    setIsProcessing(true);
-
-    try {
-      const res = await fetch('/api/donations/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ donationId: currentDonation.id }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        triggerConfetti();
-        setStep('success');
-      }
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsProcessing(false);
     }
@@ -723,14 +698,9 @@ export default function PublicDonatePage() {
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-2">
-              <button
-                onClick={handleConfirmPaid}
-                disabled={isProcessing}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-extrabold text-sm shadow-xl shadow-brand-500/30 transition-all hover:scale-[1.02] active:scale-98 disabled:opacity-50"
-              >
-                <CheckCircle2 className="h-5 w-5" />
-                <span>{isProcessing ? 'กำลังยืนยัน...' : 'โอนเงินเรียบร้อยแล้ว (แจ้งเตือนสตรีมเมอร์ทันที)'}</span>
-              </button>
+              <p className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-200">
+                หลังชำระเงิน ระบบจะยืนยันรายการจากหลักฐานการชำระเงินหรือผู้ให้บริการเท่านั้น เพื่อป้องกันการแจ้งเตือนปลอม
+              </p>
 
               <button
                 type="button"
