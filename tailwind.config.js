@@ -29,6 +29,14 @@ module.exports = {
           750: '#222938',
           700: '#2d3748',
           600: '#4a5568',
+        },
+        surface: {
+          ground: '#080a0f',
+          subtle: '#0d1017',
+          card: '#11151e',
+          elevated: '#171d2a',
+          border: 'rgba(255, 255, 255, 0.08)',
+          'border-strong': 'rgba(255, 255, 255, 0.16)',
         }
       },
       fontFamily: {

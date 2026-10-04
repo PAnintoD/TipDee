@@ -159,7 +159,7 @@ export default function WidgetsPage() {
   const goalPercent = Math.min(100, Math.round((goalSettings.currentAmount / (goalSettings.targetAmount || 1)) * 100));
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col">
       <Navbar streamerId={streamerId} />
 
       <div className="flex flex-1">
@@ -167,10 +167,10 @@ export default function WidgetsPage() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-                <Tv className="h-6 w-6 text-brand-400" />
+              <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
+                <Tv className="h-5 w-5 text-emerald-400" />
                 <span>วิดเจ็ตสตรีมเมอร์ (OBS Widgets Studio)</span>
               </h1>
               <p className="text-xs text-slate-400 mt-1">
@@ -182,7 +182,7 @@ export default function WidgetsPage() {
               <button
                 onClick={handleSaveSettings}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-brand-500/25 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
               >
                 {saveSuccess ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
                 <span>{isSaving ? 'กำลังบันทึก...' : saveSuccess ? 'บันทึกเรียบร้อย!' : 'บันทึกการตั้งค่า'}</span>
@@ -191,13 +191,13 @@ export default function WidgetsPage() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+          <div className="flex items-center gap-2 border-b border-white/[0.06] pb-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('alert')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'alert'
-                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               <Bell className="h-4 w-4" />
@@ -206,10 +206,10 @@ export default function WidgetsPage() {
 
             <button
               onClick={() => setActiveTab('goal')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'goal'
-                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               <Target className="h-4 w-4" />
@@ -218,10 +218,10 @@ export default function WidgetsPage() {
 
             <button
               onClick={() => setActiveTab('top')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'top'
-                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               <Trophy className="h-4 w-4" />
@@ -230,10 +230,10 @@ export default function WidgetsPage() {
 
             <button
               onClick={() => setActiveTab('recent')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === 'recent'
-                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               <Layers className="h-4 w-4" />
@@ -247,10 +247,10 @@ export default function WidgetsPage() {
               {/* Settings Form */}
               <div className="lg:col-span-7 space-y-5">
                 {/* OBS URL Box */}
-                <div className="p-4 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 to-slate-900/80 backdrop-blur-md space-y-3">
+                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-brand-300 flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-brand-400" /> ลิงก์ URL สำหรับ OBS Browser Source
+                    <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <Tv className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ OBS Browser Source
                     </span>
                     <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 800 x 600 px</span>
                   </div>
@@ -259,11 +259,11 @@ export default function WidgetsPage() {
                       type="text"
                       readOnly
                       value={typeof window !== 'undefined' ? `${window.location.origin}/widget/alert/${streamerId}` : `/widget/alert/${streamerId}`}
-                      className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                     />
                     <button
                       onClick={() => copyToClipboard(`/widget/alert/${streamerId}`, 'alert-box')}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all flex-shrink-0"
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                     >
                       {copiedUrl === 'alert-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedUrl === 'alert-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
@@ -271,16 +271,16 @@ export default function WidgetsPage() {
                     <Link
                       href={`/widget/alert/${streamerId}`}
                       target="_blank"
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex-shrink-0"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                       title="เปิดหน้าต่างแยก"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>
 
                 {/* Media & Image Selection */}
-                <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4">
+                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <h3 className="text-sm font-bold text-white">1. ภาพและแอนิเมชัน (Image / GIF)</h3>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -289,14 +289,14 @@ export default function WidgetsPage() {
                         key={gif.id}
                         type="button"
                         onClick={() => setAlertSettings({ ...alertSettings, imageUrl: gif.url })}
-                        className={`p-2 rounded-xl border text-left transition-all flex flex-col items-center gap-2 ${
+                        className={`p-2 rounded-lg border text-left transition-colors flex flex-col items-center gap-2 ${
                           alertSettings.imageUrl === gif.url
-                            ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500'
-                            : 'border-white/5 bg-slate-900/60 hover:border-white/20'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
                         }`}
                       >
-                        <img src={gif.url} alt={gif.name} className="h-16 w-16 object-contain rounded-lg" />
-                        <span className="text-[10px] font-semibold text-slate-300 text-center truncate w-full">
+                        <img src={gif.url} alt={gif.name} className="h-16 w-16 object-contain rounded" />
+                        <span className="text-[10px] font-medium text-slate-300 text-center truncate w-full">
                           {gif.name}
                         </span>
                       </button>
@@ -310,18 +310,18 @@ export default function WidgetsPage() {
                       value={alertSettings.imageUrl}
                       onChange={(e) => setAlertSettings({ ...alertSettings, imageUrl: e.target.value })}
                       placeholder="https://.../my-gif.gif"
-                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
 
                 {/* Sound & Audio Settings */}
-                <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4">
+                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white">2. เสียงแจ้งเตือน (Sound Effect)</h3>
                     <button
                       onClick={handlePreviewSound}
-                      className="flex items-center gap-1 text-xs font-bold text-brand-400 hover:text-brand-300"
+                      className="flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300"
                     >
                       <Play className="h-3.5 w-3.5" /> ทดลองฟังเสียง
                     </button>
@@ -333,7 +333,7 @@ export default function WidgetsPage() {
                       <select
                         value={alertSettings.soundUrl}
                         onChange={(e) => setAlertSettings({ ...alertSettings, soundUrl: e.target.value })}
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                        className="w-full rounded-lg bg-[#141822] border border-white/[0.08] px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                       >
                         {SOUND_PRESETS.map((snd) => (
                           <option key={snd.id} value={snd.id}>
@@ -346,7 +346,7 @@ export default function WidgetsPage() {
                     <div>
                       <div className="flex justify-between text-xs text-slate-400 mb-1.5">
                         <span>ระดับความดังเสียง (Volume):</span>
-                        <span className="font-bold text-white">{alertSettings.soundVolume}%</span>
+                        <span className="font-bold text-white tabular-nums">{alertSettings.soundVolume}%</span>
                       </div>
                       <input
                         type="range"
@@ -354,14 +354,14 @@ export default function WidgetsPage() {
                         max="100"
                         value={alertSettings.soundVolume}
                         onChange={(e) => setAlertSettings({ ...alertSettings, soundVolume: Number(e.target.value) })}
-                        className="w-full accent-brand-500"
+                        className="w-full accent-emerald-500"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* TTS Speech Settings */}
-                <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4">
+                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-white">3. เสียงอ่านข้อความ (TTS - Text-to-Speech)</h3>
@@ -374,16 +374,16 @@ export default function WidgetsPage() {
                         onChange={(e) => setAlertSettings({ ...alertSettings, ttsEnabled: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500"></div>
+                      <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     </label>
                   </div>
 
                   {alertSettings.ttsEnabled && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/[0.06]">
                       <div>
                         <div className="flex justify-between text-xs text-slate-400 mb-1.5">
                           <span>ความเร็วในการอ่าน (Speed):</span>
-                          <span className="font-bold text-white">{alertSettings.ttsSpeed}x</span>
+                          <span className="font-bold text-white tabular-nums">{alertSettings.ttsSpeed}x</span>
                         </div>
                         <input
                           type="range"
@@ -392,7 +392,7 @@ export default function WidgetsPage() {
                           step="0.1"
                           value={alertSettings.ttsSpeed}
                           onChange={(e) => setAlertSettings({ ...alertSettings, ttsSpeed: Number(e.target.value) })}
-                          className="w-full accent-brand-500"
+                          className="w-full accent-emerald-500"
                         />
                       </div>
 
@@ -402,7 +402,7 @@ export default function WidgetsPage() {
                           type="number"
                           value={alertSettings.minAmountForTTS}
                           onChange={(e) => setAlertSettings({ ...alertSettings, minAmountForTTS: Number(e.target.value) })}
-                          className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                          className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                         />
                       </div>
                     </div>
@@ -410,7 +410,7 @@ export default function WidgetsPage() {
                 </div>
 
                 {/* Display & Text Customization */}
-                <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4">
+                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <h3 className="text-sm font-bold text-white">4. ข้อความและสี (Text & Appearance)</h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -422,7 +422,7 @@ export default function WidgetsPage() {
                         max="20"
                         value={alertSettings.duration}
                         onChange={(e) => setAlertSettings({ ...alertSettings, duration: Number(e.target.value) })}
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                        className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
@@ -433,13 +433,13 @@ export default function WidgetsPage() {
                           type="color"
                           value={alertSettings.highlightColor}
                           onChange={(e) => setAlertSettings({ ...alertSettings, highlightColor: e.target.value })}
-                          className="h-8 w-10 rounded-lg cursor-pointer bg-transparent border-0"
+                          className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
                         />
                         <input
                           type="text"
                           value={alertSettings.highlightColor}
                           onChange={(e) => setAlertSettings({ ...alertSettings, highlightColor: e.target.value })}
-                          className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white font-mono"
+                          className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
                         />
                       </div>
                     </div>
@@ -449,25 +449,25 @@ export default function WidgetsPage() {
 
               {/* Live Preview Column */}
               <div className="lg:col-span-5 space-y-4">
-                <div className="sticky top-20 rounded-2xl border border-white/10 bg-[#0e1219]/90 p-5 backdrop-blur-md space-y-4">
+                <div className="sticky top-20 rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 space-y-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-brand-400" />
+                      <Tv className="h-4 w-4 text-emerald-400" />
                       <span>ตัวอย่างแสดงผลสด (Live Preview)</span>
                     </h3>
                     <button
                       onClick={handleTriggerTestAlert}
-                      className="px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold transition-all"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors shadow-sm"
                     >
                       ยิงทดสอบทันที
                     </button>
                   </div>
 
                   {/* OBS Box Simulation Container */}
-                  <div className="relative w-full aspect-video rounded-xl bg-slate-950/90 border border-white/10 flex flex-col items-center justify-center p-6 text-center overflow-hidden shadow-inner">
+                  <div className="relative w-full aspect-video rounded-lg bg-[#07090e] border border-white/[0.08] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
                     {/* Background checkerboard for transparency preview */}
                     <div
-                      className="absolute inset-0 opacity-10 pointer-events-none"
+                      className="absolute inset-0 opacity-15 pointer-events-none"
                       style={{
                         backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
                         backgroundSize: '16px 16px',
@@ -480,31 +480,31 @@ export default function WidgetsPage() {
                         <img
                           src={alertSettings.imageUrl}
                           alt="Alert Animation"
-                          className="h-28 w-28 object-contain drop-shadow-2xl"
+                          className="h-24 w-24 object-contain"
                         />
                       )}
 
                       <div className="space-y-1">
                         <h4
-                          className="text-lg font-black tracking-wide"
+                          className="text-base sm:text-lg font-bold tracking-wide"
                           style={{ color: alertSettings.textColor }}
                         >
-                          <span style={{ color: alertSettings.highlightColor }} className="text-glow">
+                          <span style={{ color: alertSettings.highlightColor }}>
                             น้องมิว สายเปย์
                           </span>{' '}
                           โดเนท{' '}
-                          <span style={{ color: alertSettings.highlightColor }} className="text-glow">
+                          <span style={{ color: alertSettings.highlightColor }} className="tabular-nums">
                             500 บาท
                           </span>
                         </h4>
-                        <p className="text-xs text-slate-200 max-w-xs bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
+                        <p className="text-xs text-slate-200 max-w-xs bg-black/60 px-3 py-1.5 rounded border border-white/[0.08]">
                           "เป็นกำลังใจให้พี่สตรีมเมอร์ สู้ๆ นะครับ!"
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-500 text-center">
+                  <p className="text-[11px] text-slate-400 text-center">
                     ตัวอย่างนี้จำลองการแสดงผลบน OBS Studio พร้อมเอฟเฟกต์สีและแอนิเมชัน
                   </p>
                 </div>
@@ -517,9 +517,11 @@ export default function WidgetsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-7 space-y-5">
                 {/* OBS URL */}
-                <div className="p-4 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 to-slate-900/80 space-y-3">
+                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-brand-300">ลิงก์ URL สำหรับ Goal Widget (OBS)</span>
+                    <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                      <Target className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Goal Widget (OBS)
+                    </span>
                     <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 600 x 120 px</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -527,11 +529,11 @@ export default function WidgetsPage() {
                       type="text"
                       readOnly
                       value={typeof window !== 'undefined' ? `${window.location.origin}/widget/goal/${streamerId}` : `/widget/goal/${streamerId}`}
-                      className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                     />
                     <button
                       onClick={() => copyToClipboard(`/widget/goal/${streamerId}`, 'goal-box')}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all flex-shrink-0"
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                     >
                       {copiedUrl === 'goal-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedUrl === 'goal-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
@@ -539,14 +541,14 @@ export default function WidgetsPage() {
                     <Link
                       href={`/widget/goal/${streamerId}`}
                       target="_blank"
-                      className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex-shrink-0"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4">
+                <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <h3 className="text-sm font-bold text-white">ตั้งค่าเป้าหมายการระดมทุน (Donation Goal)</h3>
 
                   <div>
@@ -555,7 +557,7 @@ export default function WidgetsPage() {
                       type="text"
                       value={goalSettings.title}
                       onChange={(e) => setGoalSettings({ ...goalSettings, title: e.target.value })}
-                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 
@@ -566,7 +568,7 @@ export default function WidgetsPage() {
                         type="number"
                         value={goalSettings.targetAmount}
                         onChange={(e) => setGoalSettings({ ...goalSettings, targetAmount: Number(e.target.value) })}
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                        className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
@@ -576,7 +578,7 @@ export default function WidgetsPage() {
                         type="number"
                         value={goalSettings.currentAmount}
                         onChange={(e) => setGoalSettings({ ...goalSettings, currentAmount: Number(e.target.value) })}
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
+                        className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                   </div>
@@ -589,13 +591,13 @@ export default function WidgetsPage() {
                           type="color"
                           value={goalSettings.barColor}
                           onChange={(e) => setGoalSettings({ ...goalSettings, barColor: e.target.value })}
-                          className="h-8 w-10 rounded-lg cursor-pointer bg-transparent border-0"
+                          className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
                         />
                         <input
                           type="text"
                           value={goalSettings.barColor}
                           onChange={(e) => setGoalSettings({ ...goalSettings, barColor: e.target.value })}
-                          className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white font-mono"
+                          className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
                         />
                       </div>
                     </div>
@@ -605,30 +607,29 @@ export default function WidgetsPage() {
 
               {/* Goal Live Preview */}
               <div className="lg:col-span-5 space-y-4">
-                <div className="sticky top-20 rounded-2xl border border-white/10 bg-[#0e1219]/90 p-5 backdrop-blur-md space-y-4">
+                <div className="sticky top-20 rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 space-y-4 shadow-sm">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-brand-400" />
+                    <Target className="h-4 w-4 text-emerald-400" />
                     <span>ตัวอย่าง Goal บน OBS</span>
                   </h3>
 
-                  <div className="p-5 rounded-2xl bg-slate-950/90 border border-white/10 space-y-3">
-                    <div className="flex justify-between items-center text-sm font-bold text-white">
+                  <div className="p-4 rounded-lg bg-[#07090e] border border-white/[0.08] space-y-2.5">
+                    <div className="flex justify-between items-center text-xs font-semibold text-white">
                       <span>{goalSettings.title}</span>
-                      <span className="text-brand-400">{goalPercent}%</span>
+                      <span className="text-emerald-400 font-bold tabular-nums">{goalPercent}%</span>
                     </div>
 
-                    <div className="h-5 w-full rounded-full bg-slate-800/90 overflow-hidden p-0.5 border border-white/10">
+                    <div className="h-3 w-full rounded-full bg-slate-850 overflow-hidden border border-white/[0.04]">
                       <div
-                        className="h-full rounded-full transition-all duration-700"
+                        className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${goalPercent}%`,
                           backgroundColor: goalSettings.barColor,
-                          boxShadow: `0 0 12px ${goalSettings.barColor}`,
                         }}
                       />
                     </div>
 
-                    <div className="flex justify-between text-xs text-slate-400 font-medium">
+                    <div className="flex justify-between text-[11px] text-slate-400 font-medium tabular-nums">
                       <span>{goalSettings.currentAmount.toLocaleString('th-TH')} ฿</span>
                       <span>เป้าหมาย {goalSettings.targetAmount.toLocaleString('th-TH')} ฿</span>
                     </div>
@@ -641,9 +642,11 @@ export default function WidgetsPage() {
           {/* TAB 3: Top Donors */}
           {activeTab === 'top' && (
             <div className="space-y-5">
-              <div className="p-4 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 to-slate-900/80 space-y-3">
+              <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-brand-300">ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)</span>
+                  <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <Trophy className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)
+                  </span>
                   <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 400 x 500 px</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -651,11 +654,11 @@ export default function WidgetsPage() {
                     type="text"
                     readOnly
                     value={typeof window !== 'undefined' ? `${window.location.origin}/widget/top-donors/${streamerId}` : `/widget/top-donors/${streamerId}`}
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                   />
                   <button
                     onClick={() => copyToClipboard(`/widget/top-donors/${streamerId}`, 'top-box')}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all flex-shrink-0"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                   >
                     {copiedUrl === 'top-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     <span>{copiedUrl === 'top-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
@@ -663,14 +666,14 @@ export default function WidgetsPage() {
                   <Link
                     href={`/widget/top-donors/${streamerId}`}
                     target="_blank"
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex-shrink-0"
+                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4 max-w-xl">
+              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4 max-w-xl">
                 <h3 className="text-sm font-bold text-white">ตั้งค่าบอร์ดอันดับผู้บริจาค (Leaderboard)</h3>
 
                 <div>
@@ -679,7 +682,7 @@ export default function WidgetsPage() {
                     type="text"
                     value={topSettings.title}
                     onChange={(e) => setTopSettings({ ...topSettings, title: e.target.value })}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -688,7 +691,7 @@ export default function WidgetsPage() {
                   <select
                     value={topSettings.period}
                     onChange={(e) => setTopSettings({ ...topSettings, period: e.target.value as any })}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500"
+                    className="w-full rounded-lg bg-[#141822] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                   >
                     <option value="month">ประจำเดือนปัจจุบัน (Monthly)</option>
                     <option value="week">ประจำสัปดาห์นี้ (Weekly)</option>
@@ -703,9 +706,11 @@ export default function WidgetsPage() {
           {/* TAB 4: Recent Donors Feed */}
           {activeTab === 'recent' && (
             <div className="space-y-5">
-              <div className="p-4 rounded-2xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 to-slate-900/80 space-y-3">
+              <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-brand-300">ลิงก์ URL สำหรับ Recent Donors (OBS)</span>
+                  <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <Layers className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Recent Donors (OBS)
+                  </span>
                   <span className="text-[10px] text-slate-400">
                     {recentMode === 'ticker' ? 'ขนาดแนะนำ: 800 x 80 px (Ticker)' : 'ขนาดแนะนำ: 360 x 480 px (List)'}
                   </span>
@@ -719,11 +724,11 @@ export default function WidgetsPage() {
                         ? `${window.location.origin}/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
                         : `/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
                     }
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                   />
                   <button
                     onClick={() => copyToClipboard(`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`, 'recent-box')}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all flex-shrink-0"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                   >
                     {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
@@ -731,40 +736,40 @@ export default function WidgetsPage() {
                   <Link
                     href={`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`}
                     target="_blank"
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex-shrink-0"
+                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 space-y-4 max-w-xl">
+              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4 max-w-xl">
                 <h3 className="text-sm font-bold text-white">รูปแบบการแสดงผล (Display Layout)</h3>
 
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setRecentMode('list')}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-3.5 rounded-lg border text-left transition-colors ${
                       recentMode === 'list'
-                        ? 'border-brand-500 bg-brand-500/10 text-white font-bold'
-                        : 'border-white/10 bg-slate-900 text-slate-400 hover:text-white'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-white font-semibold'
+                        : 'border-white/[0.08] bg-white/[0.02] text-slate-400 hover:text-white'
                     }`}
                   >
-                    <div className="text-xs font-semibold mb-1">📋 แบบรายการแนวตั้ง (Vertical List)</div>
+                    <div className="text-xs font-semibold mb-1">แบบรายการแนวตั้ง (Vertical List)</div>
                     <p className="text-[11px] text-slate-400 font-normal">เหมาะสำหรับวางมุมซ้าย/ขวาของจอ</p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setRecentMode('ticker')}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-3.5 rounded-lg border text-left transition-colors ${
                       recentMode === 'ticker'
-                        ? 'border-brand-500 bg-brand-500/10 text-white font-bold'
-                        : 'border-white/10 bg-slate-900 text-slate-400 hover:text-white'
+                        ? 'border-emerald-500 bg-emerald-500/10 text-white font-semibold'
+                        : 'border-white/[0.08] bg-white/[0.02] text-slate-400 hover:text-white'
                     }`}
                   >
-                    <div className="text-xs font-semibold mb-1">🏃 แถบวิ่งแนวนอน (Horizontal Ticker)</div>
+                    <div className="text-xs font-semibold mb-1">แถบวิ่งแนวนอน (Horizontal Ticker)</div>
                     <p className="text-[11px] text-slate-400 font-normal">เหมาะสำหรับวางขอบบน/ล่างของจอ</p>
                   </button>
                 </div>

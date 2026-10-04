@@ -164,21 +164,21 @@ export default function PaymentPage() {
 
   const InputRow = ({ label, name, type = 'text', placeholder = '', help = '' }: any) => (
     <div>
-      <label className="block text-sm font-medium text-slate-300 mb-1.5">{label}</label>
+      <label className="block text-xs font-semibold text-slate-300 mb-1.5">{label}</label>
       <input
         type={type} name={name} value={(form as any)[name]} onChange={handleChange}
         placeholder={placeholder}
-        className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+        className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
       />
-      {help && <p className="text-xs text-slate-500 mt-1">{help}</p>}
+      {help && <p className="text-[11px] text-slate-400 mt-1">{help}</p>}
     </div>
   );
 
-  const SectionCard = ({ icon: Icon, title, color = 'text-brand-400', children }: any) => (
-    <div className="bg-slate-900 border border-white/10 rounded-2xl p-6">
-      <div className="flex items-center gap-3 mb-5">
-        <div className={`p-2 bg-slate-800 rounded-lg`}><Icon className={`h-5 w-5 ${color}`} /></div>
-        <h2 className="text-lg font-semibold text-white">{title}</h2>
+  const SectionCard = ({ icon: Icon, title, color = 'text-emerald-400', children }: any) => (
+    <div className="bg-[#0c1017] border border-white/[0.08] rounded-xl p-5 sm:p-6">
+      <div className="flex items-center gap-3 mb-4 border-b border-white/[0.06] pb-3">
+        <div className="p-2 bg-white/[0.04] rounded-lg border border-white/[0.06]"><Icon className={`h-4 w-4 ${color}`} /></div>
+        <h2 className="text-sm sm:text-base font-bold text-white">{title}</h2>
       </div>
       <div className="space-y-4">{children}</div>
     </div>
@@ -186,40 +186,43 @@ export default function PaymentPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-slate-950">
-        <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 text-brand-400 animate-spin" />
+      <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col">
+        <Navbar streamerId={username} />
+        <div className="flex flex-1">
+          <Sidebar streamerId={username} />
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="h-6 w-6 text-emerald-400 animate-spin" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
-        <div className="flex-1 p-4 sm:p-6 max-w-4xl mx-auto w-full">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white">ตั้งค่าช่องทางรับเงิน</h1>
-            <p className="text-slate-400 text-sm mt-1">จัดการช่องทางรับโดเนทและการแจ้งเตือน</p>
+    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col">
+      <Navbar streamerId={username} />
+      <div className="flex flex-1">
+        <Sidebar streamerId={username} />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full space-y-6">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">ตั้งค่าช่องทางรับเงิน</h1>
+            <p className="text-slate-400 text-xs sm:text-sm mt-0.5">จัดการช่องทางรับโดเนท บัญชีพร้อมเพย์ และการแจ้งเตือน</p>
           </div>
 
           {saveSuccess && (
-            <div className="mb-4 p-4 bg-brand-500/10 border border-brand-500/30 rounded-xl flex items-center gap-3 text-brand-400">
-              <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
-              <span>บันทึกการตั้งค่าสำเร็จแล้ว!</span>
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2.5 text-emerald-300 text-xs sm:text-sm animate-alert-pop">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+              <span>บันทึกการตั้งค่าสำเร็จเรียบร้อยแล้ว</span>
             </div>
           )}
           {saveError && (
-            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <div className="p-3.5 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2.5 text-red-300 text-xs sm:text-sm">
+              <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
               <span>{saveError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSave} className="space-y-6">
+          <form onSubmit={handleSave} className="space-y-5">
             {/* Section 1: PromptPay */}
             <SectionCard icon={QrCode} title="1. ตั้งค่าพร้อมเพย์ (PromptPay)">
               <div className="grid sm:grid-cols-2 gap-4">
@@ -233,55 +236,55 @@ export default function PaymentPage() {
                   label="ชื่อบัญชีผู้รับเงิน (Account Name)"
                   name="promptpayName"
                   placeholder="ชื่อ-นามสกุล"
-                  help="ชื่อที่แสดงให้ผู้บริจาคตรวจสอบ"
+                  help="ชื่อที่แสดงให้ผู้บริจาคตรวจสอบก่อนกดยืนยัน"
                 />
               </div>
               <BankSelector value={form.bankName} onChange={(v) => setForm((f) => ({ ...f, bankName: v }))} label="ธนาคารหลัก" />
 
               {/* QR Preview */}
-              <div className="bg-slate-800/50 rounded-xl p-4">
+              <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-medium text-slate-300">ตัวอย่าง QR Code</p>
+                  <p className="text-xs font-semibold text-slate-300">ตัวอย่าง QR Code พร้อมเพย์</p>
                   <button
                     type="button" onClick={refreshQR}
-                    className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1"
+                    className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
                   >
-                    <RefreshCw className="h-3.5 w-3.5" /> รีเฟรช
+                    <RefreshCw className="h-3 w-3" /> รีเฟรช QR
                   </button>
                 </div>
                 {qrLoading ? (
-                  <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 text-brand-400 animate-spin" /></div>
+                  <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 text-emerald-400 animate-spin" /></div>
                 ) : qrDataUrl ? (
                   <div className="flex justify-center">
-                    <img src={qrDataUrl} alt="PromptPay QR" className="w-40 h-40 rounded-lg bg-white p-2" />
+                    <img src={qrDataUrl} alt="PromptPay QR" className="w-36 h-36 rounded-lg bg-white p-2 shadow-sm" />
                   </div>
                 ) : (
-                  <p className="text-center text-slate-500 text-sm py-6">
-                    บันทึกการตั้งค่าพร้อมเพย์ก่อนเพื่อดู QR Code
+                  <p className="text-center text-slate-400 text-xs py-4">
+                    บันทึกการตั้งค่าพร้อมเพย์ก่อนเพื่อดูตัวอย่าง QR Code
                   </p>
                 )}
               </div>
             </SectionCard>
 
             {/* Section 2: TrueMoney */}
-            <SectionCard icon={Wallet} title="2. TrueMoney Wallet" color="text-orange-400">
+            <SectionCard icon={Wallet} title="2. TrueMoney Wallet" color="text-amber-400">
               <InputRow
                 label="เบอร์โทรศัพท์ TrueMoney Wallet"
                 name="truemoneyPhone"
                 placeholder="0812345678"
-                help="ผู้ชมจะจ่ายเงินเข้า wallet ของคุณโดยตรง ไม่ผ่านระบบ"
+                help="ผู้ชมจะจ่ายเงินเข้า wallet ของคุณโดยตรง ไม่ผ่านระบบคนกลาง"
               />
-              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-300 text-xs">
+              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-300 text-xs">
                 💡 เงินเข้า TrueMoney Wallet ของคุณโดยตรง TipDee ไม่เก็บค่าธรรมเนียมใด ๆ
               </div>
             </SectionCard>
 
             {/* Section 3: Slip Verification */}
-            <SectionCard icon={ScanLine} title="3. ตรวจสอบสลิปอัตโนมัติ" color="text-blue-400">
-              <div className="flex items-center justify-between p-4 bg-slate-800 rounded-xl">
+            <SectionCard icon={ScanLine} title="3. ตรวจสอบสลิปอัตโนมัติ" color="text-sky-400">
+              <div className="flex items-center justify-between p-3.5 bg-white/[0.02] border border-white/[0.06] rounded-lg">
                 <div>
-                  <p className="font-medium text-white">เปิดใช้งานตรวจสลิปอัตโนมัติ</p>
-                  <p className="text-xs text-slate-400 mt-0.5">ระบบจะสแกน QR Code ในสลิปเพื่อยืนยันการโอน</p>
+                  <p className="font-semibold text-xs sm:text-sm text-white">เปิดใช้งานตรวจสลิปอัตโนมัติ</p>
+                  <p className="text-xs text-slate-400 mt-0.5">ระบบจะสแกน QR Code บนสลิปธนาคารเพื่อยืนยันการโอน</p>
                 </div>
                 <button
                   type="button"
@@ -289,67 +292,64 @@ export default function PaymentPage() {
                   className="transition-colors"
                 >
                   {form.enableAutoSlip
-                    ? <ToggleRight className="h-9 w-9 text-brand-400" />
-                    : <ToggleLeft className="h-9 w-9 text-slate-600" />}
+                    ? <ToggleRight className="h-8 w-8 text-emerald-400" />
+                    : <ToggleLeft className="h-8 w-8 text-slate-600" />}
                 </button>
               </div>
 
               <InputRow
-                label="SlipOK API Key (ไม่บังคับ — ตรวจสอบแม่นยำสูง)"
+                label="SlipOK API Key (ไม่บังคับ — เสริมความแม่นยำ)"
                 name="slipApiKey"
                 placeholder="sk-xxxxxxxxxxxxxxxx"
-                help="สมัครที่ slipok.com เพื่อรับ API Key ตรวจสลิปอัตโนมัติ"
+                help="สำหรับสตรีมเมอร์ที่ต้องการเชื่อมต่อ API เพิ่มเติม"
               />
               <InputRow
                 label="SlipOK Branch ID (ไม่บังคับ)"
                 name="slipBranchId"
                 placeholder="branch_01"
               />
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-300 text-xs">
-                🛡️ ระบบตรวจสลิปมีการป้องกัน Duplicate — ไม่สามารถใช้สลิปเดิมซ้ำได้
+              <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-lg text-sky-300 text-xs">
+                🛡️ ระบบตรวจสลิปมีระบบป้องกัน Duplicate — ป้องกันการนำสลิปเก่ามาใช้ซ้ำ 100%
               </div>
             </SectionCard>
 
             {/* Section 4: Webhook */}
-            <SectionCard icon={Send} title="4. Webhook (Developer)" color="text-purple-400">
+            <SectionCard icon={Send} title="4. Webhook สำหรับนักพัฒนา" color="text-purple-400">
               <InputRow
                 label="Webhook URL"
                 name="webhookUrl"
                 placeholder="https://your-bot.example.com/webhook"
-                help="ระบบจะส่ง POST request ไปที่ URL นี้ทุกครั้งที่มีโดเนทเข้า"
+                help="ระบบจะส่ง POST request ไปที่ URL นี้ทุกครั้งที่มีรายการโดเนทสำเร็จ"
               />
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={handleTestWebhook}
                   disabled={!form.webhookUrl || webhookTesting}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 rounded-lg text-sm hover:bg-purple-600/30 disabled:opacity-40 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-lg text-xs hover:bg-purple-500/20 disabled:opacity-40 transition-colors"
                 >
-                  {webhookTesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {webhookTesting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                   ทดสอบ Webhook
                 </button>
                 {webhookResult && (
-                  <span className={`text-sm ${webhookResult.ok ? 'text-brand-400' : 'text-red-400'}`}>
-                    {webhookResult.ok ? '✅' : '❌'} {webhookResult.msg}
+                  <span className={`text-xs ${webhookResult.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {webhookResult.ok ? '✅ สำเร็จ' : '❌ ผิดพลาด'}: {webhookResult.msg}
                   </span>
                 )}
-              </div>
-              <div className="p-3 bg-slate-800 rounded-lg text-xs text-slate-400 font-mono overflow-x-auto">
-                {`POST ${form.webhookUrl || 'https://your-url.com/webhook'}\n{ "event": "donation.completed", "donation": { "donorName": "...", "amount": 100 } }`}
               </div>
             </SectionCard>
 
             {/* Section 5: Amount Settings */}
-            <SectionCard icon={Sparkles} title="5. ตั้งค่าจำนวนเงิน" color="text-yellow-400">
+            <SectionCard icon={Sparkles} title="5. กำหนดยอดเงินโดเนท" color="text-emerald-400">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     ยอดขั้นต่ำ (บาท)
                   </label>
                   <input
                     type="number" name="minAmount" value={form.minAmount} min={1}
                     onChange={(e) => setForm((f) => ({ ...f, minAmount: Number(e.target.value) }))}
-                    className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors"
+                    className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                 </div>
                 <InputRow
@@ -364,13 +364,13 @@ export default function PaymentPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-black font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-lg"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
             >
-              {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
-              บันทึกการตั้งค่าทั้งหมด
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่าทั้งหมด'}</span>
             </button>
           </form>
-        </div>
+        </main>
       </div>
     </div>
   );

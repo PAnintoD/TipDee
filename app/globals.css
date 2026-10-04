@@ -34,49 +34,71 @@ body {
   background: #22c55e;
 }
 
-/* Glowing text and borders */
+/* Modern UI tokens & Clean Surfaces */
+.surface-card {
+  background-color: #10141d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.surface-card-subtle {
+  background-color: #0d1017;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.surface-panel {
+  background-color: #0b0e14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Backward-compatible classes made subtle and crisp */
 .glow-brand {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(34, 197, 94, 0.2);
 }
 
 .glow-brand-lg {
-  box-shadow: 0 0 35px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(34, 197, 94, 0.3);
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  text-shadow: none;
 }
 
 .text-glow-amber {
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+  text-shadow: none;
 }
 
-/* Glassmorphism */
+/* Glassmorphism replaced with crisp, legible surfaces */
 .glass-panel {
-  background: rgba(15, 19, 26, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #0f131a;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-card {
-  background: rgba(19, 24, 34, 0.65);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #131822;
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-/* Animation utilities */
+/* Accessibility: Focus visible styling */
+:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Animation utilities for streamer overlay alerts */
 @keyframes alertPop {
   0% {
-    transform: scale(0.6) translateY(40px);
+    transform: scale(0.92) translateY(12px);
     opacity: 0;
-  }
-  50% {
-    transform: scale(1.05) translateY(-5px);
-    opacity: 1;
-  }
-  70% {
-    transform: scale(0.98) translateY(2px);
   }
   100% {
     transform: scale(1) translateY(0);
@@ -85,5 +107,5 @@ body {
 }
 
 .animate-alert-pop {
-  animation: alertPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: alertPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

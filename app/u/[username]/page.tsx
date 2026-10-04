@@ -7,23 +7,21 @@ import {
   Sparkles,
   QrCode,
   Gift,
-  Zap,
   Volume2,
   VolumeX,
   CheckCircle2,
   AlertCircle,
   Copy,
   Check,
-  Download,
   ArrowRight,
-  RotateCcw,
-  MessageSquare,
   ShieldCheck,
   UploadCloud,
-  FileImage,
   X,
   ScanLine,
   Receipt,
+  RotateCcw,
+  ArrowLeft,
+  CheckCheck,
 } from 'lucide-react';
 import { YouTubeIcon, TwitchIcon, FacebookIcon } from '@/components/SocialIcons';
 
@@ -105,10 +103,10 @@ export default function PublicDonatePage() {
   const triggerConfetti = () => {
     try {
       confetti({
-        particleCount: 120,
-        spread: 80,
+        particleCount: 100,
+        spread: 70,
         origin: { y: 0.6 },
-        colors: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#a855f7'],
+        colors: ['#10b981', '#22c55e', '#3b82f6', '#f59e0b'],
       });
     } catch (e) {}
   };
@@ -123,12 +121,11 @@ export default function PublicDonatePage() {
     }
 
     const finalDonorName = isAnonymous ? 'ผู้ไม่ประสงค์ออกนาม' : donorName.trim() || 'ผู้ไม่ประสงค์ออกนาม';
-    // Save donor name for next visit
     if (!isAnonymous && donorName.trim()) {
       try { localStorage.setItem('tipdee_donor_name', donorName.trim()); } catch {}
     }
 
-    // If Slip Upload method
+    // Slip Upload method
     if (paymentMethod === 'slip') {
       if (!slipFile) {
         setErrorMessage('กรุณาเลือกไฟล์ภาพสลิปโอนเงิน');
@@ -158,7 +155,7 @@ export default function PublicDonatePage() {
           triggerConfetti();
           setStep('success');
         } else {
-          setErrorMessage(data.error || 'ตรวจสอบสลิปไม่สำเร็จ');
+          setErrorMessage(data.error || 'ตรวจสอบสลิปไม่สำเร็จ กรุณาตรวจสอบว่า QR Code บนสลิปชัดเจน');
         }
       } catch (err: any) {
         setErrorMessage(err.message || 'เกิดข้อผิดพลาดในการตรวจสอบสลิป');
@@ -169,7 +166,7 @@ export default function PublicDonatePage() {
       return;
     }
 
-    // Other payment methods (PromptPay QR, TrueMoney, Test)
+    // Other payment methods (PromptPay QR, TrueMoney)
     setIsProcessing(true);
 
     try {
@@ -201,7 +198,7 @@ export default function PublicDonatePage() {
         setErrorMessage(data.error || 'เกิดข้อผิดพลาดในการประมวลผล');
       }
     } catch (err) {
-      setErrorMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      setErrorMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsProcessing(false);
     }
@@ -216,52 +213,65 @@ export default function PublicDonatePage() {
     handleRemoveFile();
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3 text-slate-400 text-xs">
+          <div className="h-6 w-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <span>กำลังโหลดข้อมูลหน้าโดเนท...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col items-center py-6 px-4 sm:px-6">
-      {/* Brand Watermark */}
+    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
+      {/* Platform Branding Badge */}
       <div className="mb-4 flex items-center gap-2 text-xs text-slate-400">
         <span>ขับเคลื่อนด้วย</span>
-        <span className="font-extrabold text-white flex items-center gap-1">
-          Tip<span className="text-brand-400">Dee</span>
+        <span className="font-bold text-white flex items-center gap-1">
+          Tip<span className="text-emerald-400">Dee</span>
         </span>
-        <ShieldCheck className="h-4 w-4 text-brand-400" />
+        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
       </div>
 
-      <div className="w-full max-w-xl space-y-5">
+      <div className="w-full max-w-xl space-y-4">
         {/* Streamer Profile Header Card */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#0c1017] shadow-lg">
           {/* Banner */}
           <div
-            className="h-32 sm:h-40 w-full bg-cover bg-center relative bg-gradient-to-r from-brand-950 via-slate-900 to-indigo-950"
+            className="h-28 sm:h-36 w-full bg-cover bg-center relative bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-950"
             style={
               streamer?.bannerUrl
                 ? { backgroundImage: `url(${streamer.bannerUrl})` }
                 : undefined
             }
           >
-            <div className="h-full w-full bg-gradient-to-t from-[#0e1219] via-black/30 to-transparent" />
+            <div className="h-full w-full bg-gradient-to-t from-[#0c1017] via-transparent to-transparent" />
           </div>
 
           {/* Profile details */}
-          <div className="p-6 pt-0 relative flex flex-col items-center text-center -mt-12 space-y-3">
+          <div className="px-5 pb-5 pt-0 relative flex flex-col items-center text-center -mt-10 space-y-2.5">
             {streamer?.avatarUrl ? (
               <img
                 src={streamer.avatarUrl}
                 alt={streamer?.displayName || username}
-                className="h-24 w-24 rounded-2xl object-cover border-4 border-[#0e1219] shadow-2xl ring-2 ring-brand-500/50"
+                className="h-20 w-20 rounded-xl object-cover border-2 border-[#0c1017] shadow-md"
               />
             ) : (
-              <div className="h-24 w-24 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white border-4 border-[#0e1219] shadow-2xl ring-2 ring-brand-500/50">
+              <div className="h-20 w-20 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center font-bold text-xl border-2 border-[#0c1017] shadow-md">
                 {(streamer?.displayName || username).slice(0, 2).toUpperCase()}
               </div>
             )}
 
             <div>
-              <h1 className="text-xl sm:text-2xl font-black text-white flex items-center justify-center gap-2">
+              <h1 className="text-lg sm:text-xl font-bold text-white flex items-center justify-center gap-1.5">
                 <span>{streamer?.displayName || username}</span>
-                <span className="inline-flex h-4 w-4 rounded-full bg-brand-500 items-center justify-center text-[10px] text-white">✓</span>
+                <span className="inline-flex h-4 w-4 rounded-full bg-emerald-500/20 text-emerald-400 items-center justify-center text-[10px] font-bold border border-emerald-500/30">
+                  ✓
+                </span>
               </h1>
-              <p className="text-xs text-brand-400 font-mono mt-0.5">@{username}</p>
+              <p className="text-xs text-slate-400 font-mono mt-0.5">@{username}</p>
             </div>
 
             {streamer?.bio && (
@@ -272,13 +282,14 @@ export default function PublicDonatePage() {
 
             {/* Social Links */}
             {streamer?.socialLinks && (
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-1.5 pt-0.5">
                 {streamer.socialLinks.youtube && (
                   <a
                     href={streamer.socialLinks.youtube}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 rounded-xl bg-slate-800/80 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                    title="YouTube"
                   >
                     <YouTubeIcon className="h-4 w-4" />
                   </a>
@@ -288,7 +299,8 @@ export default function PublicDonatePage() {
                     href={streamer.socialLinks.twitch}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 rounded-xl bg-slate-800/80 hover:bg-purple-500/20 text-slate-400 hover:text-purple-400 transition-colors"
+                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-purple-500/20 text-slate-400 hover:text-purple-400 transition-colors"
+                    title="Twitch"
                   >
                     <TwitchIcon className="h-4 w-4" />
                   </a>
@@ -298,19 +310,10 @@ export default function PublicDonatePage() {
                     href={streamer.socialLinks.facebook}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 rounded-xl bg-slate-800/80 hover:bg-blue-500/20 text-slate-400 hover:text-blue-400 transition-colors"
+                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-blue-500/20 text-slate-400 hover:text-blue-400 transition-colors"
+                    title="Facebook"
                   >
                     <FacebookIcon className="h-4 w-4" />
-                  </a>
-                )}
-                {streamer.socialLinks.discord && (
-                  <a
-                    href={streamer.socialLinks.discord}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-xl bg-slate-800/80 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 transition-colors"
-                  >
-                    <MessageSquare className="h-4 w-4" />
                   </a>
                 )}
               </div>
@@ -318,22 +321,21 @@ export default function PublicDonatePage() {
 
             {/* Goal Card if active */}
             {goal && (
-              <div className="w-full mt-2 p-3.5 rounded-2xl bg-slate-900/90 border border-white/5 space-y-2 text-left">
-                <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-white flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-brand-400" />
-                    <span>{goal.title}</span>
+              <div className="w-full mt-2 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] space-y-1.5 text-left">
+                <div className="flex justify-between items-center text-xs font-semibold">
+                  <span className="text-white flex items-center gap-1.5 truncate">
+                    <span>🎯 {goal.title}</span>
                   </span>
-                  <span className="text-brand-400">{goalPercent}%</span>
+                  <span className="text-emerald-400 font-bold tabular-nums ml-2">{goalPercent}%</span>
                 </div>
-                <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-brand-600 to-emerald-400 transition-all duration-700"
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-500"
                     style={{ width: `${goalPercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[11px] text-slate-400">
-                  <span>{goal.currentAmount?.toLocaleString('th-TH')} ฿</span>
+                <div className="flex justify-between text-[11px] text-slate-400 tabular-nums">
+                  <span>สะสม {goal.currentAmount?.toLocaleString('th-TH')} ฿</span>
                   <span>เป้าหมาย {goal.targetAmount?.toLocaleString('th-TH')} ฿</span>
                 </div>
               </div>
@@ -341,9 +343,37 @@ export default function PublicDonatePage() {
           </div>
         </div>
 
+        {/* Stepper Progress Bar */}
+        <div className="flex items-center justify-between px-2 text-xs">
+          <div className={`flex items-center gap-1.5 font-medium ${step === 'form' ? 'text-emerald-400' : 'text-slate-400'}`}>
+            <span className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'form' ? 'bg-emerald-500 text-slate-950' : 'bg-white/[0.06] text-slate-400'}`}>
+              1
+            </span>
+            <span>กรอกข้อมูล</span>
+          </div>
+
+          <div className="h-px w-8 bg-white/[0.1]" />
+
+          <div className={`flex items-center gap-1.5 font-medium ${step === 'pay' ? 'text-emerald-400' : 'text-slate-400'}`}>
+            <span className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'pay' ? 'bg-emerald-500 text-slate-950' : 'bg-white/[0.06] text-slate-400'}`}>
+              2
+            </span>
+            <span>ชำระเงิน</span>
+          </div>
+
+          <div className="h-px w-8 bg-white/[0.1]" />
+
+          <div className={`flex items-center gap-1.5 font-medium ${step === 'success' ? 'text-emerald-400' : 'text-slate-400'}`}>
+            <span className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'success' ? 'bg-emerald-500 text-slate-950' : 'bg-white/[0.06] text-slate-400'}`}>
+              3
+            </span>
+            <span>สำเร็จ</span>
+          </div>
+        </div>
+
         {/* Error Alert Box */}
         {errorMessage && (
-          <div className="p-3.5 rounded-2xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-center gap-2.5 animate-bounce-short">
+          <div className="p-3.5 rounded-lg bg-red-950/40 border border-red-500/30 text-red-300 text-xs flex items-center gap-2.5">
             <AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
@@ -353,27 +383,62 @@ export default function PublicDonatePage() {
         {step === 'form' && (
           <form
             onSubmit={handleSubmitForm}
-            className="rounded-3xl border border-white/10 bg-[#0e1219]/90 p-6 sm:p-7 shadow-2xl backdrop-blur-xl space-y-5"
+            className="rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 sm:p-6 shadow-xl space-y-5"
           >
-            <div className="border-b border-white/5 pb-3">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <span>กรอกข้อมูลสนับสนุน (Donate)</span>
-              </h2>
-              <p className="text-xs text-slate-400">
-                ข้อความและชื่อของคุณจะขึ้นแจ้งเตือนบนหน้าจอสตรีมเมอร์ทันที
-              </p>
+            {/* Amount Selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-300 block">
+                จำนวนเงินที่ต้องการสนับสนุน (บาท)
+              </label>
+
+              {/* Amount Input */}
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-base">
+                  ฿
+                </div>
+                <input
+                  type="number"
+                  min={streamer?.minAmount || 5}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder={`ขั้นต่ำ ${streamer?.minAmount || 5}`}
+                  className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] pl-10 pr-12 py-3 text-xl text-white font-bold tabular-nums placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                  บาท
+                </span>
+              </div>
+
+              {/* Preset Chips */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 pt-1">
+                {presetAmounts.map((p: number) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setAmount(p)}
+                    className={`py-1.5 rounded-md text-xs font-semibold transition-colors tabular-nums ${
+                      Number(amount) === p
+                        ? 'bg-emerald-500 text-slate-950 font-bold'
+                        : 'bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    {p} ฿
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Donor Name */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-slate-200">ชื่อของคุณ (Donor Name)</label>
+                <label className="text-xs font-semibold text-slate-300">ชื่อของคุณ</label>
                 <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-400 hover:text-slate-200">
                   <input
                     type="checkbox"
                     checked={isAnonymous}
                     onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="rounded text-brand-500 focus:ring-0 h-3.5 w-3.5 bg-slate-800 border-slate-700"
+                    className="rounded text-emerald-500 focus:ring-0 h-3.5 w-3.5 bg-slate-800 border-slate-700"
                   />
                   <span>ไม่ระบุตัวตน (Anonymous)</span>
                 </label>
@@ -384,57 +449,18 @@ export default function PublicDonatePage() {
                   type="text"
                   value={donorName}
                   onChange={(e) => setDonorName(e.target.value)}
-                  placeholder="พิมพ์ชื่อหรือฉายาของคุณ..."
-                  className="w-full rounded-xl bg-slate-900 border border-white/10 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                  placeholder="ชื่อหรือฉายาที่จะแสดงบนหน้าจอ..."
+                  className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                   required={!isAnonymous}
                 />
               )}
             </div>
 
-            {/* Amount Selection */}
-            <div className="space-y-2.5">
-              <label className="text-xs font-semibold text-slate-200">จำนวนเงิน (Amount บาท)</label>
-
-              {/* Preset Chips */}
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                {presetAmounts.map((p: number) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setAmount(p)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                      Number(amount) === p
-                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 scale-105'
-                        : 'bg-slate-900 border border-white/5 text-slate-300 hover:border-white/20'
-                    }`}
-                  >
-                    {p} ฿
-                  </button>
-                ))}
-              </div>
-
-              {/* Custom Input */}
-              <div className="relative mt-2">
-                <input
-                  type="number"
-                  min={streamer?.minAmount || 5}
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder={`ระบุจำนวนเงิน (ขั้นต่ำ ${streamer?.minAmount || 5} บาท)`}
-                  className="w-full rounded-xl bg-slate-900 border border-white/10 pl-4 pr-12 py-2.5 text-sm text-white font-bold placeholder-slate-500 focus:outline-none focus:border-brand-500"
-                  required
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                  บาท
-                </span>
-              </div>
-            </div>
-
             {/* Message */}
             <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-slate-200">ข้อความถึงสตรีมเมอร์</label>
-                <span className="text-[11px] text-slate-500">{message.length}/200 ตัวอักษร</span>
+              <div className="flex justify-between items-center text-xs">
+                <label className="font-semibold text-slate-300">ข้อความถึงสตรีมเมอร์</label>
+                <span className="text-[11px] text-slate-500">{message.length}/200</span>
               </div>
               <textarea
                 rows={3}
@@ -442,16 +468,16 @@ export default function PublicDonatePage() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="พิมพ์ข้อความส่งกำลังใจ หรือขอเพลง..."
-                className="w-full rounded-xl bg-slate-900 border border-white/10 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none"
+                className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
               />
               {/* Quick Emojis */}
-              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+              <div className="flex items-center gap-1 pt-0.5 flex-wrap">
                 {['❤️', '🎉', '🔥', '👏', '🎮', '⭐', '💰', '🚀', '🐱', '✨'].map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setMessage((prev) => (prev + emoji).slice(0, 200))}
-                    className="h-7 w-7 rounded-lg bg-slate-900 border border-white/10 hover:border-brand-500 text-xs flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    className="h-7 w-7 rounded bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] text-xs flex items-center justify-center transition-colors"
                   >
                     {emoji}
                   </button>
@@ -460,43 +486,43 @@ export default function PublicDonatePage() {
             </div>
 
             {/* TTS Option */}
-            <label className="flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-white/10 cursor-pointer hover:bg-slate-850 transition-colors">
+            <label className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] cursor-pointer hover:bg-white/[0.04] transition-colors">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400">
+                <div className="p-1.5 rounded bg-emerald-500/10 text-emerald-400">
                   {enableTTS ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-white block">เปิดอ่านข้อความออกเสียง (TTS)</span>
-                  <span className="text-[11px] text-slate-400">เสียงระบบจะอ่านชื่อและข้อความบนสตรีม</span>
+                  <span className="text-xs font-semibold text-white block">เปิดอ่านออกเสียงบนสตรีม (TTS)</span>
+                  <span className="text-[11px] text-slate-400">ระบบสังเคราะห์เสียงอ่านชื่อและข้อความทันที</span>
                 </div>
               </div>
               <input
                 type="checkbox"
                 checked={enableTTS}
                 onChange={(e) => setEnableTTS(e.target.checked)}
-                className="rounded text-brand-500 focus:ring-0 h-4 w-4 bg-slate-800 border-slate-700"
+                className="rounded text-emerald-500 focus:ring-0 h-4 w-4 bg-slate-800 border-slate-700"
               />
             </label>
 
-            {/* Payment Method Selector (Production Real Only) */}
+            {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-200">เลือกช่องทางการชำระเงินจริง</label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <label className="text-xs font-semibold text-slate-300 block">เลือกช่องทางการชำระเงิน</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {/* PromptPay */}
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('promptpay')}
-                  className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all ${
+                  className={`p-3 rounded-lg border text-left flex items-center gap-2.5 transition-colors ${
                     paymentMethod === 'promptpay'
-                      ? 'border-blue-500 bg-blue-950/40 ring-1 ring-blue-500 shadow-md shadow-blue-500/10'
-                      : 'border-white/5 bg-slate-900/80 hover:border-white/15'
+                      ? 'border-sky-500/50 bg-sky-950/20 text-white'
+                      : 'border-white/[0.06] bg-white/[0.02] text-slate-300 hover:bg-white/[0.04]'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-blue-500/15 text-blue-400">
+                  <div className="p-1.5 rounded bg-sky-500/15 text-sky-400">
                     <QrCode className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block">พร้อมเพย์ QR</span>
+                    <span className="text-xs font-semibold block">พร้อมเพย์ QR</span>
                     <span className="text-[10px] text-slate-400">สแกนจ่ายทันที</span>
                   </div>
                 </button>
@@ -505,18 +531,18 @@ export default function PublicDonatePage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('slip')}
-                  className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all ${
+                  className={`p-3 rounded-lg border text-left flex items-center gap-2.5 transition-colors ${
                     paymentMethod === 'slip'
-                      ? 'border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500 shadow-md shadow-emerald-500/10'
-                      : 'border-white/5 bg-slate-900/80 hover:border-white/15'
+                      ? 'border-emerald-500/50 bg-emerald-950/20 text-white'
+                      : 'border-white/[0.06] bg-white/[0.02] text-slate-300 hover:bg-white/[0.04]'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400">
+                  <div className="p-1.5 rounded bg-emerald-500/15 text-emerald-400">
                     <ScanLine className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block">สแกนสลิปออโต้</span>
-                    <span className="text-[10px] text-emerald-400 font-semibold">แนบสลิปผ่านทันที</span>
+                    <span className="text-xs font-semibold block">สแกนสลิปออโต้</span>
+                    <span className="text-[10px] text-emerald-400 font-medium">แนบสลิปผ่าน</span>
                   </div>
                 </button>
 
@@ -524,17 +550,17 @@ export default function PublicDonatePage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('truemoney')}
-                  className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all ${
+                  className={`p-3 rounded-lg border text-left flex items-center gap-2.5 transition-colors ${
                     paymentMethod === 'truemoney'
-                      ? 'border-amber-500 bg-amber-950/40 ring-1 ring-amber-500 shadow-md shadow-amber-500/10'
-                      : 'border-white/5 bg-slate-900/80 hover:border-white/15'
+                      ? 'border-amber-500/50 bg-amber-950/20 text-white'
+                      : 'border-white/[0.06] bg-white/[0.02] text-slate-300 hover:bg-white/[0.04]'
                   }`}
                 >
-                  <div className="p-2 rounded-xl bg-amber-500/15 text-amber-400">
+                  <div className="p-1.5 rounded bg-amber-500/15 text-amber-400">
                     <Gift className="h-4 w-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-white block">TrueMoney</span>
+                    <span className="text-xs font-semibold block">TrueMoney</span>
                     <span className="text-[10px] text-slate-400">ซองของขวัญ</span>
                   </div>
                 </button>
@@ -543,10 +569,10 @@ export default function PublicDonatePage() {
 
             {/* Slip Upload Dropzone */}
             {paymentMethod === 'slip' && (
-              <div className="space-y-3 p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                    <Receipt className="h-4 w-4" /> อัปโหลดภาพสลิปโอนเงินธนาคาร
+              <div className="space-y-2 p-3.5 rounded-lg bg-emerald-950/10 border border-emerald-500/20">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-emerald-300 flex items-center gap-1.5">
+                    <Receipt className="h-3.5 w-3.5" /> อัปโหลดภาพสลิปโอนเงินธนาคาร
                   </span>
                   <span className="text-[10px] text-slate-400">รองรับสลิปทุกธนาคารในไทย</span>
                 </div>
@@ -562,31 +588,28 @@ export default function PublicDonatePage() {
                 {!slipPreviewUrl ? (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="cursor-pointer border-2 border-dashed border-emerald-500/30 hover:border-emerald-500/60 rounded-2xl p-6 text-center space-y-2 bg-slate-900/60 hover:bg-slate-900 transition-colors"
+                    className="cursor-pointer border border-dashed border-emerald-500/30 hover:border-emerald-500/50 rounded-lg p-5 text-center space-y-1.5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors"
                   >
-                    <div className="mx-auto h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                      <UploadCloud className="h-6 w-6" />
-                    </div>
+                    <UploadCloud className="h-6 w-6 text-emerald-400 mx-auto" />
                     <div>
-                      <p className="text-xs font-bold text-white">คลิกเพื่อเลือกไฟล์รูปภาพสลิป หรือลากรูปมาวางที่นี่</p>
-                      <p className="text-[11px] text-slate-400">รองรับไฟล์ PNG, JPG (ระบบจะสแกน QR Code บนสลิปอัตโนมัติ)</p>
+                      <p className="text-xs font-medium text-white">คลิกเพื่อเลือกไฟล์รูปภาพสลิป</p>
+                      <p className="text-[11px] text-slate-400">ระบบจะตรวจสอบ QR Code บนสลิปและขึ้นแจ้งเตือนทันที</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative rounded-2xl overflow-hidden border border-emerald-500/40 bg-slate-900 p-3 flex items-center justify-between">
+                  <div className="relative rounded-lg overflow-hidden border border-emerald-500/30 bg-[#0d1118] p-2.5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={slipPreviewUrl} alt="Slip Preview" className="h-16 w-16 object-cover rounded-xl border border-white/10" />
+                      <img src={slipPreviewUrl} alt="Slip Preview" className="h-12 w-12 object-cover rounded border border-white/10" />
                       <div>
-                        <p className="text-xs font-bold text-white truncate max-w-[200px]">{slipFile?.name}</p>
-                        <p className="text-[11px] text-emerald-400 font-medium">
-                          {(slipFile?.size ? slipFile.size / 1024 : 0).toFixed(1)} KB (พร้อมสแกน)
-                        </p>
+                        <p className="text-xs font-semibold text-white truncate max-w-[200px]">{slipFile?.name}</p>
+                        <p className="text-[11px] text-emerald-400">พร้อมสแกนยืนยัน</p>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={handleRemoveFile}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                      className="p-1 rounded bg-white/[0.06] hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
+                      title="ลบไฟล์"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -597,11 +620,11 @@ export default function PublicDonatePage() {
 
             {/* TrueMoney Section */}
             {paymentMethod === 'truemoney' && (
-              <div className="space-y-3 p-4 rounded-2xl bg-amber-950/20 border border-amber-500/20">
+              <div className="space-y-3 p-3.5 rounded-lg bg-amber-950/10 border border-amber-500/20">
                 {streamer?.truemoneyPhone ? (
-                  <div className="text-center space-y-3">
-                    <p className="text-xs font-semibold text-amber-300">โอนเงินผ่าน TrueMoney Wallet</p>
-                    <p className="text-amber-200 font-bold text-lg">{streamer.truemoneyPhone}</p>
+                  <div className="text-center space-y-2">
+                    <p className="text-xs text-amber-300">โอนเงินผ่าน TrueMoney Wallet</p>
+                    <p className="text-amber-200 font-bold font-mono text-base">{streamer.truemoneyPhone}</p>
                     <button
                       type="button"
                       onClick={async () => {
@@ -621,23 +644,24 @@ export default function PublicDonatePage() {
                       📱 สร้าง QR Code จำนวน {Number(amount).toLocaleString('th-TH')} บาท
                     </button>
                     {truemoneyQR && (
-                      <div className="flex flex-col items-center gap-2">
-                        <img src={truemoneyQR} alt="TrueMoney QR" className="w-40 h-40 bg-white rounded-lg p-1" />
-                        <a href={truemoneyUrl} target="_blank" rel="noopener noreferrer"
-                          className="text-xs text-amber-400 underline">เปิดลิงก์ TrueMoney →</a>
+                      <div className="flex flex-col items-center gap-2 pt-2">
+                        <img src={truemoneyQR} alt="TrueMoney QR" className="w-36 h-36 bg-white rounded-lg p-1" />
+                        <a href={truemoneyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-amber-400 underline">
+                          เปิดลิงก์ TrueMoney →
+                        </a>
                       </div>
                     )}
-                    <p className="text-xs text-slate-500">หลังโอนเงินแล้ว กรุณาอัปโหลดสลิปในช่องสลิปด้านบน</p>
+                    <p className="text-[11px] text-slate-400">หลังโอนเงินแล้ว กรุณาอัปโหลดสลิปในช่องสลิปเพื่อยืนยัน</p>
                   </div>
                 ) : (
                   <div>
-                    <label className="text-xs font-semibold text-amber-300 block mb-1.5">วางลิงก์ซองของขวัญ TrueMoney:</label>
+                    <label className="text-xs font-semibold text-amber-300 block mb-1">วางลิงก์ซองของขวัญ TrueMoney:</label>
                     <input
                       type="url"
                       value={voucherUrl}
                       onChange={(e) => setVoucherUrl(e.target.value)}
                       placeholder="https://gift.truemoney.com/campaign/?v=..."
-                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
                       required
                     />
                   </div>
@@ -645,19 +669,18 @@ export default function PublicDonatePage() {
               </div>
             )}
 
-
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isProcessing || isScanningSlip}
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-extrabold text-sm shadow-xl shadow-brand-500/30 transition-all hover:scale-[1.02] active:scale-98 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-colors shadow-sm disabled:opacity-50"
             >
               <span>
                 {isScanningSlip
-                  ? '🔍 กำลังสแกน QR Code และตรวจสอบสลิป...'
+                  ? 'กำลังสแกน QR Code บนสลิป...'
                   : isProcessing
                   ? 'กำลังประมวลผล...'
-                  : `โดเนท ${Number(amount || 0).toLocaleString('th-TH')} บาท`}
+                  : `ดำเนินการสนับสนุน ${Number(amount || 0).toLocaleString('th-TH')} บาท`}
               </span>
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -666,90 +689,97 @@ export default function PublicDonatePage() {
 
         {/* STEP 2: Payment (PromptPay QR) */}
         {step === 'pay' && currentDonation && (
-          <div className="rounded-3xl border border-white/10 bg-[#0e1219]/90 p-6 sm:p-7 shadow-2xl backdrop-blur-xl text-center space-y-5">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-2">
+          <div className="rounded-xl border border-white/[0.08] bg-[#0c1017] p-6 text-center space-y-5 shadow-xl">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-medium mb-1">
                 <QrCode className="h-3.5 w-3.5" />
-                <span>สแกนเพื่อชำระเงิน (PromptPay Dynamic QR)</span>
+                <span>PromptPay Dynamic QR</span>
               </div>
-              <h2 className="text-xl font-black text-white">
-                ยอดชำระ: <span className="text-brand-400">{currentDonation.amount.toLocaleString('th-TH')} บาท</span>
+              <h2 className="text-2xl font-bold text-white tabular-nums">
+                {currentDonation.amount.toLocaleString('th-TH')} ฿
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                บัญชี: <strong className="text-slate-200">{streamer?.promptpayName || 'สตรีมเมอร์'}</strong>
+              <p className="text-xs text-slate-400">
+                บัญชีผู้รับ: <strong className="text-slate-200">{streamer?.promptpayName || streamer?.displayName || 'สตรีมเมอร์'}</strong>
               </p>
             </div>
 
-            {/* QR Code Frame */}
-            <div className="mx-auto w-64 p-4 rounded-2xl bg-white shadow-2xl flex flex-col items-center">
-              <div className="w-full flex justify-between items-center mb-2 px-1">
-                <span className="text-[10px] font-bold text-slate-800 tracking-wider uppercase">Thai QR Payment</span>
+            {/* Authentic Thai QR Card */}
+            <div className="mx-auto w-64 p-4 rounded-xl bg-white shadow-md flex flex-col items-center">
+              <div className="w-full flex justify-between items-center mb-2 px-1 border-b border-slate-200 pb-1.5">
+                <span className="text-[10px] font-bold text-slate-800 tracking-wider">THAI QR PAYMENT</span>
                 <span className="text-[10px] font-bold text-blue-600 font-mono">PromptPay</span>
               </div>
               {qrDataUrl ? (
-                <img src={qrDataUrl} alt="PromptPay QR Code" className="h-56 w-56 object-contain" />
+                <img src={qrDataUrl} alt="PromptPay QR Code" className="h-52 w-52 object-contain" />
               ) : (
-                <div className="h-56 w-56 flex items-center justify-center text-slate-400 text-xs">
+                <div className="h-52 w-52 flex items-center justify-center text-slate-400 text-xs">
                   กำลังสร้าง QR...
                 </div>
               )}
-              <span className="text-[10px] text-slate-500 mt-2">สแกนด้วยแอปธนาคารทุกแห่งในไทย</span>
+              <span className="text-[10px] text-slate-500 mt-2 font-medium">สแกนจ่ายได้ทุกแอปธนาคารไทย</span>
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-2">
-              <p className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-200">
-                หลังชำระเงิน ระบบจะยืนยันรายการจากหลักฐานการชำระเงินหรือผู้ให้บริการเท่านั้น เพื่อป้องกันการแจ้งเตือนปลอม
+            {/* Notice & Back button */}
+            <div className="space-y-3 pt-1">
+              <p className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3.5 py-2.5 text-xs leading-relaxed text-amber-200">
+                ระบบจะตรวจสอบรายการและส่งแจ้งเตือนขึ้นหน้าจอสตรีมเมอร์ทันทีหลังการชำระเงิน
               </p>
 
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-xs text-slate-400 hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
               >
-                &larr; กลับไปแก้ไขข้อมูล
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>กลับไปแก้ไขข้อมูล</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 3: Success */}
+        {/* STEP 3: Success Screen */}
         {step === 'success' && currentDonation && (
-          <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/30 to-[#0e1219]/90 p-8 shadow-2xl backdrop-blur-xl text-center space-y-5 animate-alert-pop">
-            <div className="mx-auto h-16 w-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/20">
-              <CheckCircle2 className="h-10 w-10" />
+          <div className="rounded-xl border border-emerald-500/30 bg-[#0c1017] p-6 sm:p-8 text-center space-y-5 shadow-xl animate-alert-pop">
+            <div className="mx-auto h-12 w-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <CheckCircle2 className="h-6 w-6" />
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-2xl font-black text-white">ขอบคุณสำหรับการโดเนท! 🎉</h2>
-              <p className="text-xs text-emerald-400 font-semibold">
-                {currentDonation.paymentMethod === 'slip' ? 'สลิปได้รับการยืนยันและส่งขึ้นจอ OBS เรียบร้อยแล้ว' : 'ข้อความและเสียงแจ้งเตือนของคุณถูกส่งขึ้นหน้าจอ OBS เรียบร้อยแล้ว'}
+              <h2 className="text-xl font-bold text-white">ส่งการสนับสนุนเรียบร้อยแล้ว</h2>
+              <p className="text-xs text-emerald-400">
+                {currentDonation.paymentMethod === 'slip'
+                  ? 'ตรวจสอบสลิปสำเร็จ และส่งข้อความขึ้นจอ OBS เรียบร้อยแล้ว'
+                  : 'ข้อความและเสียงแจ้งเตือนถูกส่งขึ้นหน้าจอ OBS เรียบร้อยแล้ว'}
               </p>
             </div>
 
-            {/* Summary Receipt Card */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/5 text-left text-xs space-y-2 max-w-sm mx-auto">
+            {/* Receipt Summary */}
+            <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.06] text-left text-xs space-y-2 max-w-sm mx-auto">
               <div className="flex justify-between">
-                <span className="text-slate-400">ผู้บริจาค:</span>
-                <span className="font-bold text-white">{currentDonation.donorName}</span>
+                <span className="text-slate-400">ผู้สนับสนุน:</span>
+                <span className="font-semibold text-white">{currentDonation.donorName}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">ยอดเงิน:</span>
-                <span className="font-extrabold text-brand-400">{currentDonation.amount.toLocaleString('th-TH')} บาท</span>
+                <span className="font-bold text-emerald-400 tabular-nums">
+                  {currentDonation.amount.toLocaleString('th-TH')} บาท
+                </span>
               </div>
               {currentDonation.message && (
-                <div className="pt-2 border-t border-white/5">
+                <div className="pt-2 border-t border-white/[0.06]">
                   <span className="text-slate-400 block mb-1">ข้อความ:</span>
-                  <p className="text-slate-200 italic bg-black/40 p-2 rounded-lg">"{currentDonation.message}"</p>
+                  <p className="text-slate-200 italic bg-black/30 p-2 rounded border border-white/[0.04]">
+                    "{currentDonation.message}"
+                  </p>
                 </div>
               )}
             </div>
 
             <button
               onClick={resetForm}
-              className="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-white/10 transition-all hover:scale-105 active:scale-95"
+              className="px-5 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white font-medium text-xs border border-white/[0.08] transition-colors"
             >
-              โดเนทอีกครั้ง &rarr;
+              สนับสนุนอีกครั้ง
             </button>
           </div>
         )}

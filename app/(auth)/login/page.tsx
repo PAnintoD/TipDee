@@ -44,37 +44,42 @@ function LoginForm() {
   }
 
   return (
-    <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-2xl">
-      <h1 className="text-2xl font-bold text-white mb-1">เข้าสู่ระบบ</h1>
-      <p className="text-slate-400 text-sm mb-6">ยินดีต้อนรับกลับมา!</p>
+    <div className="surface-card p-6 sm:p-8 rounded-2xl shadow-xl">
+      <h1 className="text-xl font-bold tracking-tight text-white mb-1">เข้าสู่ระบบ</h1>
+      <p className="text-slate-400 text-xs mb-6">ยินดีต้อนรับกลับสู่ระบบ TipDee Studio</p>
 
       {verified && (
-        <div className="mb-4 p-3 bg-brand-500/10 border border-brand-500/30 rounded-lg text-brand-400 text-sm">
-          ✅ ยืนยันอีเมลสำเร็จแล้ว! สามารถเข้าสู่ระบบได้เลย
+        <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-lg text-emerald-400 text-xs">
+          ✅ ยืนยันอีเมลสำเร็จแล้ว เข้าสู่ระบบได้ทันที
         </div>
       )}
 
       {(err || error) && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-          {err || (error === 'token_expired' ? 'ลิงก์หมดอายุแล้ว กรุณาลองใหม่' : 'เกิดข้อผิดพลาด')}
+        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-lg text-rose-400 text-xs">
+          {err || (error === 'token_expired' ? 'ลิงก์หมดอายุแล้ว กรุณาลองใหม่อีกครั้ง' : 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ')}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">อีเมล</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1.5">อีเมล</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">รหัสผ่าน</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-medium text-slate-300">รหัสผ่าน</label>
+            <a href="/forgot-password" className="text-xs text-emerald-400 hover:text-emerald-300">
+              ลืมรหัสผ่าน?
+            </a>
+          </div>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -82,47 +87,42 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 pr-12 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
-          </div>
-          <div className="text-right mt-1">
-            <a href="/forgot-password" className="text-xs text-brand-400 hover:text-brand-300">
-              ลืมรหัสผ่าน?
-            </a>
           </div>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-black font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
         >
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogIn className="h-5 w-5" />}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
           เข้าสู่ระบบ
         </button>
       </form>
 
-      <div className="relative my-6">
+      <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10" />
+          <div className="w-full border-t border-white/[0.06]" />
         </div>
         <div className="relative flex justify-center text-xs text-slate-500">
-          <span className="bg-slate-900 px-3">หรือเข้าสู่ระบบด้วย</span>
+          <span className="bg-[#0e131d] px-3">หรือเข้าสู่ระบบด้วย</span>
         </div>
       </div>
 
       <button
         onClick={handleGoogleSignIn}
-        className="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-3"
+        className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] text-slate-200 text-xs font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2.5"
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24">
+        <svg className="h-4 w-4" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -131,10 +131,10 @@ function LoginForm() {
         เข้าสู่ระบบด้วย Google
       </button>
 
-      <p className="text-center text-sm text-slate-500 mt-6">
+      <p className="text-center text-xs text-slate-400 mt-5">
         ยังไม่มีบัญชี?{' '}
-        <a href="/register" className="text-brand-400 hover:text-brand-300 font-medium">
-          สมัครสมาชิก
+        <a href="/register" className="text-emerald-400 hover:text-emerald-300 font-medium">
+          สมัครสมาชิกใหม่
         </a>
       </p>
     </div>

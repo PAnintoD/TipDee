@@ -5,10 +5,10 @@ import Link from 'next/link';
 import {
   Globe,
   Search,
-  Flame,
-  Tv,
   ExternalLink,
-  RefreshCw,
+  Loader2,
+  Users,
+  Compass,
 } from 'lucide-react';
 
 export default function DiscoveryPage() {
@@ -30,22 +30,26 @@ export default function DiscoveryPage() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#0f131a]/90 backdrop-blur-md">
+    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+      {/* Studio Header */}
+      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080a0f]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white font-bold shadow-lg shadow-brand-500/20">
-              <Flame className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
-              Tip<span className="text-brand-400">Dee</span>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 font-black text-slate-950 text-xs tracking-tight shadow-sm transition-transform group-hover:scale-95">
+              TD
+            </span>
+            <span className="text-lg font-bold tracking-tight text-white">
+              Tip<span className="text-emerald-400">Dee</span>
+            </span>
+            <span className="text-[11px] font-medium text-slate-400 border border-white/[0.08] px-2 py-0.5 rounded-full ml-1 hidden sm:inline-block">
+              Discovery
             </span>
           </Link>
 
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-brand-500/20 hover:scale-105 transition-all"
+              className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] text-slate-200 text-xs font-semibold transition-colors"
             >
               แดชบอร์ดสตรีมเมอร์
             </Link>
@@ -53,79 +57,85 @@ export default function DiscoveryPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
         {/* Banner */}
-        <div className="relative overflow-hidden p-8 sm:p-12 rounded-3xl border border-white/10 bg-gradient-to-r from-brand-950/40 via-indigo-950/30 to-[#0e1219] shadow-2xl text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold">
-            <Globe className="h-4 w-4" />
-            <span>Discovery • ทำเนียบสตรีมเมอร์ TipDee</span>
-          </div>
+        <div className="surface-card p-6 sm:p-8 rounded-2xl relative overflow-hidden border border-white/[0.08]">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-3">
+              <Compass className="h-3.5 w-3.5" />
+              <span>ทำเนียบสตรีมเมอร์ TipDee</span>
+            </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white">
-            ค้นพบและร่วมสนับสนุน <span className="text-brand-400">สตรีมเมอร์ในระบบ</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto">
-            รายชื่อช่องสตรีมเมอร์และครีเอเตอร์จริงที่ลงทะเบียนบนแพลตฟอร์ม TipDee
-          </p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              ค้นพบและร่วมสนับสนุนครีเอเตอร์
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
+              รายชื่อสตรีมเมอร์และคอนเทนต์ครีเอเตอร์ที่ใช้งานระบบ TipDee คุณสามารถร่วมส่งกำลังใจและข้อความขึ้นจอสตรีมได้โดยตรง
+            </p>
 
-          {/* Search bar */}
-          <div className="max-w-xl mx-auto relative pt-2">
-            <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="ค้นหาชื่อสตรีมเมอร์, username..."
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-900/90 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 shadow-xl"
-            />
+            {/* Search bar */}
+            <div className="relative mt-5 max-w-lg">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="ค้นหาชื่อสตรีมเมอร์ หรือ @username..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+              />
+            </div>
           </div>
         </div>
 
         {/* Streamers Grid */}
         {loading ? (
-          <div className="py-20 text-center flex flex-col items-center justify-center gap-3 text-slate-500">
-            <RefreshCw className="h-6 w-6 animate-spin text-brand-400" />
+          <div className="py-24 text-center flex flex-col items-center justify-center gap-3 text-slate-500">
+            <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
             <span className="text-xs">กำลังโหลดรายชื่อสตรีมเมอร์...</span>
           </div>
         ) : streamers.length === 0 ? (
-          <div className="py-20 text-center text-xs text-slate-500">
-            ไม่พบสตรีมเมอร์ที่ตรงกับคำค้นหา
+          <div className="surface-card p-12 text-center rounded-xl">
+            <Users className="h-8 w-8 mx-auto text-slate-600 mb-2" />
+            <p className="text-sm font-medium text-slate-300">ไม่พบสตรีมเมอร์ที่ตรงกับคำค้นหา</p>
+            <p className="text-xs text-slate-500 mt-1">ลองใช้คำค้นหาอื่น หรือตรวจดูตัวสะกดอีกครั้ง</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {streamers.map((s) => (
               <div
                 key={s.username}
-                className="p-5 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-xl hover:border-brand-500/30 hover:scale-[1.02] transition-all flex flex-col justify-between space-y-4 group"
+                className="surface-card p-4 rounded-xl flex flex-col justify-between space-y-4 hover:border-white/[0.12] transition-colors group"
               >
                 <div className="space-y-3">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
                     <img
                       src={s.avatar}
                       alt={s.displayName}
-                      className="h-14 w-14 rounded-2xl bg-slate-800 border border-white/10 p-1 object-cover"
+                      className="h-12 w-12 rounded-lg bg-slate-800 border border-white/[0.08] object-cover"
                     />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors truncate">
+                        {s.displayName}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-mono">@{s.username}</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition-colors">
-                      {s.displayName}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-mono">@{s.username}</p>
-                    <p className="text-xs text-slate-300 line-clamp-2 mt-2 leading-relaxed">{s.bio}</p>
-                  </div>
+                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                    {s.bio || 'ไม่มีคำแนะนำตัว'}
+                  </p>
                 </div>
 
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between">
+                <div className="pt-3 border-t border-white/[0.04] flex items-center justify-between">
                   <div className="text-[11px] text-slate-400">
-                    <span>ยอดสะสม </span>
-                    <span className="text-brand-400 font-bold">{s.totalDonations}</span>
+                    <span className="text-slate-500">ยอดสะสม: </span>
+                    <span className="text-white font-mono font-medium">{s.totalDonations}</span>
                   </div>
 
                   <Link
                     href={`/u/${s.username}`}
                     target="_blank"
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs font-bold shadow-md transition-all hover:scale-105"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold shadow-sm transition-colors"
                   >
                     <span>โดเนท</span>
                     <ExternalLink className="h-3 w-3" />

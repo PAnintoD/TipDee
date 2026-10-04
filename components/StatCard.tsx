@@ -20,49 +20,49 @@ export function StatCard({
 }: StatCardProps) {
   const colorMap = {
     green: {
-      border: 'border-emerald-500/20 hover:border-emerald-500/40',
-      bg: 'from-emerald-950/20 to-slate-900/40',
-      iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      glow: 'group-hover:shadow-emerald-500/10',
+      icon: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+      activeBorder: 'border-emerald-500/30',
     },
     blue: {
-      border: 'border-blue-500/20 hover:border-blue-500/40',
-      bg: 'from-blue-950/20 to-slate-900/40',
-      iconBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-      glow: 'group-hover:shadow-blue-500/10',
+      icon: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+      activeBorder: 'border-sky-500/30',
     },
     purple: {
-      border: 'border-purple-500/20 hover:border-purple-500/40',
-      bg: 'from-purple-950/20 to-slate-900/40',
-      iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-      glow: 'group-hover:shadow-purple-500/10',
+      icon: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+      activeBorder: 'border-purple-500/30',
     },
     amber: {
-      border: 'border-amber-500/20 hover:border-amber-500/40',
-      bg: 'from-amber-950/20 to-slate-900/40',
-      iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-      glow: 'group-hover:shadow-amber-500/10',
+      icon: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      activeBorder: 'border-amber-500/30',
     },
   };
 
-  const scheme = colorMap[color];
+  const scheme = colorMap[color] || colorMap.green;
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border ${scheme.border} bg-gradient-to-br ${scheme.bg} p-5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${scheme.glow} ${
-        highlight ? 'ring-1 ring-brand-500/30' : ''
+      className={`relative rounded-xl border bg-[#0d1017] p-4 sm:p-5 transition-colors ${
+        highlight
+          ? 'border-emerald-500/40 bg-[#0d1219]'
+          : 'border-white/[0.08] hover:border-white/[0.14]'
       }`}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{title}</p>
-          <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1.5 min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+            {title}
+          </p>
+          <div className="text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums">
             {typeof value === 'number' ? `${value.toLocaleString('th-TH')} ฿` : value}
-          </h3>
-          {subtitle && <p className="mt-1 text-xs text-slate-400">{subtitle}</p>}
+          </div>
+          {subtitle && (
+            <p className="text-xs text-slate-400 truncate">
+              {subtitle}
+            </p>
+          )}
         </div>
-        <div className={`rounded-2xl p-3.5 border ${scheme.iconBg}`}>
-          <Icon className="h-6 w-6" />
+        <div className={`p-2.5 rounded-lg border ${scheme.icon} flex-shrink-0`}>
+          <Icon className="h-5 w-5" />
         </div>
       </div>
     </div>
