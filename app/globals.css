@@ -15,6 +15,21 @@ body {
   overflow-x: hidden;
 }
 
+/* OBS Studio Browser Source 100% Transparency & High DPI Crispness */
+html.widget-route,
+body.widget-route,
+html:has(.widget-overlay),
+body:has(.widget-overlay),
+.widget-overlay {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  overflow: hidden !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

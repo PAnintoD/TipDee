@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
 import { playAlertSound } from '@/lib/soundEffects';
-import { speakText } from '@/lib/ttsEngine';
+import { speakText, stopTTS } from '@/lib/ttsEngine';
 import { filterProfanity } from '@/lib/badWords';
-import { Sparkles, Crown, Gem, Zap } from 'lucide-react';
+import { Crown, Gem } from 'lucide-react';
 
 interface AlertItem {
   id: string;
@@ -25,15 +25,19 @@ function getAlertTier(amount: number): AlertTier {
   return 'bronze';
 }
 
-export default function AlertBoxWidgetPage() {
+function AlertBoxWidgetInner() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const streamerId = (params?.streamerId as string) || 'streamerza';
+
+  // Support size query: sm, md (default), lg, xl
+  const sizeParam = searchParams.get('size') || 'md';
+  const customScale = searchParams.get('scale');
 
   const [streamer, setStreamer] = useState<any>(null);
   const [currentAlert, setCurrentAlert] = useState<AlertItem | null>(null);
   const [isShowing, setIsShowing] = useState(false);
   const [tier, setTier] = useState<AlertTier>('bronze');
-  const [audioUnlocked, setAudioUnlocked] = useState(true);
 
   // Queue of alerts waiting to be played
   const queueRef = useRef<AlertItem[]>([]);
@@ -51,11 +55,29 @@ export default function AlertBoxWidgetPage() {
       .catch((e) => console.error(e));
   }, [streamerId]);
 
+  // Ensure 100% transparent background for OBS Studio Browser Source
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.add('widget-route');
+      document.body.classList.add('widget-route');
+      document.documentElement.style.setProperty('background', 'transparent', 'important');
+      document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+      document.body.style.setProperty('background', 'transparent', 'important');
+      document.body.style.setProperty('background-color', 'transparent', 'important');
+    }
+    return () => {
+      stopTTS();
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('widget-route');
+        document.body.classList.remove('widget-route');
+      }
+    };
+  }, []);
+
   // Trigger special Tier Confetti Effect
   const fireTierConfetti = (alertTier: AlertTier) => {
     try {
       if (alertTier === 'diamond') {
-        // Massive Rainbow Confetti
         confetti({
           particleCount: 150,
           spread: 120,
@@ -77,7 +99,6 @@ export default function AlertBoxWidgetPage() {
           });
         }, 400);
       } else if (alertTier === 'gold') {
-        // Gold Sparks
         confetti({
           particleCount: 100,
           spread: 90,
@@ -110,10 +131,10 @@ export default function AlertBoxWidgetPage() {
       minAmountForTTS: 5,
     };
 
-    // 1. Trigger Confetti for Gold/Diamond
+    // 1. Confetti
     fireTierConfetti(alertTier);
 
-    // 2. Play Sound Effect (Tier-special sound override or custom sound)
+    // 2. Play Sound Effect
     const soundType = alertTier === 'diamond' ? 'mythic_bell' : settings.soundUrl || 'levelup';
     try {
       await playAlertSound(soundType, settings.soundVolume || 80);
@@ -121,14 +142,13 @@ export default function AlertBoxWidgetPage() {
       console.warn('Audio playback error', err);
     }
 
-    // 3. Speak TTS if enabled
+    // 3. Speak Siri TTS if enabled
     if (settings.ttsEnabled && alert.enableTTS && alert.amount >= (settings.minAmountForTTS || 0)) {
       const { cleanText: cleanMsg } = filterProfanity(alert.message || '');
       const speechText = `${alert.donorName} โดเนท ${alert.amount} บาท ${cleanMsg ? `ข้อความ: ${cleanMsg}` : ''}`;
       try {
         await speakText(speechText, {
           speed: settings.ttsSpeed || 1.0,
-          pitch: settings.ttsPitch || 1.0,
           volume: settings.ttsVolume || 90,
         });
       } catch (e) {
@@ -143,7 +163,6 @@ export default function AlertBoxWidgetPage() {
       setTimeout(() => {
         setCurrentAlert(null);
         isProcessingRef.current = false;
-        // Process next item in queue
         processQueue();
       }, 500);
     }, displayDuration);
@@ -157,10 +176,7 @@ export default function AlertBoxWidgetPage() {
       try {
         const payload = JSON.parse(e.data);
         if (payload.type === 'skip_alert') {
-          // Cancel speech and hide immediately
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-          }
+          stopTTS();
           setIsShowing(false);
           setCurrentAlert(null);
           isProcessingRef.current = false;
@@ -191,19 +207,10 @@ export default function AlertBoxWidgetPage() {
     };
   }, [streamerId, streamer]);
 
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.background = 'transparent';
-      document.documentElement.style.backgroundColor = 'transparent';
-      document.body.style.background = 'transparent';
-      document.body.style.backgroundColor = 'transparent';
-    }
-  }, []);
-
   const settings = streamer?.alertSettings || {
     imageUrl: '/mascot.svg',
     textColor: '#ffffff',
-    highlightColor: '#22c55e',
+    highlightColor: '#ff9800',
     template: '{name} โดเนท {amount} บาท: {message}',
   };
 
@@ -214,32 +221,69 @@ export default function AlertBoxWidgetPage() {
       ? '#facc15'
       : settings.highlightColor && settings.highlightColor !== '#22c55e'
       ? settings.highlightColor
-      : '#ff9800'; // Vibrant streamer orange like user reference
+      : '#ff9800';
 
   const amountColor =
     tier === 'diamond'
       ? '#38bdf8'
       : settings.textColor && settings.textColor !== '#ffffff'
       ? settings.textColor
-      : '#00e5ff'; // Electric cyan like user reference
+      : '#00e5ff';
 
   const cleanMessage = currentAlert ? filterProfanity(currentAlert.message).cleanText : '';
 
+  // Preset size styles
+  const sizeStyles = {
+    sm: {
+      img: 'h-28 w-28 sm:h-36 sm:w-36',
+      name: 'text-xl sm:text-2xl',
+      amount: 'text-3xl sm:text-4xl',
+      msg: 'text-base sm:text-lg',
+    },
+    md: {
+      img: 'h-36 w-36 sm:h-48 sm:w-48',
+      name: 'text-2xl sm:text-3xl md:text-4xl',
+      amount: 'text-4xl sm:text-5xl md:text-6xl',
+      msg: 'text-xl sm:text-2xl',
+    },
+    lg: {
+      img: 'h-48 w-48 sm:h-60 sm:w-60',
+      name: 'text-3xl sm:text-4xl md:text-5xl',
+      amount: 'text-5xl sm:text-6xl md:text-7xl',
+      msg: 'text-2xl sm:text-3xl',
+    },
+    xl: {
+      img: 'h-60 w-60 sm:h-72 sm:w-72',
+      name: 'text-4xl sm:text-5xl md:text-6xl',
+      amount: 'text-6xl sm:text-7xl md:text-8xl',
+      msg: 'text-3xl sm:text-4xl',
+    },
+  }[sizeParam as 'sm' | 'md' | 'lg' | 'xl'] || {
+    img: 'h-36 w-36 sm:h-48 sm:w-48',
+    name: 'text-2xl sm:text-3xl md:text-4xl',
+    amount: 'text-4xl sm:text-5xl md:text-6xl',
+    msg: 'text-xl sm:text-2xl',
+  };
+
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-6 select-none overflow-hidden !bg-transparent"
-      style={{ backgroundColor: 'transparent' }}
+      className="widget-overlay w-full h-full min-h-screen flex items-center justify-center p-4 select-none overflow-hidden !bg-transparent"
+      style={{
+        backgroundColor: 'transparent',
+        transform: customScale ? `scale(${customScale})` : undefined,
+        transformOrigin: 'center center',
+      }}
     >
-      {/* Pop-up Alert (100% Transparent Overlay without any background cards) */}
+      {/* Pop-up Alert: 100% Transparent Overlay without any background cards */}
       {isShowing && currentAlert && (
-        <div className="relative z-10 flex items-center justify-center gap-5 sm:gap-7 animate-alert-pop max-w-3xl !bg-transparent">
+        <div className="relative z-10 flex items-center justify-center gap-5 sm:gap-7 animate-alert-pop max-w-4xl !bg-transparent">
           {/* Animated Mascot / Character (Left) */}
           {(settings.imageUrl || '/mascot.svg') && (
             <div className="flex-shrink-0 animate-character-bounce">
               <img
                 src={settings.imageUrl || '/mascot.svg'}
                 alt="Donation Mascot"
-                className="h-36 w-36 sm:h-48 sm:w-48 md:h-56 md:w-56 object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.9)]"
+                className={`${sizeStyles.img} object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.9)]`}
               />
             </div>
           )}
@@ -259,18 +303,16 @@ export default function AlertBoxWidgetPage() {
             )}
 
             {/* Line 1: Donor Name + โดเนทมา (Stroked) */}
-            <div className="flex items-baseline flex-wrap gap-x-2.5 text-2xl sm:text-3xl md:text-4xl font-black leading-tight stream-text-stroke tracking-normal">
-              <span style={{ color: donorNameColor }}>
-                {currentAlert.donorName}
-              </span>
-              <span className="text-white">
-                โดเนทมา
-              </span>
+            <div
+              className={`flex items-baseline flex-wrap gap-x-2.5 font-black leading-tight stream-text-stroke tracking-normal ${sizeStyles.name}`}
+            >
+              <span style={{ color: donorNameColor }}>{currentAlert.donorName}</span>
+              <span className="text-white">โดเนทมา</span>
             </div>
 
             {/* Line 2: Amount (Huge, Bold Cyan with heavy stroke) */}
             <div
-              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-none my-1 stream-text-stroke"
+              className={`font-black tracking-tight leading-none my-1 stream-text-stroke ${sizeStyles.amount}`}
               style={{ color: amountColor }}
             >
               {currentAlert.amount.toLocaleString('th-TH')}฿
@@ -278,8 +320,8 @@ export default function AlertBoxWidgetPage() {
 
             {/* Line 3: Donor Message (Pure text with outline, no background box) */}
             {cleanMessage && (
-              <div className="mt-1.5 max-w-md">
-                <span className="text-xl sm:text-2xl font-black text-white stream-text-stroke leading-snug">
+              <div className="mt-1.5 max-w-lg">
+                <span className={`font-black text-white stream-text-stroke leading-snug ${sizeStyles.msg}`}>
                   "{cleanMessage}"
                 </span>
               </div>
@@ -288,5 +330,13 @@ export default function AlertBoxWidgetPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AlertBoxWidgetPage() {
+  return (
+    <Suspense fallback={null}>
+      <AlertBoxWidgetInner />
+    </Suspense>
   );
 }

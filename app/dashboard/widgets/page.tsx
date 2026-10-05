@@ -41,6 +41,8 @@ export default function WidgetsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [recentMode, setRecentMode] = useState<'list' | 'ticker'>('list');
+  const [alertSize, setAlertSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
+  const [goalSize, setGoalSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
 
   // Streamer alert settings state
   const [alertSettings, setAlertSettings] = useState({
@@ -61,14 +63,14 @@ export default function WidgetsPage() {
     fontFamily: 'Prompt, sans-serif',
   });
 
-  // Goal settings state
+  // Goal settings state (Image 2 style)
   const [goalSettings, setGoalSettings] = useState({
-    title: '🎯 เป้าหมาย: ซื้อการ์ดจอ RTX 4070',
-    targetAmount: 20000,
-    currentAmount: 8450,
+    title: '🎯 ยำวุ้นเส้น',
+    targetAmount: 200,
+    currentAmount: 100,
     endDate: '2026-12-31',
-    barColor: '#22c55e',
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    barColor: '#00a8ff',
+    backgroundColor: 'rgba(24, 24, 27, 0.85)',
     textColor: '#ffffff',
     showPercentage: true,
   });
@@ -248,35 +250,69 @@ export default function WidgetsPage() {
               {/* Settings Form */}
               <div className="lg:col-span-7 space-y-5">
                 {/* OBS URL Box */}
-                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
+                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Tv className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ OBS Browser Source
+                      <Tv className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Alert Box (OBS)
                     </span>
-                    <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 800 x 600 px</span>
+                    <span className="text-[11px] font-semibold text-emerald-400">
+                      ขนาดแนะนำ: {alertSize === 'sm' ? '650 x 240' : alertSize === 'lg' ? '1000 x 380' : alertSize === 'xl' ? '1200 x 450' : '800 x 300'} px
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
                       readOnly
-                      value={typeof window !== 'undefined' ? `${window.location.origin}/widget/alert/${streamerId}` : `/widget/alert/${streamerId}`}
+                      value={
+                        typeof window !== 'undefined'
+                          ? `${window.location.origin}/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`
+                          : `/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`
+                      }
                       className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                     />
                     <button
-                      onClick={() => copyToClipboard(`/widget/alert/${streamerId}`, 'alert-box')}
+                      onClick={() =>
+                        copyToClipboard(`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`, 'alert-box')
+                      }
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                     >
                       {copiedUrl === 'alert-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedUrl === 'alert-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
                     </button>
                     <Link
-                      href={`/widget/alert/${streamerId}`}
+                      href={`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`}
                       target="_blank"
                       className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                       title="เปิดหน้าต่างแยก"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
+                  </div>
+
+                  {/* Alert Size Selector */}
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-xs text-slate-400">ขนาดความคมชัด (Resolution Size):</span>
+                    <div className="flex items-center gap-1.5">
+                      {[
+                        { id: 'sm', label: 'กะทัดรัด (650px)' },
+                        { id: 'md', label: 'มาตรฐาน (800px)' },
+                        { id: 'lg', label: 'ใหญ่ (1000px)' },
+                        { id: 'xl', label: 'ใหญ่พิเศษ 4K (1200px)' },
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setAlertSize(s.id as any)}
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                            alertSize === s.id
+                              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
+                              : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 border-white/[0.08]'
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -365,8 +401,13 @@ export default function WidgetsPage() {
                 <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-white">3. เสียงอ่านข้อความ (TTS - Text-to-Speech)</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">อ่านชื่อผู้บริจาคและข้อความภาษาไทยอัตโนมัติ</p>
+                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                        <span>3. เสียงอ่านสิริ (Siri Thai TTS)</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                          เสียงสิริแท้ 100%
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-0.5">อ่านชื่อผู้บริจาคและข้อความภาษาไทยด้วยเสียงสิริยอดฮิตของสตรีมเมอร์</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -380,31 +421,50 @@ export default function WidgetsPage() {
                   </div>
 
                   {alertSettings.ttsEnabled && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/[0.06]">
-                      <div>
-                        <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-                          <span>ความเร็วในการอ่าน (Speed):</span>
-                          <span className="font-bold text-white tabular-nums">{alertSettings.ttsSpeed}x</span>
+                    <div className="space-y-4 pt-2 border-t border-white/[0.06]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <div className="flex justify-between text-xs text-slate-400 mb-1.5">
+                            <span>ความเร็วในการอ่าน (Speed):</span>
+                            <span className="font-bold text-white tabular-nums">{alertSettings.ttsSpeed}x</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.7"
+                            max="1.5"
+                            step="0.1"
+                            value={alertSettings.ttsSpeed}
+                            onChange={(e) => setAlertSettings({ ...alertSettings, ttsSpeed: Number(e.target.value) })}
+                            className="w-full accent-emerald-500"
+                          />
                         </div>
-                        <input
-                          type="range"
-                          min="0.7"
-                          max="1.5"
-                          step="0.1"
-                          value={alertSettings.ttsSpeed}
-                          onChange={(e) => setAlertSettings({ ...alertSettings, ttsSpeed: Number(e.target.value) })}
-                          className="w-full accent-emerald-500"
-                        />
+
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1.5">ยอดเงินขั้นต่ำที่จะอ่านออกเสียง (บาท):</label>
+                          <input
+                            type="number"
+                            value={alertSettings.minAmountForTTS}
+                            onChange={(e) => setAlertSettings({ ...alertSettings, minAmountForTTS: Number(e.target.value) })}
+                            className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs text-slate-400 mb-1.5">ยอดเงินขั้นต่ำที่จะอ่านออกเสียง (บาท):</label>
-                        <input
-                          type="number"
-                          value={alertSettings.minAmountForTTS}
-                          onChange={(e) => setAlertSettings({ ...alertSettings, minAmountForTTS: Number(e.target.value) })}
-                          className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
-                        />
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-xs text-slate-400">ทดสอบฟังเสียงสิริในหน้านี้:</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            speakText('ผู้สนับสนุนใจดี โดเนท 100 บาท ข้อความ: ทดสอบเสียงสิริ TipDee สำเร็จแล้วครับ!', {
+                              speed: alertSettings.ttsSpeed,
+                              volume: 90,
+                            });
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-semibold border border-emerald-500/30 transition-colors"
+                        >
+                          <Volume2 className="h-3.5 w-3.5" />
+                          <span>🔊 ทดสอบฟังเสียงสิริ</span>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -554,9 +614,9 @@ export default function WidgetsPage() {
                         >
                           500฿
                         </div>
-                        <p className="text-[11px] font-bold text-white stream-text-stroke-sm bg-black/60 px-2.5 py-0.5 rounded-lg border border-white/20 shadow-md max-w-xs mt-1">
-                          "ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงามคมชัด 100%!"
-                        </p>
+                        <span className="text-xs sm:text-sm font-black text-white stream-text-stroke-sm leading-snug mt-1 max-w-xs">
+                          &quot;ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงามคมชัด 100%!&quot;
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -573,35 +633,74 @@ export default function WidgetsPage() {
           {activeTab === 'goal' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-7 space-y-5">
-                {/* OBS URL */}
-                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
+                {/* OBS URL Box */}
+                <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-white flex items-center gap-1.5">
                       <Target className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Goal Widget (OBS)
                     </span>
-                    <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 600 x 120 px</span>
+                    <span className="text-[11px] font-semibold text-emerald-400">
+                      ขนาดแนะนำ: {goalSize === 'sm' ? '450 x 100' : goalSize === 'lg' ? '750 x 160' : goalSize === 'xl' ? '900 x 190' : '600 x 130'} px
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
                       readOnly
-                      value={typeof window !== 'undefined' ? `${window.location.origin}/widget/goal/${streamerId}` : `/widget/goal/${streamerId}`}
+                      value={
+                        typeof window !== 'undefined'
+                          ? `${window.location.origin}/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`
+                          : `/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`
+                      }
                       className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
                     />
                     <button
-                      onClick={() => copyToClipboard(`/widget/goal/${streamerId}`, 'goal-box')}
+                      onClick={() =>
+                        copyToClipboard(`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`, 'goal-box')
+                      }
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
                     >
                       {copiedUrl === 'goal-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedUrl === 'goal-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
                     </button>
                     <Link
-                      href={`/widget/goal/${streamerId}`}
+                      href={`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`}
                       target="_blank"
                       className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                     </Link>
+                  </div>
+
+                  {/* Goal Size Selector */}
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+                    <span className="text-xs text-slate-400">ขนาดความคมชัด (Resolution Size):</span>
+                    <div className="flex items-center gap-1.5">
+                      {[
+                        { id: 'sm', label: 'กะทัดรัด (450px)' },
+                        { id: 'md', label: 'มาตรฐาน (600px)' },
+                        { id: 'lg', label: 'ใหญ่ (750px)' },
+                        { id: 'xl', label: 'ใหญ่พิเศษ 4K (900px)' },
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setGoalSize(s.id as any)}
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                            goalSize === s.id
+                              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
+                              : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 border-white/[0.08]'
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* OBS Crispness Tip */}
+                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-slate-300 leading-relaxed">
+                    💡 <strong className="text-white">วิธีใส่ใน OBS ให้ภาพคมชัด ไม่แตกเบลอ:</strong> เพิ่ม Browser Source ใส่ Width และ Height ตามขนาดที่แนะนำด้านบน <span className="text-amber-300 font-semibold">ห้ามใช้เมาส์ดึงขยายกรอบสีแดงใน OBS</span> เพราะจะทำให้ภาพเบลอ หากต้องการแถบใหญ่ขึ้น ให้กดเลือกขนาด &quot;ใหญ่ (Large)&quot; ด้านบนเพื่อความคมชัดแบบเวกเตอร์ 100%!
                   </div>
                 </div>
 
@@ -609,11 +708,12 @@ export default function WidgetsPage() {
                   <h3 className="text-sm font-bold text-white">ตั้งค่าเป้าหมายการระดมทุน (Donation Goal)</h3>
 
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1.5">หัวข้อเป้าหมาย:</label>
+                    <label className="block text-xs text-slate-400 mb-1.5">หัวข้อเป้าหมาย (Title):</label>
                     <input
                       type="text"
                       value={goalSettings.title}
                       onChange={(e) => setGoalSettings({ ...goalSettings, title: e.target.value })}
+                      placeholder="เช่น ยำวุ้นเส้น หรือ ซื้อการ์ดจอ RTX 4070"
                       className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
                     />
                   </div>
@@ -642,21 +742,70 @@ export default function WidgetsPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
+                      <label className="block text-xs text-slate-400 mb-1.5">วันสิ้นสุดเป้าหมาย (End Date):</label>
+                      <input
+                        type="date"
+                        value={goalSettings.endDate || ''}
+                        onChange={(e) => setGoalSettings({ ...goalSettings, endDate: e.target.value })}
+                        className="w-full rounded-lg bg-[#141822] border border-white/[0.08] px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div>
                       <label className="block text-xs text-slate-400 mb-1.5">สีแถบความคืบหน้า (Bar Color):</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
-                          value={goalSettings.barColor}
+                          value={goalSettings.barColor || '#00a8ff'}
                           onChange={(e) => setGoalSettings({ ...goalSettings, barColor: e.target.value })}
                           className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
                         />
                         <input
                           type="text"
-                          value={goalSettings.barColor}
+                          value={goalSettings.barColor || '#00a8ff'}
                           onChange={(e) => setGoalSettings({ ...goalSettings, barColor: e.target.value })}
                           className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Goal Color Presets */}
+                  <div className="pt-2 border-t border-white/[0.06]">
+                    <span className="block text-[11px] text-slate-400 mb-2">ชุดสียอดนิยมสำหรับแถบ Goal:</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setGoalSettings({ ...goalSettings, barColor: '#00a8ff' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#00a8ff]"></span>
+                        💧 ฟ้าสดใส (แบบรูปที่ 2)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGoalSettings({ ...goalSettings, barColor: '#22c55e' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]"></span>
+                        🌿 เขียวมรกต (Emerald Green)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGoalSettings({ ...goalSettings, barColor: '#ec4899' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ec4899]"></span>
+                        💖 ชมพูนีออน (Neon Pink)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setGoalSettings({ ...goalSettings, barColor: '#eab308' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#eab308]"></span>
+                        ⭐ ทองสว่าง (Gold)
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -667,30 +816,68 @@ export default function WidgetsPage() {
                 <div className="sticky top-20 rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 space-y-4 shadow-sm">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <Target className="h-4 w-4 text-emerald-400" />
-                    <span>ตัวอย่าง Goal บน OBS</span>
+                    <span>ตัวอย่าง Goal สไตล์ใหม่ (Live Preview)</span>
                   </h3>
 
-                  <div className="p-4 rounded-lg bg-[#07090e] border border-white/[0.08] space-y-2.5">
-                    <div className="flex justify-between items-center text-xs font-semibold text-white">
-                      <span>{goalSettings.title}</span>
-                      <span className="text-emerald-400 font-bold tabular-nums">{goalPercent}%</span>
-                    </div>
+                  {/* OBS Box Simulation Container */}
+                  <div className="relative w-full aspect-video rounded-lg bg-[#07090e] border border-white/[0.08] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+                    {/* Checkerboard for transparency indication */}
+                    <div
+                      className="absolute inset-0 opacity-15 pointer-events-none"
+                      style={{
+                        backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                        backgroundSize: '16px 16px',
+                      }}
+                    />
 
-                    <div className="h-3 w-full rounded-full bg-slate-850 overflow-hidden border border-white/[0.04]">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
+                    {/* Image 2 Design Replication */}
+                    <div className="relative z-10 w-full max-w-[360px] flex flex-col items-center select-none">
+                      <h2
+                        className="font-black text-white text-center text-lg sm:text-xl mb-2 tracking-wide"
                         style={{
-                          width: `${goalPercent}%`,
-                          backgroundColor: goalSettings.barColor,
+                          textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000',
                         }}
-                      />
-                    </div>
+                      >
+                        {goalSettings.title || 'ยำวุ้นเส้น'}
+                      </h2>
 
-                    <div className="flex justify-between text-[11px] text-slate-400 font-medium tabular-nums">
-                      <span>{goalSettings.currentAmount.toLocaleString('th-TH')} ฿</span>
-                      <span>เป้าหมาย {goalSettings.targetAmount.toLocaleString('th-TH')} ฿</span>
+                      <div className="relative w-full h-10 sm:h-11 rounded-full bg-[#18181b]/90 border border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] overflow-hidden flex items-center">
+                        <div
+                          className="h-full rounded-full transition-all duration-500 ease-out"
+                          style={{
+                            width: `${goalPercent}%`,
+                            backgroundColor: goalSettings.barColor || '#00a8ff',
+                            boxShadow: `0 0 14px ${(goalSettings.barColor || '#00a8ff')}66`,
+                          }}
+                        />
+
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span
+                            className="font-black text-white text-sm sm:text-base tracking-wide"
+                            style={{
+                              textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 3px #000000',
+                            }}
+                          >
+                            {goalSettings.currentAmount.toLocaleString('th-TH')}฿ ({goalPercent}%)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div
+                        className="w-full flex justify-between items-center mt-2 px-1 text-xs font-bold text-white"
+                        style={{
+                          textShadow: '0 1px 3px rgba(0, 0, 0, 0.95), 0 0 2px #000000',
+                        }}
+                      >
+                        <span>จากเป้าหมาย {goalSettings.targetAmount.toLocaleString('th-TH')}฿</span>
+                        <span>สิ้นสุดใน 30 วัน</span>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-[11px] text-slate-400 text-center">
+                    ตัวอย่างนี้จำลองการแสดงผล Goal สไตล์ใหม่บน OBS Studio (โปร่งใส 100% คมชัดระดับ 4K)
+                  </p>
                 </div>
               </div>
             </div>

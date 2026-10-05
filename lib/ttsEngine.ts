@@ -1,51 +1,34 @@
 /**
- * Text-to-Speech Engine for TipDee
- * Features:
- * - Web Speech API with automatic Thai voice detection
- * - Profanity and abusive language filtering
- * - Speech text normalization (555 -> ฮ่าฮ่า, symbols, length limits)
- * - Safe audio unlock for OBS Browser Sources
+ * Siri Thai Text-to-Speech Engine for TipDee
+ * Exclusively plays natural Thai streamer Siri voice via Google Translate TTS
+ * No robotic or foreign fallback voices
  */
-
 import { normalizeTextForTTS } from './badWords';
 
 export interface TTSOptions {
-  voiceLang?: string;
   speed?: number; // 0.5 - 2.0
   pitch?: number; // 0.5 - 2.0
   volume?: number; // 0 - 100
 }
 
+let activeAudio: HTMLAudioElement | null = null;
+
 /**
- * Ensures voices are loaded in Chrome / OBS browser source
+ * Stops any currently playing TTS audio immediately
  */
-export function getAvailableVoices(): Promise<SpeechSynthesisVoice[]> {
-  return new Promise((resolve) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      resolve([]);
-      return;
-    }
-
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      resolve(voices);
-      return;
-    }
-
-    // Chrome loads voices asynchronously
-    window.speechSynthesis.onvoiceschanged = () => {
-      resolve(window.speechSynthesis.getVoices());
-    };
-
-    // Fallback timeout after 1s
-    setTimeout(() => {
-      resolve(window.speechSynthesis.getVoices());
-    }, 1000);
-  });
+export function stopTTS(): void {
+  if (activeAudio) {
+    try {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio.src = '';
+    } catch {}
+    activeAudio = null;
+  }
 }
 
 /**
- * Speaks text using normalized speech synthesis
+ * Speaks text using the iconic streamer "Siri Thai" voice exclusively
  */
 export async function speakText(rawText: string, options: TTSOptions = {}): Promise<void> {
   if (typeof window === 'undefined') {
@@ -57,95 +40,50 @@ export async function speakText(rawText: string, options: TTSOptions = {}): Prom
     return;
   }
 
-  // 1. First priority: Natural Thai TTS Audio endpoint (Guaranteed to work in OBS Studio & browsers without Windows Thai voice pack)
-  try {
-    const audioUrl = `/api/tts?text=${encodeURIComponent(text.slice(0, 200))}`;
-    const audio = new Audio(audioUrl);
-    audio.volume = Math.max(0, Math.min(1, (options.volume !== undefined ? options.volume : 90) / 100));
-    if (options.speed && options.speed !== 1.0) {
-      audio.playbackRate = Math.max(0.5, Math.min(2.0, options.speed));
-    }
+  // Stop any previous speech
+  stopTTS();
 
-    const played = await new Promise<boolean>((resolve) => {
-      audio.onended = () => resolve(true);
-      audio.onerror = () => resolve(false);
-
-      // Timeout safety
-      const timer = setTimeout(() => resolve(true), Math.max(4000, text.length * 250));
-
-      audio
-        .play()
-        .then(() => {
-          // Audio started playing successfully
-        })
-        .catch((err) => {
-          console.warn('[TTS] Audio element play failed, falling back to Web Speech:', err);
-          clearTimeout(timer);
-          resolve(false);
-        });
-    });
-
-    if (played) {
-      return;
-    }
-  } catch (err) {
-    console.warn('[TTS] Audio endpoint error, trying Web Speech API:', err);
-  }
-
-  // 2. Fallback to Web Speech API (speechSynthesis)
-  return fallbackSpeechSynthesis(text, options);
-}
-
-function fallbackSpeechSynthesis(text: string, options: TTSOptions): Promise<void> {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-    return Promise.resolve();
-  }
-
-  return new Promise(async (resolve) => {
+  return new Promise<void>((resolve) => {
     try {
-      window.speechSynthesis.cancel();
+      const audioUrl = `/api/tts?text=${encodeURIComponent(text.slice(0, 250))}`;
+      const audio = new Audio(audioUrl);
+      activeAudio = audio;
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = Math.max(0.5, Math.min(2.0, options.speed || 1.0));
-      utterance.pitch = Math.max(0.5, Math.min(2.0, options.pitch || 1.0));
-      utterance.volume = Math.max(0, Math.min(1, (options.volume !== undefined ? options.volume : 90) / 100));
-      utterance.lang = options.voiceLang || 'th-TH';
+      const volumePercent = options.volume !== undefined ? options.volume : 90;
+      audio.volume = Math.max(0, Math.min(1, volumePercent / 100));
 
-      const voices = await getAvailableVoices();
-      const thaiVoice = voices.find(
-        (v) =>
-          v.lang.toLowerCase().startsWith('th') ||
-          v.lang.toLowerCase().includes('th-th') ||
-          v.name.toLowerCase().includes('thai') ||
-          v.name.toLowerCase().includes('kanya') ||
-          v.name.toLowerCase().includes('narisa') ||
-          v.name.toLowerCase().includes('prew')
-      );
-
-      if (thaiVoice) {
-        utterance.voice = thaiVoice;
+      if (options.speed && options.speed !== 1.0) {
+        audio.playbackRate = Math.max(0.6, Math.min(1.8, options.speed));
       }
 
       let isFinished = false;
-      const finish = () => {
+      const cleanup = () => {
         if (!isFinished) {
           isFinished = true;
+          if (activeAudio === audio) {
+            activeAudio = null;
+          }
           resolve();
         }
       };
 
-      utterance.onend = finish;
-      utterance.onerror = (err) => {
-        console.warn('SpeechSynthesis error:', err);
-        finish();
+      audio.onended = cleanup;
+      audio.onerror = (e) => {
+        console.warn('[Siri TTS] Audio playback error:', e);
+        cleanup();
       };
 
-      const maxTime = Math.max(3500, text.length * 250);
-      setTimeout(finish, maxTime);
+      // Safety timeout based on text length
+      const maxDuration = Math.max(4000, text.length * 200);
+      const timer = setTimeout(cleanup, maxDuration);
 
-      window.speechSynthesis.speak(utterance);
+      audio.play().catch((err) => {
+        console.warn('[Siri TTS] Audio play prevented by browser policy:', err);
+        clearTimeout(timer);
+        cleanup();
+      });
     } catch (err) {
-      console.error('SpeechSynthesis error:', err);
+      console.warn('[Siri TTS] Failed to create audio element:', err);
       resolve();
     }
   });

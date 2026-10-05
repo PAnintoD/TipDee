@@ -6,13 +6,14 @@ export default function WidgetLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen w-full !bg-transparent overflow-hidden">
+    <div className="widget-overlay min-h-screen w-full !bg-transparent overflow-hidden">
       <style
         dangerouslySetInnerHTML={{
           __html: `
             html, body, #__next, body > div:first-child {
               background: transparent !important;
               background-color: transparent !important;
+              background-image: none !important;
               overflow: hidden !important;
             }
           `,

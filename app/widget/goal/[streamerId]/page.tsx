@@ -1,23 +1,26 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import confetti from 'canvas-confetti';
-import { Target, CheckCircle2, Flame } from 'lucide-react';
 
-export default function GoalWidgetPage() {
+function GoalWidgetInner() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const streamerId = (params?.streamerId as string) || 'streamerza';
 
+  // Support size query: sm, md (default), lg, xl
+  const sizeParam = searchParams.get('size') || 'md';
+  const customScale = searchParams.get('scale');
+
   const [goal, setGoal] = useState<any>({
-    title: '🎯 เป้าหมายโดเนท',
-    targetAmount: 10000,
-    currentAmount: 0,
-    barColor: '#22c55e',
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    title: '🎯 ยำวุ้นเส้น',
+    targetAmount: 200,
+    currentAmount: 100,
+    barColor: '#00a8ff',
+    backgroundColor: 'rgba(24, 24, 27, 0.85)',
     textColor: '#ffffff',
-    template: 'neon', // classic, neon, compact, retro
-    showPercentage: true,
+    endDate: '',
   });
 
   const celebrationTriggered = useRef(false);
@@ -33,6 +36,25 @@ export default function GoalWidgetPage() {
       .catch((e) => console.error(e));
   };
 
+  // OBS 100% Transparency setup
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.add('widget-route');
+      document.body.classList.add('widget-route');
+      document.documentElement.style.setProperty('background', 'transparent', 'important');
+      document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+      document.body.style.setProperty('background', 'transparent', 'important');
+      document.body.style.setProperty('background-color', 'transparent', 'important');
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.remove('widget-route');
+        document.body.classList.remove('widget-route');
+      }
+    };
+  }, []);
+
+  // Real-time donation listener
   useEffect(() => {
     fetchGoal();
 
@@ -53,104 +75,149 @@ export default function GoalWidgetPage() {
     };
   }, [streamerId]);
 
-  const percentage = Math.min(100, Math.round(((goal.currentAmount || 0) / (goal.targetAmount || 1)) * 100));
+  const target = Math.max(1, Number(goal.targetAmount) || 1);
+  const current = Number(goal.currentAmount) || 0;
+  const percentage = Math.min(100, Math.round((current / target) * 100));
 
-  // Trigger celebration on goal completion
+  // Trigger celebration on 100% completion
   useEffect(() => {
     if (percentage >= 100 && !celebrationTriggered.current) {
       celebrationTriggered.current = true;
       try {
         confetti({
-          particleCount: 100,
-          spread: 80,
-          origin: { y: 0.6 },
+          particleCount: 120,
+          spread: 85,
+          origin: { y: 0.5 },
         });
       } catch {}
     }
   }, [percentage]);
 
-  const isCompleted = percentage >= 100;
-  const template = goal.template || 'neon';
+  // Compute remaining days
+  const getRemainingDaysText = () => {
+    if (!goal.endDate) return 'สิ้นสุดใน 30 วัน';
+    try {
+      const end = new Date(goal.endDate);
+      if (isNaN(end.getTime())) return 'สิ้นสุดใน 30 วัน';
+      const now = new Date();
+      const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+      const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const diffDays = Math.ceil((endDay - nowDay) / (1000 * 60 * 60 * 24));
+      if (diffDays > 1) return `สิ้นสุดใน ${diffDays} วัน`;
+      if (diffDays === 1) return 'สิ้นสุดพรุ่งนี้';
+      if (diffDays === 0) return 'สิ้นสุดวันนี้';
+      return 'สิ้นสุดแล้ว';
+    } catch {
+      return 'สิ้นสุดใน 30 วัน';
+    }
+  };
+
+  // Preset dimension configs for crisp rendering in OBS Studio
+  const sizeStyles = {
+    sm: {
+      wrapper: 'max-w-[440px]',
+      title: 'text-lg',
+      barHeight: 'h-9',
+      barText: 'text-sm font-black',
+      footer: 'text-xs',
+    },
+    md: {
+      wrapper: 'max-w-[580px]',
+      title: 'text-xl sm:text-2xl',
+      barHeight: 'h-11 sm:h-12',
+      barText: 'text-base sm:text-lg font-black',
+      footer: 'text-xs sm:text-sm',
+    },
+    lg: {
+      wrapper: 'max-w-[720px]',
+      title: 'text-2xl sm:text-3xl',
+      barHeight: 'h-14 sm:h-16',
+      barText: 'text-lg sm:text-xl font-black',
+      footer: 'text-sm sm:text-base',
+    },
+    xl: {
+      wrapper: 'max-w-[880px]',
+      title: 'text-3xl sm:text-4xl',
+      barHeight: 'h-16 sm:h-20',
+      barText: 'text-xl sm:text-2xl font-black',
+      footer: 'text-base sm:text-lg',
+    },
+  }[sizeParam as 'sm' | 'md' | 'lg' | 'xl'] || {
+    wrapper: 'max-w-[580px]',
+    title: 'text-xl sm:text-2xl',
+    barHeight: 'h-11 sm:h-12',
+    barText: 'text-base sm:text-lg font-black',
+    footer: 'text-xs sm:text-sm',
+  };
+
+  const barColor = goal.barColor || '#00a8ff';
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-4 select-none"
-      style={{ backgroundColor: 'transparent' }}
+      className="widget-overlay w-full h-full min-h-screen flex items-center justify-center p-3 select-none overflow-hidden !bg-transparent"
+      style={{
+        backgroundColor: 'transparent',
+        transform: customScale ? `scale(${customScale})` : undefined,
+        transformOrigin: 'center center',
+      }}
     >
-      {/* 1. Compact Pill Template */}
-      {template === 'compact' ? (
-        <div
-          className="px-4 py-2.5 rounded-full shadow-2xl border border-white/15 backdrop-blur-md flex items-center gap-3 max-w-sm w-full"
-          style={{ backgroundColor: goal.backgroundColor || 'rgba(15, 23, 42, 0.9)' }}
+      <div className={`w-full ${sizeStyles.wrapper} flex flex-col items-center !bg-transparent`}>
+        {/* Title above bar (Matching Image 2: bold, white, centered, drop shadow) */}
+        <h2
+          className={`font-black text-white text-center mb-2 tracking-wide leading-tight ${sizeStyles.title}`}
+          style={{
+            textShadow: '0 2px 5px rgba(0, 0, 0, 0.95), 0 0 2px #000000',
+          }}
         >
-          <div className="p-1.5 rounded-full bg-brand-500/20 text-brand-400 flex-shrink-0">
-            <Target className="h-4 w-4" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between text-xs font-bold truncate mb-1" style={{ color: goal.textColor || '#ffffff' }}>
-              <span className="truncate">{goal.title}</span>
-              <span className="text-brand-400 ml-2">{percentage}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-black/50 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-1000"
-                style={{
-                  width: `${percentage}%`,
-                  backgroundColor: goal.barColor || '#22c55e',
-                  boxShadow: `0 0 10px ${goal.barColor || '#22c55e'}`,
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* 2. Neon / Classic Template */
-        <div
-          className={`w-full max-w-md p-5 rounded-3xl shadow-2xl border backdrop-blur-md space-y-3 ${
-            template === 'neon'
-              ? 'border-brand-500/30 ring-1 ring-brand-500/20 shadow-[0_0_35px_rgba(34,197,94,0.2)]'
-              : 'border-white/10'
-          }`}
-          style={{ backgroundColor: goal.backgroundColor || 'rgba(15, 23, 42, 0.85)' }}
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center text-sm font-black" style={{ color: goal.textColor || '#ffffff' }}>
-            <div className="flex items-center gap-2 truncate pr-2">
-              {isCompleted ? (
-                <CheckCircle2 className="h-4 w-4 text-brand-400 flex-shrink-0 animate-bounce" />
-              ) : (
-                <Target className="h-4 w-4 text-brand-400 flex-shrink-0" />
-              )}
-              <span className="truncate">{goal.title}</span>
-            </div>
-            <span className="text-brand-400 font-extrabold text-base flex-shrink-0">{percentage}%</span>
-          </div>
+          {goal.title || 'ยำวุ้นเส้น'}
+        </h2>
 
-          {/* Progress Bar Container */}
-          <div className="h-5 w-full rounded-full bg-black/60 overflow-hidden p-0.5 border border-white/10 relative">
-            <div
-              className={`h-full rounded-full transition-all duration-1000 ${
-                template === 'neon' ? 'bg-gradient-to-r from-emerald-600 via-brand-500 to-green-300' : ''
-              }`}
+        {/* Pill Progress Bar (Matching Image 2: sleek dark track with cyan active fill) */}
+        <div
+          className={`relative w-full ${sizeStyles.barHeight} rounded-full bg-[#18181b]/85 border border-white/10 shadow-[inset_0_2px_5px_rgba(0,0,0,0.7)] overflow-hidden flex items-center`}
+        >
+          {/* Active Fill Bar */}
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${percentage}%`,
+              backgroundColor: barColor,
+              boxShadow: `0 0 16px ${barColor}66`,
+            }}
+          />
+
+          {/* Centered Amount Text (e.g. 100฿ (50%)) */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span
+              className={`text-white tracking-wide ${sizeStyles.barText}`}
               style={{
-                width: `${percentage}%`,
-                backgroundColor: template === 'neon' ? undefined : goal.barColor || '#22c55e',
-                boxShadow: `0 0 20px ${goal.barColor || '#22c55e'}`,
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 3px #000000',
               }}
-            />
-          </div>
-
-          {/* Amount footer */}
-          <div className="flex justify-between items-center text-xs font-bold text-slate-300">
-            <span className="text-brand-400 font-extrabold text-sm">
-              {(goal.currentAmount || 0).toLocaleString('th-TH')} ฿
-            </span>
-            <span className="text-slate-400">
-              เป้าหมาย {(goal.targetAmount || 0).toLocaleString('th-TH')} ฿
+            >
+              {current.toLocaleString('th-TH')}฿ ({percentage}%)
             </span>
           </div>
         </div>
-      )}
+
+        {/* Sub Info Row (Left: จากเป้าหมาย ...฿, Right: สิ้นสุดใน ... วัน) */}
+        <div
+          className={`w-full flex justify-between items-center mt-2 px-1 font-bold text-white ${sizeStyles.footer}`}
+          style={{
+            textShadow: '0 1px 3px rgba(0, 0, 0, 0.95), 0 0 2px #000000',
+          }}
+        >
+          <span>จากเป้าหมาย {target.toLocaleString('th-TH')}฿</span>
+          <span>{getRemainingDaysText()}</span>
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function GoalWidgetPage() {
+  return (
+    <Suspense fallback={null}>
+      <GoalWidgetInner />
+    </Suspense>
   );
 }
