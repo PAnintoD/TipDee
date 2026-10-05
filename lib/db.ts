@@ -173,23 +173,11 @@ const DEFAULT_STREAMER: StreamerProfile = {
 };
 
 export async function getStreamer(id: string = 'streamerza'): Promise<StreamerProfile> {
-  // If Firebase Firestore configured
-  if (isFirebaseConfigured && adminDb) {
-    try {
-      const doc = await adminDb.collection('streamers').doc(id).get();
-      if (doc.exists) {
-        return { ...DEFAULT_STREAMER, ...(doc.data() as any) };
-      }
-    } catch (e) {
-      console.warn('Firebase read error, falling back to local DB', e);
-    }
-  }
-
-  // Local Prisma DB
+  // Prisma DB is the primary Single Source of Truth
   try {
     let streamer = await prisma.streamer.findFirst({
       where: {
-        OR: [{ id }, { username: id }],
+        OR: [{ id }, { username: id }, { userId: id }],
       },
       include: { widgetSettings: true, goalSettings: true },
     });
@@ -381,17 +369,7 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
 }
 
 export async function updateStreamer(id: string, updates: Partial<StreamerProfile>): Promise<StreamerProfile> {
-  // If Firebase Firestore
-  if (isFirebaseConfigured && adminDb) {
-    try {
-      await adminDb.collection('streamers').doc(id).set(updates, { merge: true });
-      return getStreamer(id);
-    } catch (e) {
-      console.warn('Firebase write error', e);
-    }
-  }
-
-  // Local Prisma DB
+  // Always update Prisma DB as the Single Source of Truth
   try {
     // Resolve streamer by ID, username or userId
     let existing = await prisma.streamer.findFirst({
@@ -529,6 +507,11 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
       });
     }
 
+    // Mirror to Firestore in background if configured, without blocking Prisma
+    if (isFirebaseConfigured && adminDb) {
+      adminDb.collection('streamers').doc(streamerDbId).set(updates, { merge: true }).catch(() => {});
+    }
+
     return getStreamer(streamerDbId);
   } catch (err) {
     console.error('Error updating streamer in Prisma:', err);
@@ -537,25 +520,7 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
 }
 
 export async function getDonations(streamerId: string = 'streamerza'): Promise<Donation[]> {
-  // If Firebase Firestore
-  if (isFirebaseConfigured && adminDb) {
-    try {
-      const snapshot = await adminDb
-        .collection('donations')
-        .where('streamerId', '==', streamerId)
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      return snapshot.docs.map((doc: any) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Donation[];
-    } catch (e) {
-      console.warn('Firebase getDonations error', e);
-    }
-  }
-
-  // Local Prisma DB
+  // Prisma DB is the primary Single Source of Truth
   try {
     const list = await prisma.donation.findMany({
       where: { streamerId },
@@ -587,24 +552,9 @@ export async function getDonations(streamerId: string = 'streamerza'): Promise<D
 
 export async function addDonation(donation: Omit<Donation, 'id' | 'createdAt'>): Promise<Donation> {
   const newId = `don_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-  const now = new Date().toISOString();
+  const now = new Date();
 
-  // If Firebase Firestore
-  if (isFirebaseConfigured && adminDb) {
-    try {
-      const docData: any = {
-        ...donation,
-        id: newId,
-        createdAt: now,
-      };
-      await adminDb.collection('donations').doc(newId).set(docData);
-      return docData;
-    } catch (e) {
-      console.warn('Firebase addDonation error', e);
-    }
-  }
-
-  // Local Prisma DB
+  // Local Prisma DB is the primary Single Source of Truth
   const created = await prisma.donation.create({
     data: {
       id: newId,

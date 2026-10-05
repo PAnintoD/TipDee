@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStreamer, updateStreamer, getDonationStats } from '@/lib/db';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     const queryId = searchParams.get('id');
 
-    // Determine streamerId: if queryId provided, use it; otherwise fallback to logged in user or default
+    // Determine streamerId: query param or logged in user username/streamerId or default
     const streamerId =
       queryId ||
       (session?.user as any)?.username ||
@@ -44,6 +45,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    logger.error('GET /api/streamer error', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to fetch streamer data' },
       { status: 500 }
@@ -51,10 +53,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handleStreamerUpdate(request: NextRequest) {
   try {
     const session = await auth();
-    const body = await request.json();
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON request body' }, { status: 400 });
+    }
 
     let targetStreamerId: string | null = null;
 
@@ -69,8 +76,39 @@ export async function POST(request: NextRequest) {
           ],
         },
       });
+
       if (owner) {
         targetStreamerId = owner.id;
+      } else if (session.user.id) {
+        // Auto-create streamer record if missing for authenticated user
+        const dbUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: session.user.id },
+              ...(session.user.email ? [{ email: session.user.email }] : []),
+            ],
+          },
+        });
+
+        if (dbUser) {
+          const baseName = (dbUser.name || dbUser.email?.split('@')[0] || 'streamer')
+            .toLowerCase()
+            .replace(/[^a-z0-9_]/g, '');
+          let uniqueName = baseName || 'streamer';
+          let count = 1;
+          while (await prisma.streamer.findUnique({ where: { username: uniqueName } })) {
+            uniqueName = `${baseName}${count++}`;
+          }
+
+          const createdStreamer = await prisma.streamer.create({
+            data: {
+              userId: dbUser.id,
+              username: uniqueName,
+              displayName: dbUser.name || uniqueName,
+            },
+          });
+          targetStreamerId = createdStreamer.id;
+        }
       }
     }
 
@@ -97,19 +135,35 @@ export async function POST(request: NextRequest) {
     }
 
     if (!targetStreamerId) {
-      return NextResponse.json({ success: false, error: 'ไม่พบข้อมูลสตรีมเมอร์' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'ไม่พบข้อมูลสตรีมเมอร์ในระบบ' }, { status: 404 });
     }
 
     const updated = await updateStreamer(targetStreamerId, body);
     return NextResponse.json({
       success: true,
+      message: 'บันทึกการตั้งค่าสตรีมเมอร์เรียบร้อยแล้ว',
       data: updated,
     });
   } catch (error: any) {
-    console.error('POST /api/streamer error:', error);
+    logger.error('Streamer update handler error', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to update streamer data' },
+      {
+        success: false,
+        error: error.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูลสตรีมเมอร์ลงฐานข้อมูล',
+      },
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return handleStreamerUpdate(request);
+}
+
+export async function PUT(request: NextRequest) {
+  return handleStreamerUpdate(request);
+}
+
+export async function PATCH(request: NextRequest) {
+  return handleStreamerUpdate(request);
 }

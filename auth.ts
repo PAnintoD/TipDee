@@ -149,22 +149,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.username = (user as any).username;
       }
 
-      // Ensure user ID, streamer ID and username are strictly matched with SQLite DB
-      const email = ((token.email || user?.email) as string | undefined);
-      if (email) {
+      // Robust lookup across ID, sub, and email to ensure token.id always matches DB Primary Key
+      const lookupFilters = [
+        ...(token.id ? [{ id: token.id as string }] : []),
+        ...(token.sub ? [{ id: token.sub }] : []),
+        ...(token.email ? [{ email: token.email }] : []),
+        ...(user?.email ? [{ email: user.email }] : []),
+      ];
+
+      if (lookupFilters.length > 0) {
         try {
-          const dbUser = await prisma.user.findUnique({
-            where: { email },
+          const dbUser = await prisma.user.findFirst({
+            where: { OR: lookupFilters },
             include: { streamer: { include: { widgetSettings: true, goalSettings: true } } },
           });
 
           if (dbUser) {
             token.id = dbUser.id;
+            token.sub = dbUser.id;
             token.role = dbUser.role || token.role || 'STREAMER';
 
             let streamer = dbUser.streamer;
             if (!streamer) {
-              const baseName = email.split('@')[0].replace(/[^a-z0-9_]/gi, '').toLowerCase();
+              const baseName = (dbUser.email?.split('@')[0] || dbUser.name || 'streamer')
+                .replace(/[^a-z0-9_]/gi, '')
+                .toLowerCase();
               const safeUsername = await getUniqueUsername(baseName);
               streamer = await prisma.streamer.create({
                 data: {
@@ -222,7 +231,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = (token.id as string) || (token.sub as string);
         (session.user as any).role = token.role;
         (session.user as any).streamerId = token.streamerId;
         (session.user as any).username = token.username;

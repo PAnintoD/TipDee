@@ -141,3 +141,11 @@ export async function PATCH(req: NextRequest) {
     message: 'บันทึกข้อมูลเรียบร้อยแล้ว',
   });
 }
+
+export async function POST(req: NextRequest) {
+  return PATCH(req);
+}
+
+export async function PUT(req: NextRequest) {
+  return PATCH(req);
+}
