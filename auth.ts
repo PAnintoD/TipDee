@@ -15,6 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      allowDangerousEmailAccountLinking: true,
       async profile(profile) {
         return {
           id: profile.sub,
@@ -103,14 +104,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.streamerId = (user as any).streamerId;
         token.username = (user as any).username;
       }
-      // Refresh streamerId/username on session update
-      if (trigger === 'update' && token.id) {
-        const streamer = await prisma.streamer.findUnique({
+
+      // Ensure streamerId and username are populated for OAuth sign-ins or updates
+      if (token.id && (!token.streamerId || !token.username || trigger === 'update')) {
+        let streamer = await prisma.streamer.findUnique({
           where: { userId: token.id as string },
         });
-        token.streamerId = streamer?.id;
-        token.username = streamer?.username;
+
+        // Auto-create streamer record if missing (OAuth first login)
+        if (!streamer && (token.email || user?.email)) {
+          const email = ((token.email || user?.email) as string);
+          const baseName = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+          const safeUsername = await getUniqueUsername(baseName);
+          streamer = await prisma.streamer.create({
+            data: {
+              userId: token.id as string,
+              username: safeUsername,
+              displayName: (token.name as string) || (user?.name as string) || safeUsername,
+              avatarUrl: (token.picture as string) || (user?.image as string) || '',
+            },
+          });
+        }
+
+        if (streamer) {
+          token.streamerId = streamer.id;
+          token.username = streamer.username;
+        }
       }
+
       return token;
     },
     async session({ session, token }) {
