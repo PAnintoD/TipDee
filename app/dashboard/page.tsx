@@ -26,8 +26,8 @@ import {
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
-  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
+  const { data: session, status } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || (status === 'unauthenticated' ? 'streamerza' : '');
   const [streamer, setStreamer] = useState<any>(null);
   const [donations, setDonations] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({
@@ -44,10 +44,12 @@ export default function DashboardPage() {
 
   // Fetch initial data
   const fetchData = async () => {
+    if (status === 'loading') return;
+    const targetId = streamerId || 'streamerza';
     try {
       const [streamerRes, donationsRes] = await Promise.all([
-        fetch(`/api/streamer?id=${streamerId}`),
-        fetch(`/api/donations?streamerId=${streamerId}`),
+        fetch(`/api/streamer?id=${targetId}`),
+        fetch(`/api/donations?streamerId=${targetId}`),
       ]);
 
       const streamerData = await streamerRes.json();
@@ -71,10 +73,12 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    if (status === 'loading') return;
+    const targetId = streamerId || 'streamerza';
     fetchData();
 
     // Setup SSE Realtime Connection
-    const eventSource = new EventSource(`/api/realtime/${streamerId}`);
+    const eventSource = new EventSource(`/api/realtime/${targetId}`);
 
     eventSource.onmessage = (e) => {
       try {
@@ -95,7 +99,7 @@ export default function DashboardPage() {
     return () => {
       eventSource.close();
     };
-  }, [streamerId]);
+  }, [streamerId, status]);
 
   const copyToClipboard = (text: string, id: string) => {
     if (typeof window !== 'undefined') {

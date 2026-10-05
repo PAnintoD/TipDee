@@ -1,17 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import {
   Users,
   Crown,
-  Sparkles,
   Plus,
   Trash2,
   CheckCircle2,
-  Heart,
+  Loader2,
 } from 'lucide-react';
 
 export default function MembershipsPage() {
@@ -19,31 +18,71 @@ export default function MembershipsPage() {
   const username = (session?.user as any)?.username || 'streamerza';
 
   const [tiers, setTiers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newTierName, setNewTierName] = useState('');
   const [newTierPrice, setNewTierPrice] = useState(50);
   const [newTierPerk, setNewTierPerk] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
 
   const totalMRR = tiers.reduce((sum, t) => sum + (t.price || 0) * (t.membersCount || 0), 0);
   const totalMembers = tiers.reduce((sum, t) => sum + (t.membersCount || 0), 0);
 
-  const handleAddTier = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch(`/api/streamer?id=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data?.membershipsSettings)) {
+          setTiers(data.data.membershipsSettings);
+        }
+      })
+      .catch((e) => console.error('Failed to load memberships', e))
+      .finally(() => setLoading(false));
+  }, [username]);
+
+  const saveTiersToDb = async (updatedTiers: any[]) => {
+    try {
+      await fetch('/api/streamer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: username,
+          membershipsSettings: updatedTiers,
+        }),
+      });
+      setSavedSuccessMsg('บันทึกระดับสมาชิกเรียบร้อยแล้ว');
+      setTimeout(() => setSavedSuccessMsg(''), 3000);
+    } catch (e) {
+      console.error('Failed to save tiers', e);
+    }
+  };
+
+  const handleAddTier = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTierName.trim()) return;
-    setTiers([
-      ...tiers,
-      {
-        id: String(Date.now()),
-        name: newTierName.trim(),
-        price: Number(newTierPrice),
-        badge: '⭐',
-        membersCount: 0,
-        perks: newTierPerk ? newTierPerk.split('\n').filter((x) => x.trim()) : ['สิทธิ์สมาชิกพิเศษในช่อง'],
-      },
-    ]);
+
+    const newTier = {
+      id: String(Date.now()),
+      name: newTierName.trim(),
+      price: Number(newTierPrice),
+      badge: '⭐',
+      membersCount: 0,
+      perks: newTierPerk ? newTierPerk.split('\n').filter((x) => x.trim()) : ['สิทธิ์สมาชิกพิเศษในช่อง'],
+    };
+
+    const updated = [...tiers, newTier];
+    setTiers(updated);
+    await saveTiersToDb(updated);
+
     setNewTierName('');
     setNewTierPerk('');
     setShowAddModal(false);
+  };
+
+  const handleDeleteTier = async (id: string) => {
+    const updated = tiers.filter((x) => x.id !== id);
+    setTiers(updated);
+    await saveTiersToDb(updated);
   };
 
   return (
@@ -75,6 +114,13 @@ export default function MembershipsPage() {
             </button>
           </div>
 
+          {savedSuccessMsg && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm animate-alert-pop">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              <span>{savedSuccessMsg}</span>
+            </div>
+          )}
+
           {/* MRR Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-2">
@@ -103,7 +149,11 @@ export default function MembershipsPage() {
           </div>
 
           {/* Tiers List */}
-          {tiers.length === 0 ? (
+          {loading ? (
+            <div className="p-12 text-center">
+              <Loader2 className="h-6 w-6 text-emerald-600 animate-spin mx-auto" />
+            </div>
+          ) : tiers.length === 0 ? (
             <div className="p-12 rounded-2xl border border-slate-200/80 bg-white text-center space-y-3 shadow-sm">
               <Crown className="h-12 w-12 text-slate-400 mx-auto" />
               <h3 className="text-base font-bold text-slate-800">ยังไม่มีระดับสมาชิกของช่อง</h3>
@@ -154,7 +204,8 @@ export default function MembershipsPage() {
 
                   <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
                     <button
-                      onClick={() => setTiers(tiers.filter((x) => x.id !== t.id))}
+                      type="button"
+                      onClick={() => handleDeleteTier(t.id)}
                       className="p-2 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 transition-colors shadow-2xs"
                       title="ลบระดับสมาชิกนี้"
                     >

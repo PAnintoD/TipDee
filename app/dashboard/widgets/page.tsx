@@ -37,8 +37,8 @@ const GIF_PRESETS = [
 ];
 
 export default function WidgetsPage() {
-  const { data: session } = useSession();
-  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
+  const { data: session, status } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || (status === 'unauthenticated' ? 'streamerza' : '');
   const [activeTab, setActiveTab] = useState<'alert' | 'goal' | 'top' | 'recent'>('alert');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -105,7 +105,9 @@ export default function WidgetsPage() {
 
   // Fetch current settings
   useEffect(() => {
-    fetch(`/api/streamer?id=${streamerId}`)
+    if (status === 'loading') return;
+    const targetId = streamerId || 'streamerza';
+    fetch(`/api/streamer?id=${targetId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -116,7 +118,7 @@ export default function WidgetsPage() {
         }
       })
       .catch((e) => console.error(e));
-  }, [streamerId]);
+  }, [streamerId, status]);
 
   const copyToClipboard = (path: string, id: string) => {
     if (typeof window !== 'undefined') {

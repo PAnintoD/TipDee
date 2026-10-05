@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
@@ -14,6 +14,8 @@ import {
   ToggleRight,
   Clock,
   Trash2,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-react';
 
 export default function AdsPage() {
@@ -21,6 +23,7 @@ export default function AdsPage() {
   const username = (session?.user as any)?.username || 'streamerza';
 
   const [ads, setAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newSponsor, setNewSponsor] = useState('');
@@ -28,29 +31,73 @@ export default function AdsPage() {
   const [newSlot, setNewSlot] = useState('ล่างขวา (Bottom Right)');
 
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
+
   const adsWidgetUrl = typeof window !== 'undefined' ? `${window.location.origin}/widget/ads/${username}` : `/widget/ads/${username}`;
 
-  const handleAddAd = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetch(`/api/streamer?id=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data?.adsSettings)) {
+          setAds(data.data.adsSettings);
+        }
+      })
+      .catch((e) => console.error('Failed to load ads', e))
+      .finally(() => setLoading(false));
+  }, [username]);
+
+  const saveAdsToDb = async (updatedAds: any[]) => {
+    try {
+      await fetch('/api/streamer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: username,
+          adsSettings: updatedAds,
+        }),
+      });
+      setSavedSuccessMsg('บันทึกการตั้งค่าสปอนเซอร์เรียบร้อยแล้ว');
+      setTimeout(() => setSavedSuccessMsg(''), 3000);
+    } catch (e) {
+      console.error('Failed to save ads', e);
+    }
+  };
+
+  const handleAddAd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newImageUrl.trim()) return;
 
-    setAds([
-      ...ads,
-      {
-        id: String(Date.now()),
-        title: newTitle.trim(),
-        sponsorName: newSponsor.trim() || 'ผู้สนับสนุน',
-        imageUrl: newImageUrl.trim(),
-        slot: newSlot,
-        intervalSeconds: 60,
-        active: true,
-      },
-    ]);
+    const newAd = {
+      id: String(Date.now()),
+      title: newTitle.trim(),
+      sponsorName: newSponsor.trim() || 'ผู้สนับสนุน',
+      imageUrl: newImageUrl.trim(),
+      slot: newSlot,
+      intervalSeconds: 60,
+      active: true,
+    };
+
+    const updated = [...ads, newAd];
+    setAds(updated);
+    await saveAdsToDb(updated);
 
     setNewTitle('');
     setNewSponsor('');
     setNewImageUrl('');
     setShowAddModal(false);
+  };
+
+  const handleToggleAd = async (id: string) => {
+    const updated = ads.map((x) => (x.id === id ? { ...x, active: !x.active } : x));
+    setAds(updated);
+    await saveAdsToDb(updated);
+  };
+
+  const handleDeleteAd = async (id: string) => {
+    const updated = ads.filter((x) => x.id !== id);
+    setAds(updated);
+    await saveAdsToDb(updated);
   };
 
   return (
@@ -80,6 +127,13 @@ export default function AdsPage() {
               <span>เพิ่มสปอนเซอร์ใหม่</span>
             </button>
           </div>
+
+          {savedSuccessMsg && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm animate-alert-pop">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              <span>{savedSuccessMsg}</span>
+            </div>
+          )}
 
           {/* OBS Widget URL Card */}
           <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-3">
@@ -112,7 +166,11 @@ export default function AdsPage() {
           </div>
 
           {/* Active Sponsors Grid */}
-          {ads.length === 0 ? (
+          {loading ? (
+            <div className="p-12 text-center">
+              <Loader2 className="h-6 w-6 text-emerald-600 animate-spin mx-auto" />
+            </div>
+          ) : ads.length === 0 ? (
             <div className="p-12 rounded-2xl border border-slate-200/80 bg-white text-center space-y-3 shadow-sm">
               <Megaphone className="h-12 w-12 text-slate-400 mx-auto" />
               <h3 className="text-base font-bold text-slate-800">ยังไม่มีแบนเนอร์สปอนเซอร์</h3>
@@ -148,16 +206,15 @@ export default function AdsPage() {
                       <p className="text-xs text-emerald-700 font-semibold">{item.sponsorName}</p>
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-2">
                         <Clock className="h-3.5 w-3.5" />
-                        <span>แสดงทุกๆ {item.intervalSeconds} วินาที</span>
+                        <span>แสดงทุกๆ {item.intervalSeconds || 60} วินาที</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <button
-                      onClick={() => {
-                        setAds(ads.map((x) => (x.id === item.id ? { ...x, active: !x.active } : x)));
-                      }}
+                      type="button"
+                      onClick={() => handleToggleAd(item.id)}
                       className="flex items-center gap-1.5 text-xs font-bold"
                     >
                       {item.active ? (
@@ -174,7 +231,8 @@ export default function AdsPage() {
                     </button>
 
                     <button
-                      onClick={() => setAds(ads.filter((x) => x.id !== item.id))}
+                      type="button"
+                      onClick={() => handleDeleteAd(item.id)}
                       className="p-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 transition-colors shadow-2xs"
                       title="ลบแบนเนอร์นี้"
                     >

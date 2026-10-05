@@ -51,42 +51,67 @@ export default function PaymentPage() {
     webhookUrl: '',
   });
 
-  useEffect(() => {
+  const loadChannels = useCallback(() => {
     fetch('/api/payment/channels')
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.data) {
           const s = data.data;
           setStreamerId(s.id);
+          let presetStr = '20, 50, 100, 300, 500, 1000';
+          try {
+            if (Array.isArray(s.presetAmounts)) {
+              presetStr = s.presetAmounts.join(', ');
+            } else if (typeof s.presetAmounts === 'string' && s.presetAmounts.trim()) {
+              const parsed = JSON.parse(s.presetAmounts);
+              if (Array.isArray(parsed)) presetStr = parsed.join(', ');
+            }
+          } catch (e) {}
+
           setForm({
             promptpayTarget: s.promptpayTarget || '',
             promptpayName: s.promptpayName || '',
-            bankName: '',
+            bankName: s.bankName || '',
             truemoneyPhone: s.truemoneyPhone || '',
             minAmount: s.minAmount || 5,
-            presetAmountsStr: s.presetAmounts
-              ? JSON.parse(s.presetAmounts).join(', ')
-              : '20, 50, 100, 300, 500, 1000',
+            presetAmountsStr: presetStr,
             enableAutoSlip: s.enableAutoSlip !== false,
             slipApiKey: s.slipApiKey || '',
             slipBranchId: s.slipBranchId || '',
             webhookUrl: s.webhookUrl || '',
           });
+
+          if (s.promptpayQR) {
+            setQrDataUrl(s.promptpayQR);
+          }
         }
       })
+      .catch((e) => console.error('Failed to load payment channels', e))
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    loadChannels();
+  }, [loadChannels]);
+
   const refreshQR = useCallback(() => {
-    if (!username) return;
     setQrLoading(true);
-    fetch(`/api/streamer?id=${username}`)
+    fetch('/api/payment/channels')
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.data?.promptpayQR) {
           setQrDataUrl(data.data.promptpayQR);
+        } else if (username) {
+          return fetch(`/api/streamer?id=${username}`)
+            .then((r) => r.json())
+            .then((streamerData) => {
+              if (streamerData.success && streamerData.data?.promptpayQR) {
+                setQrDataUrl(streamerData.data.promptpayQR);
+              }
+            });
         }
       })
+      .catch((e) => console.error('Failed to refresh QR', e))
       .finally(() => setQrLoading(false));
   }, [username]);
 
@@ -109,31 +134,41 @@ export default function PaymentPage() {
       .map((s) => Number(s.trim()))
       .filter((n) => !isNaN(n) && n > 0);
 
-    const res = await fetch('/api/payment/channels', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        promptpayTarget: form.promptpayTarget,
-        promptpayName: form.promptpayName,
-        truemoneyPhone: form.truemoneyPhone,
-        minAmount: form.minAmount,
-        presetAmounts,
-        enableAutoSlip: form.enableAutoSlip,
-        slipApiKey: form.slipApiKey,
-        slipBranchId: form.slipBranchId,
-        webhookUrl: form.webhookUrl,
-      }),
-    });
+    try {
+      const res = await fetch('/api/payment/channels', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptpayTarget: form.promptpayTarget.trim(),
+          promptpayName: form.promptpayName.trim(),
+          bankName: form.bankName,
+          truemoneyPhone: form.truemoneyPhone.trim(),
+          minAmount: Number(form.minAmount) || 5,
+          presetAmounts: presetAmounts.length > 0 ? presetAmounts : [20, 50, 100, 300, 500, 1000],
+          enableAutoSlip: form.enableAutoSlip,
+          slipApiKey: form.slipApiKey.trim(),
+          slipBranchId: form.slipBranchId.trim(),
+          webhookUrl: form.webhookUrl.trim(),
+        }),
+      });
 
-    const data = await res.json();
-    setIsSaving(false);
+      const data = await res.json();
+      setIsSaving(false);
 
-    if (res.ok) {
-      setSaveSuccess(true);
-      refreshQR();
-      setTimeout(() => setSaveSuccess(false), 4000);
-    } else {
-      setSaveError(data.error || 'บันทึกไม่สำเร็จ');
+      if (res.ok && data.success) {
+        setSaveSuccess(true);
+        if (data.data?.promptpayQR) {
+          setQrDataUrl(data.data.promptpayQR);
+        } else {
+          refreshQR();
+        }
+        setTimeout(() => setSaveSuccess(false), 4000);
+      } else {
+        setSaveError(data.error || 'บันทึกไม่สำเร็จ');
+      }
+    } catch (err: any) {
+      setIsSaving(false);
+      setSaveError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
     }
   }
 

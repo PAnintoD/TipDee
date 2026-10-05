@@ -78,20 +78,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signIn({ user, account }) {
       // For OAuth sign-ins, create streamer profile if it doesn't exist
-      if (account?.provider !== 'credentials' && user.id) {
+      if (account?.provider !== 'credentials' && (user.id || user.email)) {
         try {
-          const existing = await prisma.streamer.findUnique({
-            where: { userId: user.id },
+          const dbUser = await prisma.user.findFirst({
+            where: {
+              OR: [
+                ...(user.id ? [{ id: user.id }] : []),
+                ...(user.email ? [{ email: user.email }] : []),
+              ],
+            },
+            include: { streamer: true },
           });
-          if (!existing && user.email) {
-            const username = user.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+          if (dbUser && !dbUser.streamer && dbUser.email) {
+            const username = dbUser.email.split('@')[0].replace(/[^a-z0-9_]/gi, '').toLowerCase();
             const safeUsername = await getUniqueUsername(username);
             await prisma.streamer.create({
               data: {
-                userId: user.id,
+                userId: dbUser.id,
                 username: safeUsername,
-                displayName: user.name ?? safeUsername,
-                avatarUrl: user.image ?? '',
+                displayName: dbUser.name ?? safeUsername,
+                avatarUrl: dbUser.image ?? '',
+                widgetSettings: {
+                  create: {
+                    template: '{name} โดเนท {amount} บาท: {message}',
+                    minAmountForAlert: 5,
+                    minAmountForTTS: 10,
+                    duration: 7,
+                    soundUrl: 'levelup',
+                    soundVolume: 80,
+                    imageUrl: '/mascot.svg',
+                    ttsEnabled: true,
+                    ttsVoice: 'th-TH',
+                    ttsSpeed: 1.0,
+                    ttsPitch: 1.0,
+                    ttsVolume: 90,
+                    textColor: '#00e5ff',
+                    highlightColor: '#ff9800',
+                    fontFamily: 'Prompt, sans-serif',
+                  },
+                },
+                goalSettings: {
+                  create: {
+                    title: '🎯 เป้าหมายการโดเนท',
+                    targetAmount: 1000,
+                    currentAmount: 0,
+                    endDate: '2026-12-31',
+                    barColor: '#00a8ff',
+                    backgroundColor: 'rgba(24, 24, 27, 0.85)',
+                    textColor: '#ffffff',
+                    showPercentage: true,
+                  },
+                },
               },
             });
           }
@@ -111,31 +149,69 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.username = (user as any).username;
       }
 
-      // Ensure streamerId and username are populated for OAuth sign-ins or updates
-      if (token.id && (!token.streamerId || !token.username || trigger === 'update')) {
+      // Ensure user ID, streamer ID and username are strictly matched with SQLite DB
+      const email = ((token.email || user?.email) as string | undefined);
+      if (email) {
         try {
-          let streamer = await prisma.streamer.findUnique({
-            where: { userId: token.id as string },
+          const dbUser = await prisma.user.findUnique({
+            where: { email },
+            include: { streamer: { include: { widgetSettings: true, goalSettings: true } } },
           });
 
-          // Auto-create streamer record if missing (OAuth first login)
-          if (!streamer && (token.email || user?.email)) {
-            const email = ((token.email || user?.email) as string);
-            const baseName = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
-            const safeUsername = await getUniqueUsername(baseName);
-            streamer = await prisma.streamer.create({
-              data: {
-                userId: token.id as string,
-                username: safeUsername,
-                displayName: (token.name as string) || (user?.name as string) || safeUsername,
-                avatarUrl: (token.picture as string) || (user?.image as string) || '',
-              },
-            });
-          }
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role || token.role || 'STREAMER';
 
-          if (streamer) {
-            token.streamerId = streamer.id;
-            token.username = streamer.username;
+            let streamer = dbUser.streamer;
+            if (!streamer) {
+              const baseName = email.split('@')[0].replace(/[^a-z0-9_]/gi, '').toLowerCase();
+              const safeUsername = await getUniqueUsername(baseName);
+              streamer = await prisma.streamer.create({
+                data: {
+                  userId: dbUser.id,
+                  username: safeUsername,
+                  displayName: (token.name as string) || dbUser.name || safeUsername,
+                  avatarUrl: (token.picture as string) || dbUser.image || '',
+                  widgetSettings: {
+                    create: {
+                      template: '{name} โดเนท {amount} บาท: {message}',
+                      minAmountForAlert: 5,
+                      minAmountForTTS: 10,
+                      duration: 7,
+                      soundUrl: 'levelup',
+                      soundVolume: 80,
+                      imageUrl: '/mascot.svg',
+                      ttsEnabled: true,
+                      ttsVoice: 'th-TH',
+                      ttsSpeed: 1.0,
+                      ttsPitch: 1.0,
+                      ttsVolume: 90,
+                      textColor: '#00e5ff',
+                      highlightColor: '#ff9800',
+                      fontFamily: 'Prompt, sans-serif',
+                    },
+                  },
+                  goalSettings: {
+                    create: {
+                      title: '🎯 เป้าหมายการโดเนท',
+                      targetAmount: 1000,
+                      currentAmount: 0,
+                      endDate: '2026-12-31',
+                      barColor: '#00a8ff',
+                      backgroundColor: 'rgba(24, 24, 27, 0.85)',
+                      textColor: '#ffffff',
+                      showPercentage: true,
+                    },
+                  },
+                },
+                include: { widgetSettings: true, goalSettings: true },
+              });
+            }
+
+            if (streamer) {
+              token.streamerId = streamer.id;
+              token.username = streamer.username;
+            }
           }
         } catch (err) {
           console.error('[auth.ts jwt] Error ensuring streamer profile:', err);

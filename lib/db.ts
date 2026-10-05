@@ -11,6 +11,7 @@ export interface StreamerProfile {
   bannerUrl: string;
   promptpayTarget: string;
   promptpayName: string;
+  bankName?: string;
   truemoneyPhone: string;
   minAmount: number;
   presetAmounts: number[];
@@ -21,6 +22,10 @@ export interface StreamerProfile {
     discord?: string;
     tiktok?: string;
   };
+  adsSettings?: any[];
+  membershipsSettings?: any[];
+  agencySettings?: any;
+  promptpayQR?: string;
   widgetToken: string;
   enableAutoSlip: boolean;
   slipApiKey?: string;
@@ -100,6 +105,7 @@ const DEFAULT_STREAMER: StreamerProfile = {
   bannerUrl: '',
   promptpayTarget: '',
   promptpayName: '',
+  bankName: '',
   truemoneyPhone: '',
   minAmount: 5,
   presetAmounts: [20, 50, 100, 300, 500, 1000],
@@ -110,6 +116,9 @@ const DEFAULT_STREAMER: StreamerProfile = {
     discord: 'https://discord.gg',
     tiktok: 'https://tiktok.com',
   },
+  adsSettings: [],
+  membershipsSettings: [],
+  agencySettings: null,
   widgetToken: 'widget_token_abc123',
   enableAutoSlip: true,
   alertSettings: {
@@ -269,6 +278,35 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
       }
     } catch (e) {}
 
+    let adsSettings = DEFAULT_STREAMER.adsSettings;
+    try {
+      if (streamer?.adsSettings) {
+        adsSettings = JSON.parse(streamer.adsSettings);
+      }
+    } catch (e) {}
+
+    let membershipsSettings = DEFAULT_STREAMER.membershipsSettings;
+    try {
+      if (streamer?.membershipsSettings) {
+        membershipsSettings = JSON.parse(streamer.membershipsSettings);
+      }
+    } catch (e) {}
+
+    let agencySettings = DEFAULT_STREAMER.agencySettings;
+    try {
+      if (streamer?.agencySettings) {
+        agencySettings = JSON.parse(streamer.agencySettings);
+      }
+    } catch (e) {}
+
+    let promptpayQR = '';
+    if (streamer?.promptpayTarget) {
+      try {
+        const { generatePromptPayQRCode } = await import('./promptpay');
+        promptpayQR = await generatePromptPayQRCode(streamer.promptpayTarget);
+      } catch (e) {}
+    }
+
     // If streamer is still null after all attempts, return safe defaults
     if (!streamer) {
       return { ...DEFAULT_STREAMER, id };
@@ -283,6 +321,7 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
       bannerUrl: streamer.bannerUrl || DEFAULT_STREAMER.bannerUrl,
       promptpayTarget: streamer.promptpayTarget || '0812345678',
       promptpayName: streamer.promptpayName || 'สตรีมเมอร์',
+      bankName: streamer.bankName || '',
       truemoneyPhone: streamer.truemoneyPhone || '',
       minAmount: streamer.minAmount,
       presetAmounts,
@@ -291,6 +330,10 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
       enableAutoSlip: streamer.enableAutoSlip,
       slipApiKey: streamer.slipApiKey || '',
       slipBranchId: streamer.slipBranchId || '',
+      promptpayQR,
+      adsSettings,
+      membershipsSettings,
+      agencySettings,
       alertSettings: streamer.widgetSettings
         ? {
             template: streamer.widgetSettings.template,
@@ -344,18 +387,20 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
 
   // Local Prisma DB
   try {
-    // Resolve streamer by ID or username
+    // Resolve streamer by ID, username or userId
     let existing = await prisma.streamer.findFirst({
       where: {
-        OR: [{ id }, { username: id }],
+        OR: [{ id }, { username: id }, { userId: id }],
       },
     });
 
     if (!existing) {
-      // Auto-create if not yet exists
+      const user = await prisma.user.findFirst({
+        where: { OR: [{ id }, { email: id }] },
+      });
       existing = await prisma.streamer.create({
         data: {
-          userId: 'system',
+          userId: user?.id || `user_${Date.now()}`,
           username: id,
           displayName: updates.displayName || DEFAULT_STREAMER.displayName,
         },
@@ -370,6 +415,7 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
     if (updates.bannerUrl !== undefined) dataToUpdate.bannerUrl = updates.bannerUrl;
     if (updates.promptpayTarget !== undefined) dataToUpdate.promptpayTarget = updates.promptpayTarget;
     if (updates.promptpayName !== undefined) dataToUpdate.promptpayName = updates.promptpayName;
+    if (updates.bankName !== undefined) dataToUpdate.bankName = updates.bankName;
     if (updates.truemoneyPhone !== undefined) dataToUpdate.truemoneyPhone = updates.truemoneyPhone;
     if (updates.minAmount !== undefined) dataToUpdate.minAmount = Number(updates.minAmount) || 5;
     if (updates.presetAmounts !== undefined) dataToUpdate.presetAmounts = JSON.stringify(updates.presetAmounts);
@@ -379,6 +425,10 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
     if (updates.slipBranchId !== undefined) dataToUpdate.slipBranchId = updates.slipBranchId;
     if (updates.topDonorsSettings !== undefined) dataToUpdate.topDonorsSettings = JSON.stringify(updates.topDonorsSettings);
     if (updates.recentDonorsSettings !== undefined) dataToUpdate.recentDonorsSettings = JSON.stringify(updates.recentDonorsSettings);
+    if (updates.adsSettings !== undefined) dataToUpdate.adsSettings = JSON.stringify(updates.adsSettings);
+    if (updates.membershipsSettings !== undefined) dataToUpdate.membershipsSettings = JSON.stringify(updates.membershipsSettings);
+    if (updates.agencySettings !== undefined) dataToUpdate.agencySettings = JSON.stringify(updates.agencySettings);
+    if (updates.widgetToken !== undefined) dataToUpdate.widgetToken = updates.widgetToken;
 
     if (updates.alertSettings) {
       const {

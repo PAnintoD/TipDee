@@ -1,19 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import {
-  Volume2,
   Play,
   Pause,
   Upload,
-  Check,
-  Sparkles,
   Music,
-  Bell,
-  Zap,
+  CheckCircle2,
+  Loader2,
 } from 'lucide-react';
 import { playAlertSound } from '@/lib/soundEffects';
 
@@ -23,6 +20,8 @@ export default function SoundLibraryPage() {
 
   const [selectedSound, setSelectedSound] = useState('mythic_bell');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
 
   const soundList = [
     {
@@ -31,6 +30,13 @@ export default function SoundLibraryPage() {
       category: 'Bells & Chimes',
       duration: '2.5s',
       desc: 'เสียงระฆังประสาน 4 โน้ต เหมาะสำหรับยอดโดเนทปกติและยอดโดเนทใหญ่',
+    },
+    {
+      id: 'levelup',
+      name: 'Level Up Fanfare (เสียงเลเวลอัป)',
+      category: 'Gaming',
+      duration: '1.8s',
+      desc: 'เสียงไต่บันไดเสียงฉลองการเลเวลอัป สดใส ชัดเจน โดนใจคนดู',
     },
     {
       id: 'retro_jump',
@@ -55,10 +61,50 @@ export default function SoundLibraryPage() {
     },
   ];
 
+  useEffect(() => {
+    fetch(`/api/streamer?id=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.alertSettings?.soundUrl) {
+          setSelectedSound(data.data.alertSettings.soundUrl);
+        }
+      })
+      .catch((err) => console.error('Failed to load active sound', err));
+  }, [username]);
+
   const handleTestPlay = (id: string) => {
     setPlayingId(id);
     playAlertSound(id);
     setTimeout(() => setPlayingId(null), 3000);
+  };
+
+  const handleSelectSound = async (soundId: string) => {
+    setSelectedSound(soundId);
+    setSavingId(soundId);
+    setSavedSuccessMsg('');
+
+    try {
+      const res = await fetch('/api/streamer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: username,
+          alertSettings: {
+            soundUrl: soundId,
+          },
+        }),
+      });
+
+      const soundObj = soundList.find((s) => s.id === soundId);
+      if (res.ok) {
+        setSavedSuccessMsg(`ตั้งค่าเสียงเริ่มต้นเป็น "${soundObj?.name || soundId}" เรียบร้อยแล้ว`);
+        setTimeout(() => setSavedSuccessMsg(''), 4000);
+      }
+    } catch (err) {
+      console.error('Failed to save sound', err);
+    } finally {
+      setSavingId(null);
+    }
   };
 
   return (
@@ -89,11 +135,19 @@ export default function SoundLibraryPage() {
             </button>
           </div>
 
+          {savedSuccessMsg && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm animate-alert-pop">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              <span>{savedSuccessMsg}</span>
+            </div>
+          )}
+
           {/* Sound list grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {soundList.map((s) => {
               const isSelected = selectedSound === s.id;
               const isPlaying = playingId === s.id;
+              const isSaving = savingId === s.id;
 
               return (
                 <div
@@ -136,17 +190,21 @@ export default function SoundLibraryPage() {
 
                       {/* Select as active */}
                       <button
-                        onClick={() => {
-                          setSelectedSound(s.id);
-                          alert(`ตั้งค่าเสียงเริ่มต้นเป็น "${s.name}" เรียบร้อยแล้ว`);
-                        }}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                        onClick={() => handleSelectSound(s.id)}
+                        disabled={isSaving}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1 ${
                           isSelected
                             ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
                             : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200 hover:text-slate-900'
                         }`}
                       >
-                        {isSelected ? '✓ ใช้งานอยู่' : 'เลือกใช้'}
+                        {isSaving ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : isSelected ? (
+                          '✓ ใช้งานอยู่'
+                        ) : (
+                          'เลือกใช้'
+                        )}
                       </button>
                     </div>
                   </div>

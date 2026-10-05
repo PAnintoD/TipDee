@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
@@ -21,15 +21,51 @@ export default function DeveloperPage() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username || 'streamerza';
 
-  const [apiKey, setApiKey] = useState('tipdee_live_sk_948f2910a8b730f1e');
+  const [apiKey, setApiKey] = useState('tipdee_live_sk_loading');
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedCurl, setCopiedCurl] = useState(false);
-  const [webhookTestStatus, setWebhookTestStatus] = useState<string | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+
+  useEffect(() => {
+    fetch(`/api/streamer?id=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.widgetToken) {
+          setApiKey(data.data.widgetToken);
+        } else {
+          setApiKey(`tipdee_live_sk_${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`);
+        }
+      })
+      .catch((e) => console.error(e));
+  }, [username]);
 
   const handleCopyKey = () => {
     navigator.clipboard.writeText(apiKey);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
+  };
+
+  const handleRegenerateKey = async () => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการสร้าง API Key ใหม่? ระบบภายนอกเดิมที่ใช้ Key เก่าจะไม่สามารถเข้าถึงได้')) return;
+    setIsRegenerating(true);
+    const newKey = `tipdee_live_sk_${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`;
+    try {
+      await fetch('/api/streamer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: username,
+          widgetToken: newKey,
+        }),
+      });
+      setApiKey(newKey);
+      alert('สร้างและบันทึก API Key ใหม่เรียบร้อยแล้ว');
+    } catch (e) {
+      console.error(e);
+      alert('เกิดข้อผิดพลาดในการบันทึก Key ใหม่');
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   const sampleCurl = `curl -X POST https://tipdee.app/api/donations \\
@@ -88,15 +124,13 @@ export default function DeveloperPage() {
                 </button>
 
                 <button
-                  onClick={() => {
-                    const newKey = `tipdee_live_sk_${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`;
-                    setApiKey(newKey);
-                    alert('สร้าง API Key ใหม่เรียบร้อยแล้ว');
-                  }}
-                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors shadow-2xs"
+                  type="button"
+                  onClick={handleRegenerateKey}
+                  disabled={isRegenerating}
+                  className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 disabled:opacity-50 text-slate-600 border border-slate-200 transition-colors shadow-2xs"
                   title="สร้าง Key ใหม่ (Regenerate)"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} />
                 </button>
               </div>
             </div>

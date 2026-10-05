@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create user + streamer profile
+    // Create user + streamer profile with initial widgets
     const user = await prisma.user.create({
       data: {
         email,
@@ -62,6 +62,37 @@ export async function POST(req: NextRequest) {
           create: {
             username,
             displayName,
+            widgetSettings: {
+              create: {
+                template: '{name} โดเนท {amount} บาท: {message}',
+                minAmountForAlert: 5,
+                minAmountForTTS: 10,
+                duration: 7,
+                soundUrl: 'levelup',
+                soundVolume: 80,
+                imageUrl: '/mascot.svg',
+                ttsEnabled: true,
+                ttsVoice: 'th-TH',
+                ttsSpeed: 1.0,
+                ttsPitch: 1.0,
+                ttsVolume: 90,
+                textColor: '#00e5ff',
+                highlightColor: '#ff9800',
+                fontFamily: 'Prompt, sans-serif',
+              },
+            },
+            goalSettings: {
+              create: {
+                title: '🎯 เป้าหมายการโดเนท',
+                targetAmount: 1000,
+                currentAmount: 0,
+                endDate: '2026-12-31',
+                barColor: '#00a8ff',
+                backgroundColor: 'rgba(24, 24, 27, 0.85)',
+                textColor: '#ffffff',
+                showPercentage: true,
+              },
+            },
           },
         },
       },

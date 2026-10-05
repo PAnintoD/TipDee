@@ -17,8 +17,8 @@ import { YouTubeIcon, TwitchIcon, FacebookIcon } from '@/components/SocialIcons'
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
-  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
+  const { data: session, status } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || (status === 'unauthenticated' ? 'streamerza' : '');
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -38,7 +38,9 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    fetch(`/api/streamer?id=${streamerId}`)
+    if (status === 'loading') return;
+    const targetId = streamerId || 'streamerza';
+    fetch(`/api/streamer?id=${targetId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -58,7 +60,7 @@ export default function ProfilePage() {
         }
       })
       .finally(() => setLoading(false));
-  }, [streamerId]);
+  }, [streamerId, status]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

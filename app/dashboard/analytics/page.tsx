@@ -22,16 +22,18 @@ import {
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const { data: session } = useSession();
-  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || 'streamerza';
+  const { data: session, status } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || (status === 'unauthenticated' ? 'streamerza' : '');
 
   const [period, setPeriod] = useState<'7days' | '30days' | 'this_month' | 'all'>('30days');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAnalytics = () => {
+    if (status === 'loading') return;
+    const targetId = streamerId || 'streamerza';
     setLoading(true);
-    fetch(`/api/analytics?streamerId=${streamerId}&period=${period}`)
+    fetch(`/api/analytics?streamerId=${targetId}&period=${period}`)
       .then((res) => res.json())
       .then((resData) => {
         if (resData.success) {
@@ -44,7 +46,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [streamerId, period]);
+  }, [streamerId, period, status]);
 
   // Export report
   const handleExportReport = () => {

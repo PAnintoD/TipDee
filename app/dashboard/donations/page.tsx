@@ -29,8 +29,8 @@ function StatCard({ icon: Icon, label, value, color }: any) {
 }
 
 export default function DonationsPage() {
-  const { data: session } = useSession();
-  const streamerId = (session?.user as any)?.streamerId ?? 'streamerza';
+  const { data: session, status } = useSession();
+  const streamerId = (session?.user as any)?.username || (session?.user as any)?.streamerId || (status === 'unauthenticated' ? 'streamerza' : '');
 
   const [donations, setDonations] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -53,7 +53,8 @@ export default function DonationsPage() {
   const [selectedSlipImage, setSelectedSlipImage] = useState<string | null>(null);
 
   const buildQuery = useCallback(() => {
-    const params = new URLSearchParams({ streamerId, page: String(page), limit: String(LIMIT) });
+    const targetId = streamerId || 'streamerza';
+    const params = new URLSearchParams({ streamerId: targetId, page: String(page), limit: String(LIMIT) });
     if (search) params.set('search', search);
     if (methodFilter) params.set('paymentMethod', methodFilter);
     if (statusFilter) params.set('status', statusFilter);
@@ -63,6 +64,7 @@ export default function DonationsPage() {
   }, [streamerId, page, search, methodFilter, statusFilter, dateFrom, dateTo]);
 
   const fetchDonations = useCallback(async () => {
+    if (status === 'loading') return;
     setLoading(true);
     try {
       const res = await fetch(buildQuery());

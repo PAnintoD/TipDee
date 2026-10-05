@@ -1,16 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import {
   Smile,
-  Sparkles,
   Upload,
   CheckCircle2,
-  ExternalLink,
-  Layers,
+  Loader2,
 } from 'lucide-react';
 
 export default function StickersLibraryPage() {
@@ -18,8 +16,17 @@ export default function StickersLibraryPage() {
   const username = (session?.user as any)?.username || 'streamerza';
 
   const [selectedSticker, setSelectedSticker] = useState('cat_vibing');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState('');
 
   const stickers = [
+    {
+      id: 'mascot',
+      name: '🎀 มาสคอตจิบิ TipDee (โปร่งใส 100%)',
+      category: 'Official Mascot',
+      url: '/mascot.svg',
+      recommendedFor: 'ยอดนิยม (Recommended)',
+    },
     {
       id: 'cat_vibing',
       name: 'Cat Vibing (แมวโยกหัวตามจังหวะ)',
@@ -50,6 +57,47 @@ export default function StickersLibraryPage() {
     },
   ];
 
+  useEffect(() => {
+    fetch(`/api/streamer?id=${username}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.alertSettings?.imageUrl) {
+          const currentUrl = data.data.alertSettings.imageUrl;
+          const found = stickers.find((s) => s.url === currentUrl);
+          if (found) setSelectedSticker(found.id);
+        }
+      })
+      .catch((e) => console.error('Failed to load active sticker', e));
+  }, [username]);
+
+  const handleSelectSticker = async (sticker: (typeof stickers)[0]) => {
+    setSelectedSticker(sticker.id);
+    setSavingId(sticker.id);
+    setSavedSuccessMsg('');
+
+    try {
+      const res = await fetch('/api/streamer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: username,
+          alertSettings: {
+            imageUrl: sticker.url,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        setSavedSuccessMsg(`ตั้งค่าสติกเกอร์ Alert Box เป็น "${sticker.name}" เรียบร้อยแล้ว`);
+        setTimeout(() => setSavedSuccessMsg(''), 4000);
+      }
+    } catch (e) {
+      console.error('Failed to save sticker', e);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans flex flex-col">
       <Navbar streamerId={username} />
@@ -65,7 +113,7 @@ export default function StickersLibraryPage() {
                 <span>คลังสติกเกอร์ & ดุ๊กดิ๊ก GIF (Stickers & Animations)</span>
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                เลือกสติกเกอร์แอนิเมชันและ GIF ที่จะเด้งขึ้นบนจอ OBS Alert Box
+                เลือกสติกเกอร์แอนิเมชันและ GIF ที่จะเด้งขึ้นบนจอ OBS Alert Box เมื่อมีผู้สนับสนุน
               </p>
             </div>
 
@@ -78,9 +126,18 @@ export default function StickersLibraryPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {savedSuccessMsg && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm animate-alert-pop">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              <span>{savedSuccessMsg}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {stickers.map((s) => {
               const isSelected = selectedSticker === s.id;
+              const isSaving = savingId === s.id;
+
               return (
                 <div
                   key={s.id}
@@ -91,7 +148,7 @@ export default function StickersLibraryPage() {
                   }`}
                 >
                   <div className="space-y-3">
-                    <div className="h-40 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center p-3 overflow-hidden">
+                    <div className="h-44 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center p-3 overflow-hidden">
                       <img
                         src={s.url}
                         alt={s.name}
@@ -111,17 +168,21 @@ export default function StickersLibraryPage() {
                   </div>
 
                   <button
-                    onClick={() => {
-                      setSelectedSticker(s.id);
-                      alert(`ตั้งสติกเกอร์เริ่มต้นเป็น "${s.name}" สำเร็จ`);
-                    }}
-                    className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs ${
+                    onClick={() => handleSelectSticker(s)}
+                    disabled={isSaving}
+                    className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'bg-emerald-600 text-white border border-emerald-600 hover:bg-emerald-500'
                         : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:text-slate-900'
                     }`}
                   >
-                    {isSelected ? '✓ ใช้งานอยู่' : 'เลือกใช้สติกเกอร์นี้'}
+                    {isSaving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : isSelected ? (
+                      '✓ ใช้งานอยู่'
+                    ) : (
+                      'เลือกใช้สติกเกอร์นี้'
+                    )}
                   </button>
                 </div>
               );

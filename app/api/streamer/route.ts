@@ -6,15 +6,34 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const streamerId = searchParams.get('id') || 'streamerza';
+    const session = await auth();
+    const queryId = searchParams.get('id');
+
+    // Determine streamerId: if queryId provided, use it; otherwise fallback to logged in user or default
+    const streamerId =
+      queryId ||
+      (session?.user as any)?.username ||
+      (session?.user as any)?.streamerId ||
+      'streamerza';
+
     const streamer = await getStreamer(streamerId);
     const stats = await getDonationStats(streamerId);
 
-    const session = await auth();
-    const ownedStreamer = session?.user?.id
-      ? await prisma.streamer.findUnique({ where: { userId: session.user.id } })
-      : null;
-    const isOwner = ownedStreamer?.id === streamer.id;
+    let ownedStreamer = null;
+    if (session?.user) {
+      ownedStreamer = await prisma.streamer.findFirst({
+        where: {
+          OR: [
+            ...(session.user.id ? [{ userId: session.user.id }, { id: session.user.id }] : []),
+            ...((session.user as any).streamerId ? [{ id: (session.user as any).streamerId }] : []),
+            ...((session.user as any).username ? [{ username: (session.user as any).username }] : []),
+            ...(session.user.email ? [{ user: { email: session.user.email } }] : []),
+          ],
+        },
+      });
+    }
+
+    const isOwner = ownedStreamer?.id === streamer.id || ownedStreamer?.username === streamer.username;
     const { slipApiKey, slipBranchId, webhookUrl, widgetToken, ...publicStreamer } = streamer as any;
 
     return NextResponse.json({
@@ -39,14 +58,23 @@ export async function POST(request: NextRequest) {
 
     let targetStreamerId: string | null = null;
 
-    if (session?.user?.id) {
-      const owner = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+    if (session?.user) {
+      const owner = await prisma.streamer.findFirst({
+        where: {
+          OR: [
+            ...(session.user.id ? [{ userId: session.user.id }, { id: session.user.id }] : []),
+            ...((session.user as any).streamerId ? [{ id: (session.user as any).streamerId }] : []),
+            ...((session.user as any).username ? [{ username: (session.user as any).username }] : []),
+            ...(session.user.email ? [{ user: { email: session.user.email } }] : []),
+          ],
+        },
+      });
       if (owner) {
         targetStreamerId = owner.id;
       }
     }
 
-    // Fallback: If not found by userId, check body.id (username or streamerId)
+    // Fallback: If not found by session, check body.id (username or streamerId)
     if (!targetStreamerId && body.id) {
       const byBodyId = await prisma.streamer.findFirst({
         where: {
