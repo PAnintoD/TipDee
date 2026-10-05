@@ -56,6 +56,20 @@ export interface StreamerProfile {
     period: 'all_time' | 'month' | 'week' | 'day';
     limit: number;
     title: string;
+    themeColor?: string;
+    textColor?: string;
+    backgroundColor?: string;
+    style?: 'card' | 'compact';
+  };
+  recentDonorsSettings: {
+    title: string;
+    mode: 'list' | 'ticker';
+    limit: number;
+    themeColor?: string;
+    textColor?: string;
+    backgroundColor?: string;
+    showTime?: boolean;
+    showMessage?: boolean;
   };
 }
 
@@ -129,6 +143,20 @@ const DEFAULT_STREAMER: StreamerProfile = {
     period: 'month',
     limit: 5,
     title: '🏆 ผู้สนับสนุนสูงสุดประจำเดือน',
+    themeColor: '#eab308',
+    textColor: '#ffffff',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    style: 'card',
+  },
+  recentDonorsSettings: {
+    title: 'ผู้สนับสนุนล่าสุด',
+    mode: 'list',
+    limit: 5,
+    themeColor: '#22c55e',
+    textColor: '#ffffff',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    showTime: true,
+    showMessage: true,
   },
 };
 
@@ -225,6 +253,20 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
       if (streamer?.socialLinks) socialLinks = JSON.parse(streamer.socialLinks);
     } catch (e) {}
 
+    let topDonorsSettings = DEFAULT_STREAMER.topDonorsSettings;
+    try {
+      if (streamer?.topDonorsSettings) {
+        topDonorsSettings = { ...DEFAULT_STREAMER.topDonorsSettings, ...JSON.parse(streamer.topDonorsSettings) };
+      }
+    } catch (e) {}
+
+    let recentDonorsSettings = DEFAULT_STREAMER.recentDonorsSettings;
+    try {
+      if (streamer?.recentDonorsSettings) {
+        recentDonorsSettings = { ...DEFAULT_STREAMER.recentDonorsSettings, ...JSON.parse(streamer.recentDonorsSettings) };
+      }
+    } catch (e) {}
+
     // If streamer is still null after all attempts, return safe defaults
     if (!streamer) {
       return { ...DEFAULT_STREAMER, id };
@@ -278,7 +320,8 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
             showPercentage: streamer.goalSettings.showPercentage,
           }
         : DEFAULT_STREAMER.goalSettings,
-      topDonorsSettings: DEFAULT_STREAMER.topDonorsSettings,
+      topDonorsSettings,
+      recentDonorsSettings,
     };
   } catch (error) {
     console.error('Error fetching streamer from Prisma', error);
@@ -313,6 +356,8 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
     if (updates.enableAutoSlip !== undefined) dataToUpdate.enableAutoSlip = updates.enableAutoSlip;
     if (updates.slipApiKey !== undefined) dataToUpdate.slipApiKey = updates.slipApiKey;
     if (updates.slipBranchId !== undefined) dataToUpdate.slipBranchId = updates.slipBranchId;
+    if (updates.topDonorsSettings !== undefined) dataToUpdate.topDonorsSettings = JSON.stringify(updates.topDonorsSettings);
+    if (updates.recentDonorsSettings !== undefined) dataToUpdate.recentDonorsSettings = JSON.stringify(updates.recentDonorsSettings);
 
     if (updates.alertSettings) {
       await prisma.widgetSettings.upsert({

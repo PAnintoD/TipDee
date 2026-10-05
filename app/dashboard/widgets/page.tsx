@@ -20,6 +20,9 @@ import {
   Target,
   Trophy,
   Layers,
+  Crown,
+  Heart,
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { SOUND_PRESETS, playAlertSound } from '@/lib/soundEffects';
@@ -43,6 +46,8 @@ export default function WidgetsPage() {
   const [recentMode, setRecentMode] = useState<'list' | 'ticker'>('list');
   const [alertSize, setAlertSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
   const [goalSize, setGoalSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
+  const [topSize, setTopSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
+  const [recentSize, setRecentSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
 
   // Streamer alert settings state
   const [alertSettings, setAlertSettings] = useState({
@@ -80,6 +85,22 @@ export default function WidgetsPage() {
     period: 'month' as 'all_time' | 'month' | 'week' | 'day',
     limit: 5,
     title: '🏆 ผู้สนับสนุนสูงสุดประจำเดือน',
+    themeColor: '#eab308',
+    textColor: '#ffffff',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    style: 'card' as 'card' | 'compact',
+  });
+
+  // Recent donors settings state
+  const [recentSettings, setRecentSettings] = useState({
+    title: 'ผู้สนับสนุนล่าสุด',
+    mode: 'list' as 'list' | 'ticker',
+    limit: 5,
+    themeColor: '#22c55e',
+    textColor: '#ffffff',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    showTime: true,
+    showMessage: true,
   });
 
   // Fetch current settings
@@ -91,6 +112,7 @@ export default function WidgetsPage() {
           if (data.data.alertSettings) setAlertSettings((prev) => ({ ...prev, ...data.data.alertSettings }));
           if (data.data.goalSettings) setGoalSettings((prev) => ({ ...prev, ...data.data.goalSettings }));
           if (data.data.topDonorsSettings) setTopSettings((prev) => ({ ...prev, ...data.data.topDonorsSettings }));
+          if (data.data.recentDonorsSettings) setRecentSettings((prev) => ({ ...prev, ...data.data.recentDonorsSettings }));
         }
       })
       .catch((e) => console.error(e));
@@ -117,6 +139,7 @@ export default function WidgetsPage() {
           alertSettings,
           goalSettings,
           topDonorsSettings: topSettings,
+          recentDonorsSettings: recentSettings,
         }),
       });
 
@@ -894,71 +917,361 @@ export default function WidgetsPage() {
             </div>
           )}
 
-          {/* TAB 3: Top Donors */}
+          {/* TAB 3: Top Donors Leaderboard */}
           {activeTab === 'top' && (
-            <div className="space-y-5">
-              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                    <Trophy className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" /> ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)
-                  </span>
-                  <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                    ขนาดแนะนำ: 400 x 500 px
-                  </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Settings Column */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* OBS URL Box */}
+                <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                    <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                      <Trophy className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" /> ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)
+                    </span>
+                    <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                      ขนาดแนะนำ: {topSize === 'sm' ? '340 x 440' : topSize === 'lg' ? '520 x 660' : topSize === 'xl' ? '640 x 800' : '420 x 540'} px
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        typeof window !== 'undefined'
+                          ? `${window.location.origin}/widget/top-donors/${streamerId}${topSize !== 'md' ? `?size=${topSize}` : ''}`
+                          : `/widget/top-donors/${streamerId}${topSize !== 'md' ? `?size=${topSize}` : ''}`
+                      }
+                      className="w-full flex-1 min-w-0 rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-mono text-slate-700 select-all focus:outline-none focus:bg-white focus:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
+                    />
+                    <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            `/widget/top-donors/${streamerId}${topSize !== 'md' ? `?size=${topSize}` : ''}`,
+                            'top-box'
+                          )
+                        }
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      >
+                        {copiedUrl === 'top-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        <span>{copiedUrl === 'top-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                      </button>
+                      <Link
+                        href={`/widget/top-donors/${streamerId}${topSize !== 'md' ? `?size=${topSize}` : ''}`}
+                        target="_blank"
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-900 border border-slate-200/60 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                        title="เปิดหน้าต่างแยก"
+                        aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Resolution Size Selector */}
+                  <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="text-xs font-medium text-slate-600">ขนาดความคมชัด (Resolution Size):</span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        { id: 'sm', label: 'กะทัดรัด (340px)' },
+                        { id: 'md', label: 'มาตรฐาน (420px)' },
+                        { id: 'lg', label: 'ใหญ่ (520px)' },
+                        { id: 'xl', label: 'ใหญ่พิเศษ 4K (640px)' },
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setTopSize(s.id as any)}
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
+                            topSize === s.id
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold shadow-xs'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* OBS Crispness Tip */}
+                  <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] text-slate-700 leading-relaxed">
+                    💡 <strong className="text-emerald-950 font-bold">วิธีใส่ใน OBS ให้ภาพคมชัด ไม่แตกเบลอ:</strong> เพิ่ม Browser Source ใส่ Width และ Height ตามขนาดที่แนะนำด้านบน <span className="text-amber-700 font-semibold">ห้ามใช้เมาส์ดึงขยายกรอบสีแดงใน OBS</span> เพราะจะทำให้ภาพเบลอ หากต้องการบอร์ดใหญ่ขึ้น ให้เลือกขนาด &quot;ใหญ่ (Large)&quot; ด้านบนเพื่อความคมชัดแบบเวกเตอร์ 100%!
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={typeof window !== 'undefined' ? `${window.location.origin}/widget/top-donors/${streamerId}` : `/widget/top-donors/${streamerId}`}
-                    className="w-full flex-1 min-w-0 rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-mono text-slate-700 select-all focus:outline-none focus:bg-white focus:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
-                  />
-                  <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
-                    <button
-                      onClick={() => copyToClipboard(`/widget/top-donors/${streamerId}`, 'top-box')}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-                    >
-                      {copiedUrl === 'top-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      <span>{copiedUrl === 'top-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
-                    </button>
-                    <Link
-                      href={`/widget/top-donors/${streamerId}`}
-                      target="_blank"
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-900 border border-slate-200/60 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-                      title="เปิดหน้าต่างแยก"
-                      aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
+
+                {/* Top Donors Settings Form */}
+                <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 shadow-sm">
+                  <h3 className="text-sm font-bold text-slate-900">ตั้งค่าบอร์ดอันดับผู้บริจาค (Leaderboard Settings)</h3>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">หัวข้อบอร์ด (Title):</label>
+                    <input
+                      type="text"
+                      value={topSettings.title}
+                      onChange={(e) => setTopSettings({ ...topSettings, title: e.target.value })}
+                      placeholder="เช่น 🏆 ผู้สนับสนุนสูงสุดประจำเดือน"
+                      className="w-full rounded-lg bg-slate-50/50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1.5">ช่วงเวลาจัดอันดับ (Time Period):</label>
+                      <select
+                        value={topSettings.period}
+                        onChange={(e) => setTopSettings({ ...topSettings, period: e.target.value as any })}
+                        className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value="month">ประจำเดือนปัจจุบัน (Monthly)</option>
+                        <option value="week">ประจำสัปดาห์นี้ (Weekly)</option>
+                        <option value="day">ประจำวันนี้ (Daily)</option>
+                        <option value="all_time">ตลอดกาล (All-Time)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1.5">จำนวนอันดับที่แสดง (Display Limit):</label>
+                      <select
+                        value={topSettings.limit}
+                        onChange={(e) => setTopSettings({ ...topSettings, limit: Number(e.target.value) })}
+                        className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value={3}>แสดง 3 อันดับแรก</option>
+                        <option value={5}>แสดง 5 อันดับแรก (แนะนำ)</option>
+                        <option value={10}>แสดง 10 อันดับแรก</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Theme / Accent Color */}
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                      สีธีม / แสงเรืองแสงอันดับ 1 (Theme Accent Color):
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={topSettings.themeColor || '#eab308'}
+                        onChange={(e) => setTopSettings({ ...topSettings, themeColor: e.target.value })}
+                        className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
+                      />
+                      <input
+                        type="text"
+                        value={topSettings.themeColor || '#eab308'}
+                        onChange={(e) => setTopSettings({ ...topSettings, themeColor: e.target.value })}
+                        className="w-full rounded-lg bg-slate-50/50 border border-slate-200 px-3 py-1.5 text-xs text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Color Presets for Top Donors */}
+                  <div className="pt-3 border-t border-slate-100">
+                    <span className="block text-[11px] font-medium text-slate-500 mb-2">ชุดสียอดนิยมสำหรับ Top Donors:</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setTopSettings({ ...topSettings, themeColor: '#eab308' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#eab308]"></span>
+                        🏆 ทองคำแชมเปียน (Gold)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTopSettings({ ...topSettings, themeColor: '#00e5ff' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#00e5ff]"></span>
+                        💎 คริสตัล ไซเบอร์ (Diamond Cyan)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTopSettings({ ...topSettings, themeColor: '#22c55e' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]"></span>
+                        🌿 มรกต TipDee (Emerald)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTopSettings({ ...topSettings, themeColor: '#ec4899' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ec4899]"></span>
+                        💖 นีออน ปาร์ตี้ (Neon Pink)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTopSettings({ ...topSettings, themeColor: '#a855f7' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#a855f7]"></span>
+                        🔮 รอยัล ไวโอเลต (Purple)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 max-w-xl shadow-sm">
-                <h3 className="text-sm font-bold text-slate-900">ตั้งค่าบอร์ดอันดับผู้บริจาค (Leaderboard)</h3>
+              {/* Live Preview Column */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="sticky top-20 rounded-xl border border-slate-200/80 bg-white p-5 space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <Trophy className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span>ตัวอย่าง Top Donors (Live Preview)</span>
+                    </h3>
+                    <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                      แสดงผลสด 100%
+                    </span>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">หัวข้อบอร์ด:</label>
-                  <input
-                    type="text"
-                    value={topSettings.title}
-                    onChange={(e) => setTopSettings({ ...topSettings, title: e.target.value })}
-                    className="w-full rounded-lg bg-slate-50/50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                  />
-                </div>
+                  {/* OBS Box Simulation Container */}
+                  <div className="relative w-full min-h-[380px] rounded-lg bg-[#07090e] border border-slate-900/60 flex flex-col items-center justify-center p-4 sm:p-5 overflow-hidden shadow-inner">
+                    {/* Background checkerboard for transparency preview */}
+                    <div
+                      className="absolute inset-0 opacity-15 pointer-events-none"
+                      style={{
+                        backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                        backgroundSize: '16px 16px',
+                      }}
+                    />
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">ช่วงเวลาแสดงผล:</label>
-                  <select
-                    value={topSettings.period}
-                    onChange={(e) => setTopSettings({ ...topSettings, period: e.target.value as any })}
-                    className="w-full rounded-lg bg-white border border-slate-200 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                  >
-                    <option value="month">ประจำเดือนปัจจุบัน (Monthly)</option>
-                    <option value="week">ประจำสัปดาห์นี้ (Weekly)</option>
-                    <option value="day">ประจำวันนี้ (Daily)</option>
-                    <option value="all_time">ตลอดกาล (All-Time)</option>
-                  </select>
+                    {/* Top Donors Live Render Simulation */}
+                    <div
+                      className="relative z-10 w-full max-w-[340px] rounded-3xl bg-[#0a0d14]/90 border border-white/15 p-4 shadow-[0_16px_40px_rgba(0,0,0,0.85)] flex flex-col select-none"
+                      style={{
+                        boxShadow: `0 0 20px ${(topSettings.themeColor || '#eab308')}22, 0 16px 40px rgba(0,0,0,0.85)`,
+                      }}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-2">
+                        <div className="flex items-center gap-1.5 overflow-hidden pr-1">
+                          <div
+                            className="p-1 rounded-lg flex items-center justify-center shadow-sm"
+                            style={{
+                              backgroundColor: `${topSettings.themeColor || '#eab308'}25`,
+                              border: `1px solid ${topSettings.themeColor || '#eab308'}60`,
+                            }}
+                          >
+                            <Crown className="h-3.5 w-3.5" style={{ color: topSettings.themeColor || '#eab308' }} />
+                          </div>
+                          <span
+                            className="font-black text-white text-xs sm:text-sm truncate"
+                            style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000' }}
+                          >
+                            {topSettings.title || '🏆 ผู้สนับสนุนสูงสุด'}
+                          </span>
+                        </div>
+
+                        <span
+                          className="text-[10px] font-black rounded-full px-2 py-0.5 uppercase tracking-wider flex-shrink-0"
+                          style={{
+                            backgroundColor: `${topSettings.themeColor || '#eab308'}20`,
+                            color: topSettings.themeColor || '#eab308',
+                            border: `1px solid ${topSettings.themeColor || '#eab308'}50`,
+                          }}
+                        >
+                          {topSettings.period === 'day'
+                            ? 'วันนี้'
+                            : topSettings.period === 'week'
+                            ? 'สัปดาห์นี้'
+                            : topSettings.period === 'all_time'
+                            ? 'ตลอดกาล'
+                            : 'เดือนนี้'}
+                        </span>
+                      </div>
+
+                      {/* Donors list preview */}
+                      <div className="space-y-1.5">
+                        {[
+                          { name: 'Sompong_GamerZ', amount: 3500 },
+                          { name: 'Kittisak_Pro', amount: 1800 },
+                          { name: 'NongPrae_Ch', amount: 950 },
+                          { name: 'Nonthawat_TH', amount: 500 },
+                          { name: 'StreamSupporter_99', amount: 300 },
+                        ]
+                          .slice(0, topSettings.limit || 5)
+                          .map((d, idx) => {
+                            const rank = idx + 1;
+                            const isFirst = rank === 1;
+                            const isSecond = rank === 2;
+                            const isThird = rank === 3;
+
+                            const themeColor = topSettings.themeColor || '#eab308';
+                            const rowStyle = isFirst
+                              ? {
+                                  background: `linear-gradient(90deg, ${themeColor}33 0%, rgba(24, 24, 27, 0.95) 75%)`,
+                                  border: `1.5px solid ${themeColor}`,
+                                  boxShadow: `0 0 14px ${themeColor}33`,
+                                }
+                              : isSecond
+                              ? {
+                                  background: 'linear-gradient(90deg, rgba(226, 232, 240, 0.22) 0%, rgba(24, 24, 27, 0.92) 75%)',
+                                  border: '1.5px solid rgba(226, 232, 240, 0.6)',
+                                }
+                              : isThird
+                              ? {
+                                  background: 'linear-gradient(90deg, rgba(217, 119, 6, 0.22) 0%, rgba(24, 24, 27, 0.92) 75%)',
+                                  border: '1.5px solid rgba(217, 119, 6, 0.55)',
+                                }
+                              : {
+                                  background: 'rgba(24, 24, 27, 0.85)',
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                };
+
+                            const rankBadgeColor = isFirst
+                              ? 'bg-gradient-to-tr from-amber-500 to-yellow-300 text-black font-black'
+                              : isSecond
+                              ? 'bg-gradient-to-tr from-slate-300 to-slate-100 text-slate-900 font-black'
+                              : isThird
+                              ? 'bg-gradient-to-tr from-amber-700 to-amber-500 text-white font-black'
+                              : 'bg-white/10 text-white/80 font-bold border border-white/10';
+
+                            const amountColor = isFirst
+                              ? themeColor
+                              : isSecond
+                              ? '#f1f5f9'
+                              : isThird
+                              ? '#fbbf24'
+                              : '#38bdf8';
+
+                            return (
+                              <div
+                                key={idx}
+                                className="rounded-xl flex items-center justify-between py-1.5 px-2.5 transition-all"
+                                style={rowStyle}
+                              >
+                                <div className="flex items-center gap-2 overflow-hidden pr-2">
+                                  <div
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${rankBadgeColor}`}
+                                  >
+                                    {isFirst ? '👑' : isSecond ? '2' : isThird ? '3' : `${rank}`}
+                                  </div>
+                                  <span
+                                    className="text-xs font-black text-white truncate"
+                                    style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000' }}
+                                  >
+                                    {d.name}
+                                  </span>
+                                </div>
+                                <span
+                                  className="text-xs font-black stream-text-stroke-sm flex-shrink-0"
+                                  style={{ color: amountColor }}
+                                >
+                                  {d.amount.toLocaleString('th-TH')}฿
+                                </span>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 text-center">
+                    ตัวอย่างนี้จำลองการแสดงผล Top Donors บน OBS Studio (โปร่งใส 100% คมชัดระดับ 4K)
+                  </p>
                 </div>
               </div>
             </div>
@@ -966,77 +1279,401 @@ export default function WidgetsPage() {
 
           {/* TAB 4: Recent Donors Feed */}
           {activeTab === 'recent' && (
-            <div className="space-y-5">
-              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
-                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                    <Layers className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" /> ลิงก์ URL สำหรับ Recent Donors (OBS)
-                  </span>
-                  <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                    {recentMode === 'ticker' ? 'ขนาดแนะนำ: 800 x 80 px (Ticker)' : 'ขนาดแนะนำ: 360 x 480 px (List)'}
-                  </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Settings Column */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* OBS URL Box */}
+                <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+                    <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                      <Layers className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" /> ลิงก์ URL สำหรับ Recent Donors (OBS)
+                    </span>
+                    <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                      {recentSettings.mode === 'ticker'
+                        ? `ขนาดแนะนำ: ${recentSize === 'sm' ? '750 x 75' : recentSize === 'lg' ? '1200 x 110' : recentSize === 'xl' ? '1500 x 135' : '950 x 90'} px`
+                        : `ขนาดแนะนำ: ${recentSize === 'sm' ? '340 x 440' : recentSize === 'lg' ? '520 x 660' : recentSize === 'xl' ? '640 x 780' : '420 x 540'} px`}
+                    </span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        typeof window !== 'undefined'
+                          ? `${window.location.origin}/widget/recent-donors/${streamerId}?mode=${recentSettings.mode}&limit=${recentSettings.limit}${recentSize !== 'md' ? `&size=${recentSize}` : ''}`
+                          : `/widget/recent-donors/${streamerId}?mode=${recentSettings.mode}&limit=${recentSettings.limit}${recentSize !== 'md' ? `&size=${recentSize}` : ''}`
+                      }
+                      className="w-full flex-1 min-w-0 rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-mono text-slate-700 select-all focus:outline-none focus:bg-white focus:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
+                    />
+                    <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            `/widget/recent-donors/${streamerId}?mode=${recentSettings.mode}&limit=${recentSettings.limit}${recentSize !== 'md' ? `&size=${recentSize}` : ''}`,
+                            'recent-box'
+                          )
+                        }
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      >
+                        {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                      </button>
+                      <Link
+                        href={`/widget/recent-donors/${streamerId}?mode=${recentSettings.mode}&limit=${recentSettings.limit}${recentSize !== 'md' ? `&size=${recentSize}` : ''}`}
+                        target="_blank"
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-900 border border-slate-200/60 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                        title="เปิดหน้าต่างแยก"
+                        aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Resolution Size Selector */}
+                  <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="text-xs font-medium text-slate-600">ขนาดความคมชัด (Resolution Size):</span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        { id: 'sm', label: 'กะทัดรัด (Compact)' },
+                        { id: 'md', label: 'มาตรฐาน (Standard)' },
+                        { id: 'lg', label: 'ใหญ่ (Large)' },
+                        { id: 'xl', label: 'ใหญ่พิเศษ 4K (Ultra)' },
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setRecentSize(s.id as any)}
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
+                            recentSize === s.id
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold shadow-xs'
+                              : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* OBS Crispness Tip */}
+                  <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] text-slate-700 leading-relaxed">
+                    💡 <strong className="text-emerald-950 font-bold">วิธีใส่ใน OBS ให้ภาพคมชัด ไม่แตกเบลอ:</strong> เพิ่ม Browser Source ใส่ Width และ Height ตามขนาดที่แนะนำด้านบน <span className="text-amber-700 font-semibold">ห้ามใช้เมาส์ดึงขยายกรอบสีแดงใน OBS</span> เพราะจะทำให้ภาพเบลอ หากต้องการใหญ่ขึ้น ให้เลือกขนาด &quot;ใหญ่ (Large)&quot; ด้านบนเพื่อความคมชัดแบบเวกเตอร์ 100%!
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={
-                      typeof window !== 'undefined'
-                        ? `${window.location.origin}/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
-                        : `/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
-                    }
-                    className="w-full flex-1 min-w-0 rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-mono text-slate-700 select-all focus:outline-none focus:bg-white focus:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
-                  />
-                  <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+
+                {/* Display Layout Selector Card */}
+                <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 shadow-sm">
+                  <h3 className="text-sm font-bold text-slate-900">1. รูปแบบการจัดวาง (Display Layout)</h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
-                      onClick={() => copyToClipboard(`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`, 'recent-box')}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      type="button"
+                      onClick={() => setRecentSettings({ ...recentSettings, mode: 'list' })}
+                      className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
+                        recentSettings.mode === 'list'
+                          ? 'border-emerald-500 bg-emerald-50/50 text-slate-900 font-semibold ring-1 ring-emerald-500 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
                     >
-                      {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                      <div className="text-xs font-semibold mb-1 text-slate-900">แบบรายการแนวตั้ง (Vertical List)</div>
+                      <p className="text-[11px] text-slate-500 font-normal">เหมาะสำหรับวางมุมซ้าย/ขวาของหน้าจอสตรีม</p>
                     </button>
-                    <Link
-                      href={`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`}
-                      target="_blank"
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/70 text-slate-600 hover:text-slate-900 border border-slate-200/60 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-                      title="เปิดหน้าต่างแยก"
-                      aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+
+                    <button
+                      type="button"
+                      onClick={() => setRecentSettings({ ...recentSettings, mode: 'ticker' })}
+                      className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
+                        recentSettings.mode === 'ticker'
+                          ? 'border-emerald-500 bg-emerald-50/50 text-slate-900 font-semibold ring-1 ring-emerald-500 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
                     >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
+                      <div className="text-xs font-semibold mb-1 text-slate-900">แถบวิ่งแนวนอน (Horizontal Ticker)</div>
+                      <p className="text-[11px] text-slate-500 font-normal">เหมาะสำหรับวางชิดขอบบนหรือขอบล่างของหน้าจอ</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Settings Form */}
+                <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 shadow-sm">
+                  <h3 className="text-sm font-bold text-slate-900">2. ตั้งค่าข้อความและสี (Appearance Settings)</h3>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">หัวข้อฟีด (Title):</label>
+                    <input
+                      type="text"
+                      value={recentSettings.title}
+                      onChange={(e) => setRecentSettings({ ...recentSettings, title: e.target.value })}
+                      placeholder="เช่น ผู้สนับสนุนล่าสุด"
+                      className="w-full rounded-lg bg-slate-50/50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1.5">จำนวนรายการที่แสดง (Items Limit):</label>
+                      <select
+                        value={recentSettings.limit}
+                        onChange={(e) => setRecentSettings({ ...recentSettings, limit: Number(e.target.value) })}
+                        className="w-full rounded-lg bg-white border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value={3}>แสดง 3 รายการล่าสุด</option>
+                        <option value={5}>แสดง 5 รายการล่าสุด (แนะนำ)</option>
+                        <option value={8}>แสดง 8 รายการล่าสุด</option>
+                        <option value={10}>แสดง 10 รายการล่าสุด</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                        สีไฮไลต์ยอดเงินและเรืองแสง (Accent Color):
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={recentSettings.themeColor || '#22c55e'}
+                          onChange={(e) => setRecentSettings({ ...recentSettings, themeColor: e.target.value })}
+                          className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <input
+                          type="text"
+                          value={recentSettings.themeColor || '#22c55e'}
+                          onChange={(e) => setRecentSettings({ ...recentSettings, themeColor: e.target.value })}
+                          className="w-full rounded-lg bg-slate-50/50 border border-slate-200 px-3 py-1.5 text-xs text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Color Presets */}
+                  <div className="pt-3 border-t border-slate-100">
+                    <span className="block text-[11px] font-medium text-slate-500 mb-2">ชุดสียอดนิยม:</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRecentSettings({ ...recentSettings, themeColor: '#22c55e' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]"></span>
+                        🌿 มรกต TipDee (Emerald)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRecentSettings({ ...recentSettings, themeColor: '#00e5ff' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#00e5ff]"></span>
+                        💧 ฟ้านีออน (Neon Cyan)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRecentSettings({ ...recentSettings, themeColor: '#ec4899' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ec4899]"></span>
+                        💖 ชมพูหวาน (Sweet Pink)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRecentSettings({ ...recentSettings, themeColor: '#eab308' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#eab308]"></span>
+                        ⭐ ทองสว่าง (Gold)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 max-w-xl shadow-sm">
-                <h3 className="text-sm font-bold text-slate-900">รูปแบบการแสดงผล (Display Layout)</h3>
+              {/* Live Preview Column */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="sticky top-20 rounded-xl border border-slate-200/80 bg-white p-5 space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span>ตัวอย่าง Recent Donors (Live Preview)</span>
+                    </h3>
+                    <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                      {recentSettings.mode === 'ticker' ? 'โหมด Ticker' : 'โหมด List'}
+                    </span>
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRecentMode('list')}
-                    className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
-                      recentMode === 'list'
-                        ? 'border-emerald-500 bg-emerald-50/50 text-slate-900 font-semibold ring-1 ring-emerald-500 shadow-xs'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
-                  >
-                    <div className="text-xs font-semibold mb-1 text-slate-900">แบบรายการแนวตั้ง (Vertical List)</div>
-                    <p className="text-[11px] text-slate-500 font-normal">เหมาะสำหรับวางมุมซ้าย/ขวาของจอ</p>
-                  </button>
+                  {/* OBS Box Simulation Container */}
+                  <div className="relative w-full min-h-[380px] rounded-lg bg-[#07090e] border border-slate-900/60 flex flex-col items-center justify-center p-4 sm:p-5 overflow-hidden shadow-inner">
+                    {/* Background checkerboard for transparency preview */}
+                    <div
+                      className="absolute inset-0 opacity-15 pointer-events-none"
+                      style={{
+                        backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                        backgroundSize: '16px 16px',
+                      }}
+                    />
 
-                  <button
-                    type="button"
-                    onClick={() => setRecentMode('ticker')}
-                    className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
-                      recentMode === 'ticker'
-                        ? 'border-emerald-500 bg-emerald-50/50 text-slate-900 font-semibold ring-1 ring-emerald-500 shadow-xs'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
-                  >
-                    <div className="text-xs font-semibold mb-1 text-slate-900">แถบวิ่งแนวนอน (Horizontal Ticker)</div>
-                    <p className="text-[11px] text-slate-500 font-normal">เหมาะสำหรับวางขอบบน/ล่างของจอ</p>
-                  </button>
+                    {/* Recent Donors Simulation Content */}
+                    {recentSettings.mode === 'ticker' ? (
+                      /* Ticker Mode Preview */
+                      <div
+                        className="relative z-10 w-full rounded-full bg-[#0a0d14]/90 border border-white/15 py-2.5 px-3.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] flex items-center gap-2.5 overflow-x-auto no-scrollbar select-none"
+                        style={{
+                          boxShadow: `0 0 20px ${(recentSettings.themeColor || '#22c55e')}22, 0 16px 40px rgba(0,0,0,0.85)`,
+                        }}
+                      >
+                        <div
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-black text-[11px] uppercase tracking-wider flex-shrink-0 shadow-sm"
+                          style={{
+                            backgroundColor: `${recentSettings.themeColor || '#22c55e'}25`,
+                            color: recentSettings.themeColor || '#22c55e',
+                            border: `1px solid ${recentSettings.themeColor || '#22c55e'}60`,
+                          }}
+                        >
+                          <Heart className="h-3 w-3 fill-current animate-pulse" />
+                          <span>โดเนทล่าสุด</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                          {[
+                            { name: 'Chanon_Official', amount: 500 },
+                            { name: 'Alice_Wonder', amount: 150 },
+                            { name: 'Warut_Gamer', amount: 300 },
+                          ].map((d, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-white/10 whitespace-nowrap flex-shrink-0 shadow-sm"
+                            >
+                              <span
+                                className="text-white font-black text-xs"
+                                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}
+                              >
+                                {d.name}
+                              </span>
+                              <span
+                                className="font-black text-xs stream-text-stroke-sm"
+                                style={{ color: recentSettings.themeColor || '#22c55e' }}
+                              >
+                                +{d.amount}฿
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      /* List Mode Preview */
+                      <div
+                        className="relative z-10 w-full max-w-[340px] rounded-3xl bg-[#0a0d14]/90 border border-white/15 p-4 shadow-[0_16px_40px_rgba(0,0,0,0.85)] flex flex-col select-none"
+                        style={{
+                          boxShadow: `0 0 20px ${(recentSettings.themeColor || '#22c55e')}22, 0 16px 40px rgba(0,0,0,0.85)`,
+                        }}
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-2">
+                          <div className="flex items-center gap-1.5 overflow-hidden pr-1">
+                            <div
+                              className="p-1 rounded-lg flex items-center justify-center shadow-sm"
+                              style={{
+                                backgroundColor: `${recentSettings.themeColor || '#22c55e'}25`,
+                                border: `1px solid ${recentSettings.themeColor || '#22c55e'}60`,
+                              }}
+                            >
+                              <Clock className="h-3.5 w-3.5" style={{ color: recentSettings.themeColor || '#22c55e' }} />
+                            </div>
+                            <span
+                              className="font-black text-white text-xs sm:text-sm truncate"
+                              style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000' }}
+                            >
+                              {recentSettings.title || 'ผู้สนับสนุนล่าสุด'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="relative flex h-2 w-2">
+                              <span
+                                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                style={{ backgroundColor: recentSettings.themeColor || '#22c55e' }}
+                              />
+                              <span
+                                className="relative inline-flex rounded-full h-2 w-2"
+                                style={{ backgroundColor: recentSettings.themeColor || '#22c55e' }}
+                              />
+                            </span>
+                            <span
+                              className="text-[10px] font-black rounded-full px-2 py-0.5 uppercase tracking-wider"
+                              style={{
+                                backgroundColor: `${recentSettings.themeColor || '#22c55e'}20`,
+                                color: recentSettings.themeColor || '#22c55e',
+                                border: `1px solid ${recentSettings.themeColor || '#22c55e'}50`,
+                              }}
+                            >
+                              LIVE FEED
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* List preview */}
+                        <div className="space-y-1.5">
+                          {[
+                            { name: 'Chanon_Official', amount: 500, time: 'เมื่อสักครู่', msg: 'สู้ๆ นะครับ สนุกมาก!' },
+                            { name: 'Alice_Wonder', amount: 150, time: '8 น.ที่แล้ว', msg: 'ชอบคอนเทนต์นี้มากๆ เลยค่ะ' },
+                            { name: 'Warut_Gamer', amount: 300, time: '15 น.ที่แล้ว', msg: '' },
+                            { name: 'NongBaimon', amount: 1000, time: '30 น.ที่แล้ว', msg: 'ยินดีด้วยกับการอัปเกรดคอมใหม่ครับ' },
+                            { name: 'Siravit_TH', amount: 50, time: '45 น.ที่แล้ว', msg: 'ค่าขนมครับ' },
+                          ]
+                            .slice(0, recentSettings.limit || 5)
+                            .map((d, idx) => {
+                              const themeColor = recentSettings.themeColor || '#22c55e';
+                              return (
+                                <div
+                                  key={idx}
+                                  className="rounded-xl bg-gradient-to-r from-slate-900/90 to-[#121620]/90 border border-white/10 p-2 flex items-center justify-between gap-2 shadow-sm"
+                                >
+                                  <div className="flex items-center gap-2 overflow-hidden pr-1">
+                                    <div
+                                      className="w-7 h-7 rounded-full flex items-center justify-center font-black text-white text-[11px] flex-shrink-0 shadow-sm"
+                                      style={{
+                                        background: `linear-gradient(135deg, ${themeColor}, #6366f1)`,
+                                      }}
+                                    >
+                                      {d.name.slice(0, 1).toUpperCase()}
+                                    </div>
+                                    <div className="overflow-hidden space-y-0.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <span
+                                          className="text-xs font-black text-white truncate"
+                                          style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px #000000' }}
+                                        >
+                                          {d.name}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 font-medium">{d.time}</span>
+                                      </div>
+                                      {d.msg && (
+                                        <p
+                                          className="text-[10px] text-slate-200/90 italic truncate"
+                                          style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}
+                                        >
+                                          &quot;{d.msg}&quot;
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <span
+                                    className="text-xs font-black stream-text-stroke-sm flex-shrink-0"
+                                    style={{ color: themeColor }}
+                                  >
+                                    +{d.amount}฿
+                                  </span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 text-center">
+                    ตัวอย่างนี้จำลองการแสดงผล Recent Donors บน OBS Studio (โปร่งใส 100% คมชัดระดับ 4K)
+                  </p>
                 </div>
               </div>
             </div>

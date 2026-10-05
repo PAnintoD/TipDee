@@ -102,6 +102,8 @@ model Streamer {
   minAmount        Float           @default(5)
   presetAmounts    String          @default("[20,50,100,300,500,1000]")
   socialLinks      String?
+  topDonorsSettings String?
+  recentDonorsSettings String?
   widgetToken      String          @default("widget_token_abc123")
   enableAutoSlip   Boolean         @default(true)
   slipApiKey       String?
