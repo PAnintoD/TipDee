@@ -73,23 +73,23 @@ function LoginForm() {
   }
 
   return (
-    <div className="surface-card p-6 sm:p-8 rounded-2xl shadow-xl">
-      <h1 className="text-xl font-bold tracking-tight text-white mb-1">เข้าสู่ระบบ</h1>
-      <p className="text-slate-400 text-xs mb-6">ยินดีต้อนรับกลับสู่ระบบ TipDee Studio</p>
+    <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 sm:p-8">
+      <h1 className="text-xl font-bold tracking-tight text-slate-900 mb-1">เข้าสู่ระบบ</h1>
+      <p className="text-slate-500 text-xs mb-6">ยินดีต้อนรับกลับสู่ระบบ TipDee Studio</p>
 
       {verified && (
-        <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-lg text-emerald-400 text-xs">
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-xs font-medium">
           ✅ ยืนยันอีเมลสำเร็จแล้ว เข้าสู่ระบบได้ทันที
         </div>
       )}
 
       {(err || error) && (
-        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-lg text-rose-400 text-xs flex items-center justify-between gap-2">
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs flex items-center justify-between gap-2">
           <span>{getErrorMessage(error, err)}</span>
           <button
             type="button"
             onClick={() => { setErr(''); router.replace('/login'); }}
-            className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-white/[0.06] transition-colors"
+            className="text-slate-400 hover:text-slate-700 text-xs px-1.5 py-0.5 rounded hover:bg-slate-100 transition-colors"
             title="ปิดการแจ้งเตือน"
           >
             ✕
@@ -99,21 +99,21 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">อีเมล</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">อีเมล</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 shadow-2xs transition-colors"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-medium text-slate-300">รหัสผ่าน</label>
-            <a href="/forgot-password" className="text-xs text-emerald-400 hover:text-emerald-300">
+            <label className="block text-xs font-semibold text-slate-700">รหัสผ่าน</label>
+            <a href="/forgot-password" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
               ลืมรหัสผ่าน?
             </a>
           </div>
@@ -124,12 +124,12 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3.5 py-2.5 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 pr-10 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 shadow-2xs transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -139,7 +139,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-xs"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
           เข้าสู่ระบบ
@@ -148,20 +148,20 @@ function LoginForm() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/[0.06]" />
+          <div className="w-full border-t border-slate-200" />
         </div>
-        <div className="relative flex justify-center text-xs text-slate-500">
-          <span className="bg-[#0e131d] px-3">หรือเข้าสู่ระบบด้วย</span>
+        <div className="relative flex justify-center text-xs text-slate-400">
+          <span className="bg-white px-3 font-medium">หรือเข้าสู่ระบบด้วย</span>
         </div>
       </div>
 
       <button
         onClick={handleGoogleSignIn}
         disabled={loading || oauthLoading}
-        className="w-full bg-white/[0.04] hover:bg-white/[0.08] disabled:opacity-50 border border-white/[0.08] hover:border-white/[0.15] text-slate-200 text-xs font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2.5"
+        className="w-full bg-white hover:bg-slate-50 disabled:opacity-50 border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2.5 shadow-2xs"
       >
         {oauthLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+          <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
         ) : (
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -173,9 +173,9 @@ function LoginForm() {
         <span>{oauthLoading ? 'กำลังเชื่อมต่อกับ Google...' : 'เข้าสู่ระบบด้วย Google'}</span>
       </button>
 
-      <p className="text-center text-xs text-slate-400 mt-5">
+      <p className="text-center text-xs text-slate-500 mt-5">
         ยังไม่มีบัญชี?{' '}
-        <a href="/register" className="text-emerald-400 hover:text-emerald-300 font-medium">
+        <a href="/register" className="text-emerald-600 hover:text-emerald-700 font-semibold">
           สมัครสมาชิกใหม่
         </a>
       </p>

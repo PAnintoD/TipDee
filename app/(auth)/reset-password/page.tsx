@@ -31,33 +31,33 @@ function ResetForm() {
 
   if (success) {
     return (
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-2xl text-center">
-        <CheckCircle className="h-16 w-16 text-brand-400 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">เปลี่ยนรหัสผ่านสำเร็จ!</h2>
-        <p className="text-slate-400">กำลังพาคุณไปหน้าเข้าสู่ระบบ...</p>
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm text-center">
+        <CheckCircle className="h-14 w-14 text-emerald-600 mx-auto mb-3" />
+        <h2 className="text-xl font-bold text-slate-900 mb-2">เปลี่ยนรหัสผ่านสำเร็จ!</h2>
+        <p className="text-slate-500 text-xs">กำลังพาคุณไปหน้าเข้าสู่ระบบ...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-2xl">
-      <h1 className="text-2xl font-bold text-white mb-1">ตั้งรหัสผ่านใหม่</h1>
-      <p className="text-slate-400 text-sm mb-6">กรุณาตั้งรหัสผ่านใหม่ที่คาดเดายาก</p>
-      {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
+    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+      <h1 className="text-xl font-bold text-slate-900 mb-1">ตั้งรหัสผ่านใหม่</h1>
+      <p className="text-slate-500 text-xs mb-6">กรุณาตั้งรหัสผ่านใหม่ที่คาดเดายาก</p>
+      {error && <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-medium">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">รหัสผ่านใหม่</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">รหัสผ่านใหม่</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="อย่างน้อย 8 ตัวอักษร" required minLength={8}
-            className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors" />
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 shadow-2xs transition-colors" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">ยืนยันรหัสผ่านใหม่</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">ยืนยันรหัสผ่านใหม่</label>
           <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required
-            className="w-full bg-slate-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors" />
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 shadow-2xs transition-colors" />
         </div>
         <button type="submit" disabled={loading}
-          className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-black font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-5 w-5" />}
+          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-2 shadow-xs">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
           บันทึกรหัสผ่านใหม่
         </button>
       </form>

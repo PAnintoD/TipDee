@@ -80,7 +80,7 @@ export default function PlansPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col">
       <Navbar streamerId={username} />
 
       <div className="flex flex-1">
@@ -88,48 +88,48 @@ export default function PlansPage() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-8">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
             <div>
-              <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
-                <Package className="h-6 w-6 text-brand-400" />
+              <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <Package className="h-6 w-6 text-emerald-600" />
                 <span>แพลนและการใช้งาน (Plans & Subscriptions)</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 เลือกแพลนที่เหมาะกับช่องของคุณ ปลดล็อกฟีเจอร์สตรีมมิ่งระดับพรีเมียม
               </p>
             </div>
 
             <Link
               href="/dashboard/plans/history"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold border border-white/10 transition-all hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold border border-slate-200 shadow-2xs transition-all hover:scale-105"
             >
-              <History className="h-4 w-4 text-brand-400" />
+              <History className="h-4 w-4 text-emerald-600" />
               <span>ประวัติการสมัครแพลน</span>
             </Link>
           </div>
 
           {/* Current Plan Status Card */}
-          <div className="p-6 rounded-3xl border border-brand-500/30 bg-gradient-to-r from-brand-950/40 via-slate-900/80 to-[#0e1219] shadow-2xl backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-6 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50/60 to-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30">
-                <Crown className="h-8 w-8 text-amber-400 animate-pulse" />
+              <div className="p-3 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 shadow-2xs">
+                <Crown className="h-8 w-8 text-amber-500 animate-pulse" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">แพลนปัจจุบันของคุณ:</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-extrabold text-xs border border-brand-500/30">
+                  <span className="text-xs text-slate-500">แพลนปัจจุบันของคุณ:</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-xs border border-emerald-200">
                     STREAMER PRO
                   </span>
                 </div>
-                <h2 className="text-xl font-extrabold text-white mt-0.5">ใช้งานได้ต่อเนื่องทุกฟังก์ชัน</h2>
-                <p className="text-xs text-slate-400">รอบบิลถัดไป: 23 กันยายน 2026</p>
+                <h2 className="text-xl font-extrabold text-slate-900 mt-0.5">ใช้งานได้ต่อเนื่องทุกฟังก์ชัน</h2>
+                <p className="text-xs text-slate-500">รอบบิลถัดไป: 23 กันยายน 2026</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <button
                 onClick={() => alert('แพลนของคุณได้รับการต่ออายุอัตโนมัติแล้ว')}
-                className="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-black font-black text-xs transition-all shadow-lg shadow-brand-500/20"
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs"
               >
                 จัดการการต่ออายุ
               </button>
@@ -143,33 +143,33 @@ export default function PlansPage() {
               return (
                 <div
                   key={p.id}
-                  className={`p-7 rounded-3xl border flex flex-col justify-between transition-all duration-300 relative ${
+                  className={`p-7 rounded-2xl border flex flex-col justify-between transition-all duration-300 relative ${
                     p.popular
-                      ? 'bg-gradient-to-b from-[#121926] to-[#0d1117] border-brand-500/50 shadow-2xl shadow-brand-500/10 scale-[1.02]'
-                      : 'bg-[#0e1219]/90 border-white/10 hover:border-white/20'
+                      ? 'bg-white border-2 border-emerald-500 shadow-md scale-[1.02]'
+                      : 'bg-white border border-slate-200/80 shadow-sm hover:border-slate-300'
                   }`}
                 >
                   {p.popular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-brand-500 to-emerald-400 text-black font-black text-[11px] shadow-lg">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-emerald-600 text-white font-bold text-[11px] shadow-sm">
                       {p.badge}
                     </div>
                   )}
 
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-bold text-white">{p.name}</h3>
-                      <p className="text-xs text-slate-400 mt-1">{p.desc}</p>
+                      <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
+                      <p className="text-xs text-slate-500 mt-1">{p.desc}</p>
                     </div>
 
-                    <div className="flex items-baseline gap-1 pt-2 border-t border-white/5">
-                      <span className="text-3xl sm:text-4xl font-black text-white">{p.price}</span>
-                      <span className="text-xs text-slate-400 font-semibold">{p.period}</span>
+                    <div className="flex items-baseline gap-1 pt-2 border-t border-slate-100">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900">{p.price}</span>
+                      <span className="text-xs text-slate-500 font-semibold">{p.period}</span>
                     </div>
 
-                    <div className="space-y-2.5 pt-4 border-t border-white/5">
+                    <div className="space-y-2.5 pt-4 border-t border-slate-100">
                       {p.features.map((feat, idx) => (
-                        <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
-                          <Check className="h-4 w-4 text-brand-400 flex-shrink-0 mt-0.5" />
+                        <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-700">
+                          <Check className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                           <span>{feat}</span>
                         </div>
                       ))}
@@ -184,10 +184,10 @@ export default function PlansPage() {
                       }}
                       className={`w-full py-3 rounded-xl font-bold text-xs transition-all ${
                         isCurrent
-                          ? 'bg-slate-800 text-brand-400 border border-brand-500/30 cursor-default'
+                          ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-default'
                           : p.popular
-                          ? 'bg-brand-500 hover:bg-brand-400 text-black shadow-lg shadow-brand-500/25 font-black hover:scale-105'
-                          : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/10 hover:scale-105'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs font-bold'
+                          : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
                       }`}
                     >
                       {isCurrent ? '✓ แพลนปัจจุบันของคุณ' : `เลือกแพลน ${p.name}`}

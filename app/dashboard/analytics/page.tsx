@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col">
       <Navbar streamerId={streamerId} />
 
       <div className="flex flex-1">
@@ -85,13 +85,13 @@ export default function AnalyticsPage() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-                <TrendingUp className="h-6 w-6 text-brand-400" />
+              <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2.5">
+                <TrendingUp className="h-6 w-6 text-emerald-600" />
                 <span>สถิติรายได้ & รายงานการเติบโต (Analytics & Reports)</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 วิเคราะห์ยอดโดเนท แนวโน้มรายรับ และสัดส่วนช่องทางการชำระเงินของช่องคุณ
               </p>
             </div>
@@ -99,7 +99,7 @@ export default function AnalyticsPage() {
             <div className="flex items-center gap-2.5">
               <button
                 onClick={fetchAnalytics}
-                className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                className="p-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs transition-colors"
                 title="รีเฟรชข้อมูล"
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -107,9 +107,9 @@ export default function AnalyticsPage() {
 
               <button
                 onClick={handleExportReport}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold border border-white/10 transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold border border-slate-200 shadow-2xs transition-all hover:scale-105 active:scale-95"
               >
-                <Download className="h-4 w-4 text-brand-400" />
+                <Download className="h-4 w-4 text-emerald-600" />
                 <span>ส่งออกรายงาน CSV</span>
               </button>
             </div>
@@ -128,8 +128,8 @@ export default function AnalyticsPage() {
                 onClick={() => setPeriod(tab.id as any)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   period === tab.id
-                    ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
-                    : 'bg-slate-900 border border-white/5 text-slate-400 hover:text-white'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
                 }`}
               >
                 {tab.label}
@@ -140,76 +140,76 @@ export default function AnalyticsPage() {
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Revenue */}
-            <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 backdrop-blur-md space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>ยอดเงินโดเนททั้งหมด</span>
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
                   <Wallet className="h-4 w-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">
+              <p className="text-2xl font-black text-slate-900">
                 {(data?.totalRevenue || 0).toLocaleString('th-TH')}{' '}
-                <span className="text-sm font-bold text-brand-400">฿</span>
+                <span className="text-sm font-bold text-emerald-600">฿</span>
               </p>
-              <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+              <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
                 <ArrowUpRight className="h-3.5 w-3.5" />
                 <span>สถานะสำเร็จ 100%</span>
               </div>
             </div>
 
             {/* Total Transactions */}
-            <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 backdrop-blur-md space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>จำนวนครั้งที่ได้รับ</span>
-                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+                <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
                   <Receipt className="h-4 w-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">
+              <p className="text-2xl font-black text-slate-900">
                 {(data?.totalTransactions || 0).toLocaleString('th-TH')}{' '}
-                <span className="text-sm font-bold text-slate-400">ครั้ง</span>
+                <span className="text-sm font-bold text-slate-500">ครั้ง</span>
               </p>
-              <p className="text-[11px] text-slate-500">บันทึกบนระบบ TipDee</p>
+              <p className="text-[11px] text-slate-400">บันทึกบนระบบ TipDee</p>
             </div>
 
             {/* Average Donation */}
-            <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 backdrop-blur-md space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>เฉลี่ยต่อรายการ</span>
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+                <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
                   <BarChart3 className="h-4 w-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">
+              <p className="text-2xl font-black text-slate-900">
                 {(data?.averageDonation || 0).toLocaleString('th-TH')}{' '}
-                <span className="text-sm font-bold text-purple-400">฿</span>
+                <span className="text-sm font-bold text-purple-600">฿</span>
               </p>
-              <p className="text-[11px] text-slate-500">ยอดโดเนทต่อผู้ชมเฉลี่ย</p>
+              <p className="text-[11px] text-slate-400">ยอดโดเนทต่อผู้ชมเฉลี่ย</p>
             </div>
 
             {/* Peak Hour */}
-            <div className="p-5 rounded-2xl border border-white/10 bg-[#0e1219]/90 backdrop-blur-md space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>ช่วงเวลาโดเนทสูงสุด</span>
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+                <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
                   <Clock className="h-4 w-4" />
                 </div>
               </div>
-              <p className="text-lg sm:text-xl font-bold text-amber-300 truncate">
+              <p className="text-lg sm:text-xl font-bold text-amber-700 truncate">
                 {data?.peakHourFormatted || '19:00 - 21:00 น.'}
               </p>
-              <p className="text-[11px] text-slate-500">ช่วงที่มีผู้ชมโดเนทคึกคักที่สุด</p>
+              <p className="text-[11px] text-slate-400">ช่วงที่มีผู้ชมโดเนทคึกคักที่สุด</p>
             </div>
           </div>
 
           {/* Revenue Chart Section */}
-          <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl backdrop-blur-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-brand-400" />
-                <h3 className="text-base font-bold text-white">แนวโน้มยอดเงินโดเนท (Revenue Trend)</h3>
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
+                <h3 className="text-base font-bold text-slate-900">แนวโน้มยอดเงินโดเนท (Revenue Trend)</h3>
               </div>
-              <span className="text-xs text-slate-400">หน่วย: บาท (THB)</span>
+              <span className="text-xs text-slate-500">หน่วย: บาท (THB)</span>
             </div>
 
             {/* Custom Interactive SVG / Bar Chart */}
@@ -221,19 +221,19 @@ export default function AnalyticsPage() {
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
                       {/* Tooltip on hover */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-20 px-2.5 py-1.5 rounded-xl bg-black/90 border border-white/20 text-center pointer-events-none whitespace-nowrap shadow-xl">
-                        <p className="text-[10px] text-slate-400">{item.date}</p>
-                        <p className="text-xs font-black text-brand-400">{item.amount.toLocaleString()} ฿ ({item.count} ครั้ง)</p>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-20 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-center pointer-events-none whitespace-nowrap shadow-xl">
+                        <p className="text-[10px] text-slate-300">{item.date}</p>
+                        <p className="text-xs font-black text-emerald-400">{item.amount.toLocaleString()} ฿ ({item.count} ครั้ง)</p>
                       </div>
 
                       {/* Bar */}
                       <div
-                        className="w-full rounded-t-xl bg-gradient-to-t from-brand-700 via-brand-500 to-emerald-400 group-hover:brightness-125 transition-all shadow-lg shadow-brand-500/10 cursor-pointer"
+                        className="w-full rounded-t-xl bg-gradient-to-t from-emerald-600 to-emerald-400 group-hover:brightness-110 transition-all shadow-xs cursor-pointer"
                         style={{ height: `${heightPercent}%` }}
                       />
 
                       {/* Date Label */}
-                      <span className="text-[10px] text-slate-500 group-hover:text-white transition-colors truncate max-w-[32px] sm:max-w-none">
+                      <span className="text-[10px] text-slate-500 group-hover:text-slate-900 font-medium transition-colors truncate max-w-[32px] sm:max-w-none">
                         {dateShort}
                       </span>
                     </div>
@@ -246,33 +246,33 @@ export default function AnalyticsPage() {
           {/* Two Columns: Payment Breakdown & Top Supporters */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Payment Method Distribution */}
-            <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl backdrop-blur-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5 text-brand-400" />
-                  <h3 className="text-base font-bold text-white">สัดส่วนช่องทางชำระเงิน</h3>
+                  <PieChart className="h-5 w-5 text-emerald-600" />
+                  <h3 className="text-base font-bold text-slate-900">สัดส่วนช่องทางชำระเงิน</h3>
                 </div>
               </div>
 
               <div className="space-y-3.5 pt-1">
                 {data?.methodDistribution?.map((item: any) => {
-                  const meta = methodNames[item.method] || { label: item.method, icon: Wallet, color: 'text-white', bg: 'bg-brand-500' };
+                  const meta = methodNames[item.method] || { label: item.method, icon: Wallet, color: 'text-slate-700', bg: 'bg-emerald-500' };
                   const Icon = meta.icon;
                   return (
                     <div key={item.method} className="space-y-1.5">
                       <div className="flex justify-between items-center text-xs font-semibold">
                         <div className="flex items-center gap-2">
                           <Icon className={`h-4 w-4 ${meta.color}`} />
-                          <span className="text-white">{meta.label}</span>
+                          <span className="text-slate-800">{meta.label}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-400">({item.count} ครั้ง)</span>
-                          <span className="text-white font-bold">{item.amount.toLocaleString()} ฿</span>
-                          <span className="text-brand-400 font-extrabold text-[11px] w-8 text-right">{item.percentage}%</span>
+                          <span className="text-slate-500">({item.count} ครั้ง)</span>
+                          <span className="text-slate-900 font-bold">{item.amount.toLocaleString()} ฿</span>
+                          <span className="text-emerald-700 font-extrabold text-[11px] w-8 text-right">{item.percentage}%</span>
                         </div>
                       </div>
 
-                      <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${meta.bg} transition-all duration-700`}
                           style={{ width: `${item.percentage}%` }}
@@ -285,11 +285,11 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Top Supporters Leaderboard */}
-            <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl backdrop-blur-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-amber-400" />
-                  <h3 className="text-base font-bold text-white">ผู้สนับสนุนสูงสุดในช่วงนี้</h3>
+                  <Award className="h-5 w-5 text-amber-500" />
+                  <h3 className="text-base font-bold text-slate-900">ผู้สนับสนุนสูงสุดในช่วงนี้</h3>
                 </div>
               </div>
 
@@ -304,16 +304,16 @@ export default function AnalyticsPage() {
                     return (
                       <div
                         key={idx}
-                        className="p-3 rounded-2xl bg-slate-900/60 border border-white/5 hover:border-white/10 transition-colors flex items-center justify-between"
+                        className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100/70 transition-colors flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-base font-bold w-6 text-center">{medals[idx]}</span>
                           <div>
-                            <p className="text-xs font-bold text-white">{donor.name}</p>
-                            <p className="text-[10px] text-slate-400">โดเนทสะสม {donor.count} ครั้ง</p>
+                            <p className="text-xs font-bold text-slate-900">{donor.name}</p>
+                            <p className="text-[10px] text-slate-500">โดเนทสะสม {donor.count} ครั้ง</p>
                           </div>
                         </div>
-                        <span className="text-sm font-black text-brand-400">
+                        <span className="text-sm font-bold text-emerald-600">
                           {donor.amount.toLocaleString('th-TH')} ฿
                         </span>
                       </div>

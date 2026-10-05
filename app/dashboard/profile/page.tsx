@@ -87,7 +87,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
       <Navbar streamerId={streamerId} />
 
       <div className="flex flex-1">
@@ -97,11 +97,11 @@ export default function ProfilePage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-                <UserCircle className="h-6 w-6 text-emerald-400" />
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
+                <UserCircle className="h-6 w-6 text-emerald-600" />
                 <span>ปรับแต่งหน้าโดเนทของฉัน (Public Profile)</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 จัดการชื่อช่อง รูปโปรไฟล์ ภาพปกหลัง และลิงก์โซเชียลมีเดียที่แสดงต่อผู้ชม
               </p>
             </div>
@@ -110,16 +110,16 @@ export default function ProfilePage() {
               <Link
                 href={`/u/${streamerId}`}
                 target="_blank"
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-xs font-medium border border-white/[0.08] hover:border-white/[0.15] transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium border border-slate-200 shadow-2xs transition-colors"
               >
                 <span>ดูหน้าจริง</span>
-                <ExternalLink className="h-3.5 w-3.5" />
+                <ExternalLink className="h-3.5 w-3.5 text-slate-500" />
               </Link>
 
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-colors disabled:opacity-50"
               >
                 {saveSuccess ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
                 <span>{isSaving ? 'กำลังบันทึก...' : saveSuccess ? 'บันทึกเรียบร้อย!' : 'บันทึกข้อมูล'}</span>
@@ -129,71 +129,71 @@ export default function ProfilePage() {
 
           <form onSubmit={handleSave} className="space-y-6">
             {/* Live Visual Preview Header */}
-            <div className="surface-card rounded-2xl overflow-hidden">
+            <div className="surface-card rounded-2xl overflow-hidden shadow-sm">
               <div
                 className="h-36 sm:h-44 w-full bg-cover bg-center"
                 style={{ backgroundImage: `url(${profile.bannerUrl})` }}
               >
-                <div className="h-full w-full bg-gradient-to-t from-[#0c1017] via-transparent to-black/30" />
+                <div className="h-full w-full bg-gradient-to-t from-white/90 via-transparent to-black/20" />
               </div>
 
               <div className="p-6 pt-0 relative flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-14">
                 <img
                   src={profile.avatarUrl}
                   alt={profile.displayName}
-                  className="h-24 w-24 rounded-2xl object-cover border-4 border-[#0c1017] shadow-xl ring-2 ring-emerald-500/25"
+                  className="h-24 w-24 rounded-2xl object-cover border-4 border-white shadow-xl ring-2 ring-emerald-500/25"
                 />
                 <div className="text-center sm:text-left space-y-1">
-                  <h3 className="text-lg font-bold text-white">{profile.displayName || 'ชื่อสตรีมเมอร์'}</h3>
-                  <p className="text-xs text-emerald-400 font-mono">tipdee.app/u/{streamerId}</p>
+                  <h3 className="text-lg font-bold text-slate-900">{profile.displayName || 'ชื่อสตรีมเมอร์'}</h3>
+                  <p className="text-xs text-emerald-600 font-mono font-medium">tipdee.app/u/{streamerId}</p>
                 </div>
               </div>
             </div>
 
             {/* Profile Info Card */}
-            <div className="surface-card p-5 sm:p-6 rounded-xl space-y-4">
-              <h3 className="text-sm font-semibold text-white">ข้อมูลช่องและภาพประกอบ</h3>
+            <div className="surface-card p-5 sm:p-6 rounded-xl space-y-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">ข้อมูลช่องและภาพประกอบ</h3>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">ชื่อช่อง / ชื่อแสดง (Display Name):</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">ชื่อช่อง / ชื่อแสดง (Display Name):</label>
                   <input
                     type="text"
                     value={profile.displayName}
                     onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">ข้อความแนะนำ / คำอธิบายช่อง (Bio):</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5">ข้อความแนะนำ / คำอธิบายช่อง (Bio):</label>
                   <textarea
                     rows={3}
                     value={profile.bio}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors resize-none"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">ลิงก์รูปโปรไฟล์ Avatar URL:</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">ลิงก์รูปโปรไฟล์ Avatar URL:</label>
                     <input
                       type="text"
                       value={profile.avatarUrl}
                       onChange={(e) => setProfile({ ...profile, avatarUrl: e.target.value })}
-                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                      className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1.5">ลิงก์ภาพปกหลัง Banner URL:</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1.5">ลิงก์ภาพปกหลัง Banner URL:</label>
                     <input
                       type="text"
                       value={profile.bannerUrl}
                       onChange={(e) => setProfile({ ...profile, bannerUrl: e.target.value })}
-                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                      className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                     />
                   </div>
                 </div>
@@ -201,12 +201,12 @@ export default function ProfilePage() {
             </div>
 
             {/* Social Links Card */}
-            <div className="surface-card p-5 sm:p-6 rounded-xl space-y-4">
-              <h3 className="text-sm font-semibold text-white">ลิงก์โซเชียลมีเดีย (Social Links)</h3>
+            <div className="surface-card p-5 sm:p-6 rounded-xl space-y-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">ลิงก์โซเชียลมีเดีย (Social Links)</h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
                     <YouTubeIcon className="h-3.5 w-3.5 text-rose-500" /> YouTube:
                   </label>
                   <input
@@ -214,59 +214,59 @@ export default function ProfilePage() {
                     value={profile.socialLinks.youtube}
                     onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, youtube: e.target.value } })}
                     placeholder="https://youtube.com/..."
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <TwitchIcon className="h-3.5 w-3.5 text-purple-400" /> Twitch:
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+                    <TwitchIcon className="h-3.5 w-3.5 text-purple-500" /> Twitch:
                   </label>
                   <input
                     type="text"
                     value={profile.socialLinks.twitch}
                     onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, twitch: e.target.value } })}
                     placeholder="https://twitch.tv/..."
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <FacebookIcon className="h-3.5 w-3.5 text-blue-500" /> Facebook:
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+                    <FacebookIcon className="h-3.5 w-3.5 text-blue-600" /> Facebook:
                   </label>
                   <input
                     type="text"
                     value={profile.socialLinks.facebook}
                     onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, facebook: e.target.value } })}
                     placeholder="https://facebook.com/..."
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <MessageSquare className="h-3.5 w-3.5 text-indigo-400" /> Discord:
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+                    <MessageSquare className="h-3.5 w-3.5 text-indigo-500" /> Discord:
                   </label>
                   <input
                     type="text"
                     value={profile.socialLinks.discord}
                     onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, discord: e.target.value } })}
                     placeholder="https://discord.gg/..."
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-pink-400" /> TikTok:
+                  <label className="block text-xs font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-pink-500" /> TikTok:
                   </label>
                   <input
                     type="text"
                     value={profile.socialLinks.tiktok}
                     onChange={(e) => setProfile({ ...profile, socialLinks: { ...profile.socialLinks, tiktok: e.target.value } })}
                     placeholder="https://tiktok.com/@..."
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white shadow-2xs transition-colors"
                   />
                 </div>
               </div>

@@ -13,12 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className="dark">
+    <html lang="th">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-screen bg-[#090b10] text-slate-100 antialiased selection:bg-brand-500 selection:text-white">
+      <body className="min-h-screen bg-[#F8FAFC] text-slate-900 antialiased selection:bg-emerald-500 selection:text-white">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -337,7 +337,7 @@ export default function QRCodeGeneratorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
       <Navbar streamerId={streamerId} />
 
       <div className="flex flex-1">
@@ -345,13 +345,13 @@ export default function QRCodeGeneratorPage() {
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
-                <QrCode className="h-6 w-6 text-emerald-400" />
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+                <QrCode className="h-6 w-6 text-emerald-600" />
                 <span>สร้าง QR Code โดเนท (Donation QR Code Studio)</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 สร้างและปรับแต่ง QR Code สำหรับให้ผู้ชมสแกนเข้าหน้าโดเนททันที ใส่บนจอ OBS หรือดาวน์โหลดไปปริ้นท์ตั้งโต๊ะ
               </p>
             </div>
@@ -360,10 +360,10 @@ export default function QRCodeGeneratorPage() {
               <Link
                 href={`/u/${streamerId}`}
                 target="_blank"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-xs font-medium border border-white/[0.08] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium border border-slate-200 shadow-2xs transition-colors"
               >
                 <span>ดูหน้าโดเนทจริง</span>
-                <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
+                <ExternalLink className="h-3.5 w-3.5 text-slate-500" />
               </Link>
             </div>
           </div>
@@ -372,13 +372,13 @@ export default function QRCodeGeneratorPage() {
             {/* LEFT COLUMN: Controls & Settings */}
             <div className="lg:col-span-7 space-y-5">
               {/* 1. Donation Link Box */}
-              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3.5">
+              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-emerald-600" />
                     <span>1. ลิงก์หน้าโดเนทเป้าหมาย (Destination URL)</span>
                   </h3>
-                  <span className="text-[11px] text-emerald-400 font-semibold">อัปเดตอัตโนมัติ</span>
+                  <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">อัปเดตอัตโนมัติ</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -386,11 +386,11 @@ export default function QRCodeGeneratorPage() {
                     type="text"
                     readOnly
                     value={donationUrl}
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs font-mono text-slate-700 select-all focus:outline-none"
                   />
                   <button
                     onClick={handleCopyLink}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex-shrink-0 shadow-xs"
                   >
                     {copiedLink ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     <span>{copiedLink ? 'คัดลอกแล้ว' : 'คัดลอกลิงก์'}</span>
@@ -399,7 +399,7 @@ export default function QRCodeGeneratorPage() {
 
                 {/* Preset Amount quick buttons */}
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1.5">
+                  <label className="block text-xs text-slate-500 mb-1.5 font-medium">
                     กำหนดจำนวนเงินเริ่มต้นเมื่อสแกน (Optional Preset Amount):
                   </label>
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -418,8 +418,8 @@ export default function QRCodeGeneratorPage() {
                         onClick={() => setPresetAmount(item.amt)}
                         className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
                           presetAmount === item.amt
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
-                            : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 border-white/[0.08]'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold shadow-2xs'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                         }`}
                       >
                         {item.label}
@@ -430,9 +430,9 @@ export default function QRCodeGeneratorPage() {
               </div>
 
               {/* 2. Template Selection */}
-              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3.5">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-emerald-400" />
+              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3.5 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-emerald-600" />
                   <span>2. เลือกรูปแบบเทมเพลต (Layout Template)</span>
                 </h3>
 
@@ -442,20 +442,20 @@ export default function QRCodeGeneratorPage() {
                     onClick={() => setSelectedTemplate('banner')}
                     className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 ${
                       selectedTemplate === 'banner'
-                        ? 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30'
-                        : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05]'
+                        ? 'bg-emerald-50/70 border-emerald-400 shadow-sm ring-1 ring-emerald-400/30'
+                        : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100/70'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white">🖥️ ป้ายบนจอ OBS</span>
-                        {selectedTemplate === 'banner' && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                        <span className="text-xs font-bold text-slate-900">🖥️ ป้ายบนจอ OBS</span>
+                        {selectedTemplate === 'banner' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-snug">
+                      <p className="text-[11px] text-slate-600 leading-snug">
                         มีชื่อสตรีมเมอร์ รูปโปรไฟล์ และสัญลักษณ์สแกนโดเนท
                       </p>
                     </div>
-                    <span className="text-[10px] font-semibold text-emerald-400">แนะนำสำหรับสตรีม</span>
+                    <span className="text-[10px] font-semibold text-emerald-700">แนะนำสำหรับสตรีม</span>
                   </button>
 
                   <button
@@ -463,20 +463,20 @@ export default function QRCodeGeneratorPage() {
                     onClick={() => setSelectedTemplate('minimal')}
                     className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 ${
                       selectedTemplate === 'minimal'
-                        ? 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30'
-                        : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05]'
+                        ? 'bg-emerald-50/70 border-emerald-400 shadow-sm ring-1 ring-emerald-400/30'
+                        : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100/70'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white">📱 มินิมอล QR เพียวๆ</span>
-                        {selectedTemplate === 'minimal' && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                        <span className="text-xs font-bold text-slate-900">📱 มินิมอล QR เพียวๆ</span>
+                        {selectedTemplate === 'minimal' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-snug">
+                      <p className="text-[11px] text-slate-600 leading-snug">
                         เฉพาะตัว QR Code คมชัดระดับเวกเตอร์ ไม่มีกรอบกวนใจ
                       </p>
                     </div>
-                    <span className="text-[10px] font-semibold text-slate-400">คลีน เรียบง่าย</span>
+                    <span className="text-[10px] font-semibold text-slate-500">คลีน เรียบง่าย</span>
                   </button>
 
                   <button
@@ -484,34 +484,34 @@ export default function QRCodeGeneratorPage() {
                     onClick={() => setSelectedTemplate('standee')}
                     className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between space-y-2 ${
                       selectedTemplate === 'standee'
-                        ? 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/30'
-                        : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05]'
+                        ? 'bg-emerald-50/70 border-emerald-400 shadow-sm ring-1 ring-emerald-400/30'
+                        : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100/70'
                     }`}
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white">🏷️ การ์ดสแตนดี้พิมพ์</span>
-                        {selectedTemplate === 'standee' && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                        <span className="text-xs font-bold text-slate-900">🏷️ การ์ดสแตนดี้พิมพ์</span>
+                        {selectedTemplate === 'standee' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-snug">
+                      <p className="text-[11px] text-slate-600 leading-snug">
                         การ์ดแนวตั้งพิมพ์ลงกระดาษ A4/A6 สำหรับตั้งหน้าโต๊ะแคส
                       </p>
                     </div>
-                    <span className="text-[10px] font-semibold text-sky-400">สำหรับพิมพ์ตั้งโต๊ะ</span>
+                    <span className="text-[10px] font-semibold text-sky-700">สำหรับพิมพ์ตั้งโต๊ะ</span>
                   </button>
                 </div>
               </div>
 
               {/* 3. Colors & Center Badge */}
-              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Palette className="h-4 w-4 text-emerald-400" />
+              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-4 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Palette className="h-4 w-4 text-emerald-600" />
                   <span>3. ปรับแต่งสีและไอคอนตรงกลาง (Style & Badges)</span>
                 </h3>
 
                 {/* Color presets */}
                 <div>
-                  <span className="block text-xs text-slate-400 mb-2">ชุดสียอดนิยม (Color Presets):</span>
+                  <span className="block text-xs text-slate-600 mb-2 font-medium">ชุดสียอดนิยม (Color Presets):</span>
                   <div className="flex flex-wrap gap-2">
                     {COLOR_PRESETS.map((preset) => (
                       <button
@@ -523,12 +523,12 @@ export default function QRCodeGeneratorPage() {
                         }}
                         className={`px-2.5 py-1 rounded-md text-xs font-medium border flex items-center gap-2 transition-colors ${
                           qrDarkColor === preset.dark && qrLightColor === preset.light
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
-                            : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 border-white/[0.08]'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold shadow-2xs'
+                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                         }`}
                       >
                         <span
-                          className="h-3 w-3 rounded-full border border-black/40 shadow-sm"
+                          className="h-3 w-3 rounded-full border border-black/20 shadow-2xs"
                           style={{ backgroundColor: preset.dark }}
                         />
                         <span>{preset.label}</span>
@@ -537,9 +537,9 @@ export default function QRCodeGeneratorPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/[0.06]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1.5">สีเส้น QR (Dark Color):</label>
+                    <label className="block text-xs text-slate-600 mb-1.5 font-medium">สีเส้น QR (Dark Color):</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -551,21 +551,21 @@ export default function QRCodeGeneratorPage() {
                         type="text"
                         value={qrDarkColor}
                         onChange={(e) => setQrDarkColor(e.target.value)}
-                        className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
+                        className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs text-slate-900 font-mono shadow-2xs"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1.5">สีพื้นหลัง (Background Color):</label>
+                    <label className="block text-xs text-slate-600 mb-1.5 font-medium">สีพื้นหลัง (Background Color):</label>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setQrLightColor('#ffffff')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
                           qrLightColor === '#ffffff'
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
-                            : 'bg-white/[0.03] text-slate-400 border-white/[0.08]'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold shadow-2xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
                         สีขาว (ปกติ)
@@ -575,8 +575,8 @@ export default function QRCodeGeneratorPage() {
                         onClick={() => setQrLightColor('#00000000')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${
                           qrLightColor === '#00000000' || qrLightColor === 'transparent'
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
-                            : 'bg-white/[0.03] text-slate-400 border-white/[0.08]'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold shadow-2xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
                         โปร่งใส 100%
@@ -586,8 +586,8 @@ export default function QRCodeGeneratorPage() {
                 </div>
 
                 {/* Center Badge Selection */}
-                <div className="pt-2 border-t border-white/[0.06]">
-                  <label className="block text-xs text-slate-400 mb-2">ไอคอนตรงกลาง QR Code (Center Badge):</label>
+                <div className="pt-2 border-t border-slate-100">
+                  <label className="block text-xs text-slate-600 mb-2 font-medium">ไอคอนตรงกลาง QR Code (Center Badge):</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { id: 'tipdee', label: '🎀 โลโก้ TipDee', icon: '/tipdee-badge.svg' },
@@ -601,14 +601,14 @@ export default function QRCodeGeneratorPage() {
                         onClick={() => setCenterBadge(item.id as any)}
                         className={`p-2.5 rounded-lg border text-center transition-colors flex flex-col items-center gap-1.5 ${
                           centerBadge === item.id
-                            ? 'bg-emerald-500/10 border-emerald-500 text-emerald-300 font-bold'
-                            : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.05] text-slate-300'
+                            ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold shadow-2xs'
+                            : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
                         }`}
                       >
                         {item.icon ? (
-                          <img src={item.icon} alt={item.label} className="h-7 w-7 rounded-full object-contain shadow-sm" />
+                          <img src={item.icon} alt={item.label} className="h-7 w-7 rounded-full object-contain shadow-2xs" />
                         ) : (
-                          <div className="h-7 w-7 rounded-full bg-white/[0.05] flex items-center justify-center text-xs text-slate-500">
+                          <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center text-xs text-slate-500">
                             -
                           </div>
                         )}
@@ -620,13 +620,13 @@ export default function QRCodeGeneratorPage() {
               </div>
 
               {/* 4. OBS Browser Source Integration */}
-              <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3">
+              <div className="p-5 rounded-xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Tv className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Tv className="h-4 w-4 text-emerald-600" />
                     <span>4. ลิงก์สำหรับใส่ใน OBS Browser Source</span>
                   </h3>
-                  <span className="text-[11px] text-emerald-400 font-semibold">ขนาดแนะนำ: 400 x 480 px</span>
+                  <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">ขนาดแนะนำ: 400 x 480 px</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -634,11 +634,11 @@ export default function QRCodeGeneratorPage() {
                     type="text"
                     readOnly
                     value={obsWidgetUrl}
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3.5 py-2 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs font-mono text-slate-700 select-all focus:outline-none"
                   />
                   <button
                     onClick={handleCopyOBS}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex-shrink-0 shadow-xs"
                   >
                     {copiedOBS ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     <span>{copiedOBS ? 'คัดลอกแล้ว' : 'คัดลอกลิงก์ OBS'}</span>
@@ -646,14 +646,14 @@ export default function QRCodeGeneratorPage() {
                   <Link
                     href={`/widget/qr/${streamerId}${selectedTemplate !== 'banner' ? `?template=${selectedTemplate}` : ''}`}
                     target="_blank"
-                    className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
+                    className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs transition-colors flex-shrink-0"
                     title="เปิดหน้าต่างแยก"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Link>
                 </div>
 
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
                   💡 เพิ่ม <strong>Browser Source</strong> ใน OBS แล้ววางลิงก์ด้านบน QR Code จะแสดงผลสดบนจอพร้อมพื้นหลังโปร่งใส 100%!
                 </p>
               </div>
@@ -661,20 +661,20 @@ export default function QRCodeGeneratorPage() {
 
             {/* RIGHT COLUMN: Live Interactive Preview & Export */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="sticky top-20 rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 space-y-4 shadow-sm">
+              <div className="sticky top-20 rounded-xl border border-slate-200/80 bg-white p-5 space-y-4 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-emerald-600" />
                     <span>ตัวอย่างแสดงผลสด (Live Preview)</span>
                   </h3>
 
                   {/* Preview Background Switcher */}
-                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 border border-slate-200">
                     <button
                       type="button"
                       onClick={() => setPreviewBg('dark')}
                       className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                        previewBg === 'dark' ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:text-white'
+                        previewBg === 'dark' ? 'bg-slate-900 text-white font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
                       จอดำ
@@ -683,7 +683,7 @@ export default function QRCodeGeneratorPage() {
                       type="button"
                       onClick={() => setPreviewBg('checker')}
                       className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                        previewBg === 'checker' ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:text-white'
+                        previewBg === 'checker' ? 'bg-slate-900 text-white font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
                       ตารางโปร่งใส
@@ -692,7 +692,7 @@ export default function QRCodeGeneratorPage() {
                       type="button"
                       onClick={() => setPreviewBg('light')}
                       className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                        previewBg === 'light' ? 'bg-white text-black font-bold' : 'text-slate-400 hover:text-white'
+                        previewBg === 'light' ? 'bg-white text-slate-900 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
                       พื้นขาว
@@ -702,17 +702,17 @@ export default function QRCodeGeneratorPage() {
 
                 {/* Preview Box */}
                 <div
-                  className={`w-full min-h-[420px] rounded-xl border border-white/[0.08] flex items-center justify-center p-6 relative overflow-hidden transition-colors ${
+                  className={`w-full min-h-[420px] rounded-xl border border-slate-200 flex items-center justify-center p-6 relative overflow-hidden transition-colors shadow-inner ${
                     previewBg === 'dark'
                       ? 'bg-[#07090e]'
                       : previewBg === 'light'
-                      ? 'bg-slate-100 text-slate-900'
-                      : 'bg-[#0b0f17]'
+                      ? 'bg-slate-50 text-slate-900'
+                      : 'bg-slate-100'
                   }`}
                   style={
                     previewBg === 'checker'
                       ? {
-                          backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)',
+                          backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)',
                           backgroundSize: '16px 16px',
                         }
                       : undefined
@@ -778,7 +778,7 @@ export default function QRCodeGeneratorPage() {
                           </div>
                         )}
                       </div>
-                      <span className="text-xs font-semibold text-slate-400 tracking-wide">
+                      <span className="text-xs font-semibold text-slate-500 tracking-wide">
                         {streamer?.displayName || streamerId}
                       </span>
                     </div>
@@ -824,7 +824,7 @@ export default function QRCodeGeneratorPage() {
                     <button
                       type="button"
                       onClick={handleDownloadPNG}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm transition-colors"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-xs transition-colors"
                     >
                       <Download className="h-4 w-4" />
                       <span>ดาวน์โหลด PNG</span>
@@ -833,9 +833,9 @@ export default function QRCodeGeneratorPage() {
                     <button
                       type="button"
                       onClick={handleDownloadSVG}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-semibold border border-white/[0.08] transition-colors"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200 shadow-2xs transition-colors"
                     >
-                      <Download className="h-4 w-4 text-emerald-400" />
+                      <Download className="h-4 w-4 text-emerald-600" />
                       <span>ดาวน์โหลด SVG</span>
                     </button>
                   </div>
@@ -844,24 +844,24 @@ export default function QRCodeGeneratorPage() {
                     <button
                       type="button"
                       onClick={handleCopyImage}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-xs font-medium border border-white/[0.08] transition-colors"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200 shadow-2xs transition-colors"
                     >
-                      {copiedImage ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedImage ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{copiedImage ? 'คัดลอกรูปแล้ว' : 'คัดลอกรูปภาพ'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-xs font-medium border border-white/[0.08] transition-colors"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200 shadow-2xs transition-colors"
                     >
-                      <Printer className="h-3.5 w-3.5 text-emerald-400" />
+                      <Printer className="h-3.5 w-3.5 text-emerald-600" />
                       <span>สั่งพิมพ์ (Print)</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-slate-300 leading-relaxed">
+                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed">
                   ✨ <strong>เคล็ดลับ:</strong> สามารถนำรูป QR Code นี้ไปใส่ในฉากพักเบรก (BRB), เริ่มสตรีม, หรือติดไว้ที่มุมจอ OBS เพื่อให้คนดูยกมือถือขึ้นมาสแกนจ่ายได้ง่ายที่สุด!
                 </div>
               </div>

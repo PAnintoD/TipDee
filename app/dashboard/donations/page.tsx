@@ -17,12 +17,12 @@ const LIMIT = 20;
 function StatCard({ icon: Icon, label, value, color }: any) {
   return (
     <div className="surface-card p-4 flex items-center gap-3.5">
-      <div className="p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-slate-300">
+      <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700">
         <Icon className={`h-4 w-4 ${color}`} />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-slate-400 font-medium">{label}</p>
-        <p className="text-lg font-bold text-white font-mono tracking-tight mt-0.5">{value}</p>
+        <p className="text-xs text-slate-500 font-medium">{label}</p>
+        <p className="text-lg font-bold text-slate-900 font-mono tracking-tight mt-0.5">{value}</p>
       </div>
     </div>
   );
@@ -144,14 +144,14 @@ export default function DonationsPage() {
   const formatTime = (d: Date) => d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
   const methodBadge: Record<string, JSX.Element> = {
-    slip: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-medium"><Receipt className="h-3 w-3" /> สลิป</span>,
-    promptpay: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[11px] font-medium"><QrCode className="h-3 w-3" /> PromptPay</span>,
-    truemoney: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] font-medium">🎁 TrueMoney</span>,
-    test: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[11px] font-medium">⚡ ทดสอบ</span>,
+    slip: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-medium"><Receipt className="h-3 w-3" /> สลิป</span>,
+    promptpay: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-medium"><QrCode className="h-3 w-3" /> PromptPay</span>,
+    truemoney: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-medium">🎁 TrueMoney</span>,
+    test: <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[11px] font-medium">⚡ ทดสอบ</span>,
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <Navbar streamerId={streamerId} />
       <div className="flex flex-1">
         <Sidebar streamerId={streamerId} />
@@ -160,34 +160,34 @@ export default function DonationsPage() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-                <ReceiptText className="h-6 w-6 text-emerald-400" /> ประวัติรายการโดเนท
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
+                <ReceiptText className="h-6 w-6 text-emerald-600" /> ประวัติรายการโดเนท
               </h1>
-              <p className="text-xs text-slate-400 mt-1">ค้นหา กรอง และส่งสัญญาณแจ้งเตือนย้อนหลังไปยัง OBS</p>
+              <p className="text-xs text-slate-500 mt-1">ค้นหา กรอง และส่งสัญญาณแจ้งเตือนย้อนหลังไปยัง OBS</p>
             </div>
             <div className="flex items-center gap-2">
               <button 
                 onClick={fetchDonations} 
-                className="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
+                className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs transition-colors"
                 title="รีเฟรชข้อมูล"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
               <button 
                 onClick={handleExportCSV} 
-                className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 text-xs font-semibold border border-white/[0.08] hover:border-white/[0.15] transition-colors"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200 shadow-2xs transition-colors"
               >
-                <Download className="h-4 w-4 text-emerald-400" /> ส่งออก CSV
+                <Download className="h-4 w-4 text-emerald-600" /> ส่งออก CSV
               </button>
             </div>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <StatCard icon={Banknote} label="ยอดรวม (ที่กรอง)" value={`${totalAmount.toLocaleString('th-TH')} ฿`} color="text-emerald-400" />
-            <StatCard icon={ReceiptText} label="จำนวนรายการ" value={`${total.toLocaleString()} รายการ`} color="text-blue-400" />
-            <StatCard icon={CheckCircle2} label="สำเร็จแล้ว" value={`${donations.filter(d => d.status === 'completed').length} / ${donations.length}`} color="text-emerald-400" />
-            <StatCard icon={Clock} label="รอยืนยันสลิป" value={`${donations.filter(d => d.status === 'pending').length} รายการ`} color="text-amber-400" />
+            <StatCard icon={Banknote} label="ยอดรวม (ที่กรอง)" value={`${totalAmount.toLocaleString('th-TH')} ฿`} color="text-emerald-600" />
+            <StatCard icon={ReceiptText} label="จำนวนรายการ" value={`${total.toLocaleString()} รายการ`} color="text-blue-600" />
+            <StatCard icon={CheckCircle2} label="สำเร็จแล้ว" value={`${donations.filter(d => d.status === 'completed').length} / ${donations.length}`} color="text-emerald-600" />
+            <StatCard icon={Clock} label="รอยืนยันสลิป" value={`${donations.filter(d => d.status === 'pending').length} รายการ`} color="text-amber-600" />
           </div>
 
           {/* Filter Bar */}
@@ -195,16 +195,16 @@ export default function DonationsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Search */}
               <div className="relative lg:col-span-2">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder="ค้นหาชื่อผู้บริจาค หรือข้อความ..."
-                  className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
+                  className="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors"
                 />
               </div>
               {/* Method */}
               <select value={methodFilter} onChange={(e) => setMethodFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0e121a] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
                 <option value="">ช่องทางทั้งหมด</option>
                 <option value="promptpay">PromptPay</option>
                 <option value="slip">สลิปธนาคาร</option>
@@ -213,24 +213,24 @@ export default function DonationsPage() {
               </select>
               {/* Status */}
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#0e121a] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors">
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
                 <option value="">สถานะทั้งหมด</option>
                 <option value="completed">สำเร็จ</option>
                 <option value="pending">รอดำเนินการ</option>
               </select>
             </div>
             {/* Date Range */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-white/[0.04]">
-              <Calendar className="h-3.5 w-3.5 text-slate-500 flex-shrink-0" />
-              <span className="text-xs text-slate-400">ช่วงวันที่:</span>
+            <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-slate-100">
+              <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+              <span className="text-xs text-slate-500">ช่วงวันที่:</span>
               <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-                className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors" />
-              <span className="text-slate-500 text-xs">ถึง</span>
+                className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors" />
+              <span className="text-slate-400 text-xs">ถึง</span>
               <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-                className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.08] text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors" />
+                className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors" />
               {(dateFrom || dateTo) && (
                 <button onClick={() => { setDateFrom(''); setDateTo(''); }}
-                  className="px-2 py-1 rounded-md bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 text-xs flex items-center gap-1 transition-colors">
+                  className="px-2 py-1 rounded-md bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs flex items-center gap-1 transition-colors">
                   <X className="h-3 w-3" /> ล้างวันที่
                 </button>
               )}
@@ -241,13 +241,13 @@ export default function DonationsPage() {
           <div className="surface-card overflow-hidden">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Loader2 className="h-6 w-6 text-emerald-400 animate-spin" />
+                <Loader2 className="h-6 w-6 text-emerald-600 animate-spin" />
                 <p className="text-xs text-slate-500">กำลังโหลดรายการโดเนท...</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-white/[0.02] text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/[0.06]">
+                  <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider text-[11px] border-b border-slate-200">
                     <tr>
                       <th className="px-4 py-3 font-semibold">วันที่/เวลา</th>
                       <th className="px-4 py-3 font-semibold">ผู้บริจาค</th>
@@ -258,13 +258,13 @@ export default function DonationsPage() {
                       <th className="px-4 py-3 font-semibold text-right">การจัดการ</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/[0.04]">
+                  <tbody className="divide-y divide-slate-100">
                     {donations.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-5 py-16 text-center text-slate-500">
-                          <ReceiptText className="h-8 w-8 mx-auto mb-2 text-slate-600" />
-                          <p className="font-medium text-slate-400">ไม่พบรายการโดเนท</p>
-                          <p className="text-xs text-slate-600 mt-1">ลองเปลี่ยนตัวกรอง หรือค้นหาใหม่อีกครั้ง</p>
+                          <ReceiptText className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                          <p className="font-medium text-slate-700">ไม่พบรายการโดเนท</p>
+                          <p className="text-xs text-slate-400 mt-1">ลองเปลี่ยนตัวกรอง หรือค้นหาใหม่อีกครั้ง</p>
                         </td>
                       </tr>
                     ) : donations.map((d) => {
@@ -273,25 +273,25 @@ export default function DonationsPage() {
                       const isDeleting = deletingId === d.id;
                       const isConfirming = confirmingId === d.id;
                       return (
-                        <tr key={d.id} className="hover:bg-white/[0.02] transition-colors">
+                        <tr key={d.id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="font-medium text-slate-200">{formatDate(dt)}</div>
-                            <div className="text-slate-500 text-[11px] font-mono">{formatTime(dt)}</div>
+                            <div className="font-medium text-slate-900">{formatDate(dt)}</div>
+                            <div className="text-slate-400 text-[11px] font-mono">{formatTime(dt)}</div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <div className="h-7 w-7 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center font-bold text-emerald-400 text-[10px]">
+                              <div className="h-7 w-7 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center font-bold text-emerald-700 text-[10px]">
                                 {d.donorName.slice(0, 2).toUpperCase()}
                               </div>
-                              <span className="font-medium text-white">{d.donorName}</span>
+                              <span className="font-medium text-slate-900">{d.donorName}</span>
                             </div>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="text-sm font-bold text-emerald-400 font-mono tracking-tight">+{d.amount.toLocaleString('th-TH')} ฿</span>
+                            <span className="text-sm font-bold text-emerald-600 font-mono tracking-tight">+{d.amount.toLocaleString('th-TH')} ฿</span>
                           </td>
                           <td className="px-4 py-3 max-w-[220px]">
-                            <p className="truncate text-slate-300" title={d.message}>
-                              {d.message || <span className="text-slate-600 italic">ไม่มีข้อความ</span>}
+                            <p className="truncate text-slate-700" title={d.message}>
+                              {d.message || <span className="text-slate-400 italic">ไม่มีข้อความ</span>}
                             </p>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
@@ -300,12 +300,12 @@ export default function DonationsPage() {
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               {d.status === 'completed'
-                                ? <span className="inline-flex items-center gap-1 text-emerald-400 font-medium text-xs"><CheckCircle2 className="h-3.5 w-3.5" /> สำเร็จ</span>
-                                : <span className="inline-flex items-center gap-1 text-amber-400 font-medium text-xs"><Clock className="h-3.5 w-3.5" /> รอยืนยัน</span>
+                                ? <span className="inline-flex items-center gap-1 text-emerald-600 font-medium text-xs"><CheckCircle2 className="h-3.5 w-3.5" /> สำเร็จ</span>
+                                : <span className="inline-flex items-center gap-1 text-amber-600 font-medium text-xs"><Clock className="h-3.5 w-3.5" /> รอยืนยัน</span>
                               }
                               {d.slipImage && (
                                 <button onClick={() => setSelectedSlipImage(d.slipImage)}
-                                  className="p-1 rounded-md bg-white/[0.04] hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 transition-colors" title="ดูภาพสลิป">
+                                  className="p-1 rounded-md bg-slate-100 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition-colors" title="ดูภาพสลิป">
                                   <Eye className="h-3.5 w-3.5" />
                                 </button>
                               )}
@@ -316,7 +316,7 @@ export default function DonationsPage() {
                               {/* Confirm pending */}
                               {d.status === 'pending' && (
                                 <button onClick={() => handleConfirm(d.id)} disabled={isConfirming}
-                                  className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-[11px] font-medium transition-colors disabled:opacity-50"
+                                  className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[11px] font-medium transition-colors disabled:opacity-50"
                                   title="ยืนยันการโดเนท">
                                   {isConfirming ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCheck className="h-3 w-3" />}
                                   <span className="hidden sm:inline">ยืนยัน</span>
@@ -324,14 +324,14 @@ export default function DonationsPage() {
                               )}
                               {/* Replay */}
                               <button onClick={() => handleReplay(d.id)} disabled={isReplaying}
-                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-[11px] font-medium border border-white/[0.08] transition-colors disabled:opacity-50"
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-medium border border-slate-200 shadow-2xs transition-colors disabled:opacity-50"
                                 title="ส่งสัญญาณแจ้งเตือนซ้ำไปยัง OBS">
-                                <RotateCcw className={`h-3 w-3 text-emerald-400 ${isReplaying ? 'animate-spin' : ''}`} />
+                                <RotateCcw className={`h-3 w-3 text-emerald-600 ${isReplaying ? 'animate-spin' : ''}`} />
                                 <span className="hidden sm:inline">{isReplaying ? 'ส่งสัญญาณ...' : 'OBS'}</span>
                               </button>
                               {/* Delete */}
                               <button onClick={() => handleDelete(d.id)} disabled={isDeleting}
-                                className="p-1.5 rounded-md text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                                 title="ลบรายการ">
                                 {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                               </button>
@@ -354,7 +354,7 @@ export default function DonationsPage() {
               </p>
               <div className="flex items-center gap-1.5">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                  className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white disabled:opacity-30 transition-colors">
+                  className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 shadow-2xs transition-colors">
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -362,13 +362,13 @@ export default function DonationsPage() {
                   if (p < 1 || p > totalPages) return null;
                   return (
                     <button key={p} onClick={() => setPage(p)}
-                      className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${p === page ? 'bg-emerald-500 text-slate-950' : 'bg-white/[0.03] text-slate-400 hover:bg-white/[0.08]'}`}>
+                      className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${p === page ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs'}`}>
                       {p}
                     </button>
                   );
                 })}
                 <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white disabled:opacity-30 transition-colors">
+                  className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 shadow-2xs transition-colors">
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
@@ -379,22 +379,22 @@ export default function DonationsPage() {
 
       {/* Slip Image Modal */}
       {selectedSlipImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-          <div className="relative max-w-sm w-full rounded-2xl bg-[#0c1017] border border-white/[0.1] p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className="relative max-w-sm w-full rounded-2xl bg-white border border-slate-200/80 p-5 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Receipt className="h-4 w-4 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-white">หลักฐานสลิปโอนเงิน</h3>
+                <Receipt className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-sm font-semibold text-slate-900">หลักฐานสลิปโอนเงิน</h3>
               </div>
-              <button onClick={() => setSelectedSlipImage(null)} className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors">
+              <button onClick={() => setSelectedSlipImage(null)} className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="rounded-xl overflow-hidden border border-white/[0.08] bg-black/60 flex justify-center p-2">
+            <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex justify-center p-2">
               <img src={selectedSlipImage} alt="Slip" className="max-h-96 w-auto object-contain rounded-lg" />
             </div>
             <button onClick={() => setSelectedSlipImage(null)}
-              className="w-full mt-4 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-medium transition-colors">
+              className="w-full mt-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium transition-colors">
               ปิดหน้าต่าง
             </button>
           </div>

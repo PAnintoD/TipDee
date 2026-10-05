@@ -116,14 +116,14 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
   };
 
   return (
-    <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-5">
+    <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-brand-400" />
-          <h3 className="text-base font-bold text-white">จัดการบัญชีผู้ใช้งาน (User Management)</h3>
+          <Users className="h-5 w-5 text-emerald-600" />
+          <h3 className="text-base font-bold text-slate-900">จัดการบัญชีผู้ใช้งาน (User Management)</h3>
         </div>
-        <span className="text-xs text-slate-400">ทั้งหมด {filteredUsers.length} รายการ</span>
+        <span className="text-xs text-slate-400 font-medium">ทั้งหมด {filteredUsers.length} รายการ</span>
       </div>
 
       {/* Filters Bar */}
@@ -136,7 +136,7 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ค้นหาอีเมล, ชื่อ, username..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-500 shadow-2xs"
           />
         </div>
 
@@ -145,7 +145,7 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value as any)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-brand-500"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500 shadow-2xs"
           >
             <option value="ALL">สิทธิ์ทั้งหมด (All Roles)</option>
             <option value="USER">ผู้ใช้ทั่วไป (USER)</option>
@@ -158,7 +158,7 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-brand-500"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-500 shadow-2xs"
           >
             <option value="ALL">สถานะทั้งหมด (All Status)</option>
             <option value="ACTIVE">ปกติ (Active)</option>
@@ -168,23 +168,23 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
       </div>
 
       {/* Users Table */}
-      <div className="rounded-2xl border border-white/10 overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
+            <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200 font-semibold">
               <tr>
-                <th className="px-5 py-3.5 font-bold">ผู้ใช้</th>
-                <th className="px-5 py-3.5 font-bold">ช่องสตรีมเมอร์</th>
-                <th className="px-5 py-3.5 font-bold">สิทธิ์</th>
-                <th className="px-5 py-3.5 font-bold">สถานะ</th>
-                <th className="px-5 py-3.5 font-bold">วันที่สร้าง</th>
-                <th className="px-5 py-3.5 font-bold text-right">การจัดการ</th>
+                <th className="px-5 py-3.5">ผู้ใช้</th>
+                <th className="px-5 py-3.5">ช่องสตรีมเมอร์</th>
+                <th className="px-5 py-3.5">สิทธิ์</th>
+                <th className="px-5 py-3.5">สถานะ</th>
+                <th className="px-5 py-3.5">วันที่สร้าง</th>
+                <th className="px-5 py-3.5 text-right">การจัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-slate-500">
+                  <td colSpan={6} className="px-5 py-10 text-center text-slate-400 font-medium">
                     ไม่พบข้อมูลผู้ใช้ที่ตรงกับเงื่อนไข
                   </td>
                 </tr>
@@ -194,14 +194,14 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                   const isCurrent = u.id === currentUserId;
 
                   return (
-                    <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                    <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="px-5 py-3.5 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white text-xs shadow-2xs">
                             {(u.name || u.email || 'U').slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-white font-bold">{u.name || 'ไม่ระบุชื่อ'}</p>
+                            <p className="text-slate-900 font-bold">{u.name || 'ไม่ระบุชื่อ'}</p>
                             <p className="text-slate-400 text-[11px] font-mono">{u.email}</p>
                           </div>
                         </div>
@@ -212,13 +212,13 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                           <Link
                             href={`/u/${u.streamer.username}`}
                             target="_blank"
-                            className="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 font-mono font-bold"
+                            className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-mono font-semibold"
                           >
                             <span>@{u.streamer.username}</span>
                             <ExternalLink className="h-3 w-3" />
                           </Link>
                         ) : (
-                          <span className="text-slate-600">- ยังไม่มีช่อง -</span>
+                          <span className="text-slate-400">- ยังไม่มีช่อง -</span>
                         )}
                       </td>
 
@@ -228,9 +228,9 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                           disabled={isCurrent || isLoading}
                           className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
                             u.role === 'ADMIN'
-                              ? 'bg-red-500/15 text-red-400 border-red-500/30 hover:bg-red-500/25'
-                              : 'bg-slate-800 text-slate-300 border-white/10 hover:bg-slate-700'
-                          } disabled:opacity-50`}
+                              ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                              : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                          } disabled:opacity-50 shadow-2xs`}
                           title="คลิกเพื่อสลับสิทธิ์ USER <-> ADMIN"
                         >
                           {u.role}
@@ -241,8 +241,8 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
                             u.active
-                              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                              : 'bg-red-500/15 text-red-400 border-red-500/30'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
                           }`}
                         >
                           {u.active ? (
@@ -257,7 +257,7 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                         </span>
                       </td>
 
-                      <td className="px-5 py-3.5 whitespace-nowrap text-slate-500 text-[11px] font-mono">
+                      <td className="px-5 py-3.5 whitespace-nowrap text-slate-400 text-[11px] font-mono">
                         {new Date(u.createdAt).toLocaleDateString('th-TH')}
                       </td>
 
@@ -267,10 +267,10 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                           <button
                             onClick={() => handleToggleActive(u)}
                             disabled={isCurrent || isLoading}
-                            className={`p-1.5 rounded-lg border text-xs transition-colors ${
+                            className={`p-1.5 rounded-lg border text-xs transition-colors shadow-2xs ${
                               u.active
-                                ? 'bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border-white/5'
-                                : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30'
+                                ? 'bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                             } disabled:opacity-30`}
                             title={u.active ? 'ระงับการใช้งาน (Ban)' : 'ปลดแบน (Unban)'}
                           >
@@ -281,7 +281,7 @@ export function AdminUserTable({ initialUsers, currentUserId }: AdminUserTablePr
                           <button
                             onClick={() => handleDelete(u)}
                             disabled={isCurrent || isLoading}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-red-500/20 text-slate-500 hover:text-red-400 border border-white/5 transition-colors disabled:opacity-30"
+                            className="p-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 transition-colors disabled:opacity-30 shadow-2xs"
                             title="ลบผู้ใช้นี้"
                           >
                             <Trash2 className="h-3.5 w-3.5" />

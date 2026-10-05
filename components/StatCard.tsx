@@ -20,20 +20,20 @@ export function StatCard({
 }: StatCardProps) {
   const colorMap = {
     green: {
-      icon: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-      activeBorder: 'border-emerald-500/30',
+      icon: 'text-emerald-700 bg-emerald-50 border-emerald-200/80',
+      activeBorder: 'border-emerald-300',
     },
     blue: {
-      icon: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
-      activeBorder: 'border-sky-500/30',
+      icon: 'text-sky-700 bg-sky-50 border-sky-200/80',
+      activeBorder: 'border-sky-300',
     },
     purple: {
-      icon: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-      activeBorder: 'border-purple-500/30',
+      icon: 'text-purple-700 bg-purple-50 border-purple-200/80',
+      activeBorder: 'border-purple-300',
     },
     amber: {
-      icon: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-      activeBorder: 'border-amber-500/30',
+      icon: 'text-amber-700 bg-amber-50 border-amber-200/80',
+      activeBorder: 'border-amber-300',
     },
   };
 
@@ -41,22 +41,22 @@ export function StatCard({
 
   return (
     <div
-      className={`relative rounded-xl border bg-[#0d1017] p-4 sm:p-5 transition-colors ${
+      className={`relative rounded-xl border bg-white p-4 sm:p-5 transition-colors shadow-xs ${
         highlight
-          ? 'border-emerald-500/40 bg-[#0d1219]'
-          : 'border-white/[0.08] hover:border-white/[0.14]'
+          ? 'border-emerald-300 bg-emerald-50/20'
+          : 'border-slate-200/80 hover:border-slate-300'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1.5 min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 truncate">
             {title}
           </p>
-          <div className="text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums">
+          <div className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
             {typeof value === 'number' ? `${value.toLocaleString('th-TH')} ฿` : value}
           </div>
           {subtitle && (
-            <p className="text-xs text-slate-400 truncate">
+            <p className="text-xs text-slate-500 truncate">
               {subtitle}
             </p>
           )}

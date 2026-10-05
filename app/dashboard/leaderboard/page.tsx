@@ -39,20 +39,20 @@ export default function LeaderboardPage() {
   }, [username, period]);
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <Navbar streamerId={username} />
 
       <div className="flex flex-1">
         <Sidebar streamerId={username} />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
             <div>
-              <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
-                <Trophy className="h-6 w-6 text-amber-400" />
+              <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <Trophy className="h-6 w-6 text-amber-500" />
                 <span>อันดับผู้โดเนท (Donation Leaderboard)</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 ทำเนียบอันดับผู้สนับสนุนสูงสุดประจำช่องของคุณ
               </p>
             </div>
@@ -68,10 +68,10 @@ export default function LeaderboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setPeriod(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs ${
                     period === tab.id
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      : 'bg-slate-900 border border-white/5 text-slate-400 hover:text-white'
+                      ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
                   {tab.label}
@@ -81,15 +81,15 @@ export default function LeaderboardPage() {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center flex flex-col items-center justify-center gap-3 text-slate-500">
-              <RefreshCw className="h-6 w-6 animate-spin text-amber-400" />
-              <span className="text-xs">กำลังโหลดอันดับผู้สนับสนุน...</span>
+            <div className="py-20 text-center flex flex-col items-center justify-center gap-3 text-slate-400">
+              <RefreshCw className="h-6 w-6 animate-spin text-amber-500" />
+              <span className="text-xs font-medium">กำลังโหลดอันดับผู้สนับสนุน...</span>
             </div>
           ) : donors.length === 0 ? (
-            <div className="p-12 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3">
-              <Trophy className="h-12 w-12 text-slate-600 mx-auto" />
-              <h3 className="text-base font-bold text-white">ยังไม่มีข้อมูลผู้สนับสนุนในช่วงเวลานี้</h3>
-              <p className="text-xs text-slate-400">
+            <div className="p-12 rounded-2xl border border-slate-200/80 bg-white text-center space-y-3 shadow-sm">
+              <Trophy className="h-12 w-12 text-slate-400 mx-auto" />
+              <h3 className="text-base font-bold text-slate-800">ยังไม่มีข้อมูลผู้สนับสนุนในช่วงเวลานี้</h3>
+              <p className="text-xs text-slate-500">
                 เมื่อมีผู้ชมโดเนทผ่านหน้าช่องของคุณ อันดับ Top Donors จะปรากฏขึ้นที่นี่อัตโนมัติ
               </p>
             </div>
@@ -99,15 +99,15 @@ export default function LeaderboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                 {/* Rank 2 */}
                 {donors[1] && (
-                  <div className="order-2 md:order-1 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
+                  <div className="order-2 md:order-1 p-6 rounded-2xl border border-slate-200/80 bg-white text-center space-y-3 flex flex-col justify-end shadow-sm">
                     <div className="text-3xl">🥈</div>
-                    <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-slate-400 flex items-center justify-center font-black text-lg text-white">
+                    <div className="h-14 w-14 mx-auto rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center font-black text-lg text-slate-700 shadow-2xs">
                       {donors[1].name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <span className="text-xs font-bold text-slate-400">อันดับ 2</span>
-                      <h3 className="text-sm font-bold text-white mt-0.5">{donors[1].name}</h3>
-                      <p className="text-lg font-black text-slate-200 mt-1">
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5">{donors[1].name}</h3>
+                      <p className="text-lg font-black text-slate-800 mt-1">
                         {donors[1].amount.toLocaleString('th-TH')} ฿
                       </p>
                     </div>
@@ -116,17 +116,17 @@ export default function LeaderboardPage() {
 
                 {/* Rank 1 (Champion) */}
                 {donors[0] && (
-                  <div className="order-1 md:order-2 p-7 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-950/30 via-[#121622] to-[#0e1219] text-center space-y-3 shadow-2xl shadow-amber-500/10 scale-105">
+                  <div className="order-1 md:order-2 p-7 rounded-2xl border border-amber-300 bg-gradient-to-b from-amber-50/70 via-white to-white text-center space-y-3 shadow-md scale-105">
                     <div className="text-4xl animate-bounce">👑</div>
-                    <div className="h-16 w-16 mx-auto rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 border-2 border-yellow-300 flex items-center justify-center font-black text-xl text-black shadow-lg">
+                    <div className="h-16 w-16 mx-auto rounded-full bg-gradient-to-tr from-amber-500 to-yellow-400 border-2 border-yellow-200 flex items-center justify-center font-black text-xl text-white shadow-md">
                       {donors[0].name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                      <span className="text-xs font-black text-amber-700 uppercase tracking-wider">
                         🥇 แชมป์เปย์สูงสุด
                       </span>
-                      <h3 className="text-base font-extrabold text-white mt-0.5">{donors[0].name}</h3>
-                      <p className="text-2xl font-black text-amber-300 mt-1">
+                      <h3 className="text-base font-extrabold text-slate-900 mt-0.5">{donors[0].name}</h3>
+                      <p className="text-2xl font-black text-amber-600 mt-1">
                         {donors[0].amount.toLocaleString('th-TH')} ฿
                       </p>
                     </div>
@@ -135,15 +135,15 @@ export default function LeaderboardPage() {
 
                 {/* Rank 3 */}
                 {donors[2] && (
-                  <div className="order-3 md:order-3 p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 text-center space-y-3 flex flex-col justify-end">
+                  <div className="order-3 md:order-3 p-6 rounded-2xl border border-slate-200/80 bg-white text-center space-y-3 flex flex-col justify-end shadow-sm">
                     <div className="text-3xl">🥉</div>
-                    <div className="h-14 w-14 mx-auto rounded-full bg-slate-800 border-2 border-amber-700 flex items-center justify-center font-black text-lg text-white">
+                    <div className="h-14 w-14 mx-auto rounded-full bg-amber-50 border-2 border-amber-200 flex items-center justify-center font-black text-lg text-amber-800 shadow-2xs">
                       {donors[2].name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <span className="text-xs font-bold text-slate-400">อันดับ 3</span>
-                      <h3 className="text-sm font-bold text-white mt-0.5">{donors[2].name}</h3>
-                      <p className="text-lg font-black text-slate-200 mt-1">
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5">{donors[2].name}</h3>
+                      <p className="text-lg font-black text-slate-800 mt-1">
                         {donors[2].amount.toLocaleString('th-TH')} ฿
                       </p>
                     </div>
@@ -152,26 +152,26 @@ export default function LeaderboardPage() {
               </div>
 
               {/* Full Leaderboard Table */}
-              <div className="p-6 rounded-3xl border border-white/10 bg-[#0e1219]/90 shadow-2xl space-y-4">
-                <div className="rounded-2xl border border-white/10 overflow-hidden">
+              <div className="p-6 rounded-2xl border border-slate-200/80 bg-white shadow-sm space-y-4">
+                <div className="rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/5">
+                    <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-200 font-semibold">
                       <tr>
-                        <th className="px-5 py-3.5 font-bold">อันดับ</th>
-                        <th className="px-5 py-3.5 font-bold">ผู้สนับสนุน</th>
-                        <th className="px-5 py-3.5 font-bold">จำนวนครั้ง</th>
-                        <th className="px-5 py-3.5 font-bold text-right">ยอดโดเนทรวม</th>
+                        <th className="px-5 py-3.5">อันดับ</th>
+                        <th className="px-5 py-3.5">ผู้สนับสนุน</th>
+                        <th className="px-5 py-3.5">จำนวนครั้ง</th>
+                        <th className="px-5 py-3.5 text-right">ยอดโดเนทรวม</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-slate-100 bg-white">
                       {donors.map((d, idx) => {
                         const medals = ['🥇 1', '🥈 2', '🥉 3', '4', '5', '6', '7', '8', '9', '10'];
                         return (
-                          <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                            <td className="px-5 py-3.5 font-black text-sm text-slate-300">{medals[idx] || idx + 1}</td>
-                            <td className="px-5 py-3.5 font-bold text-white">{d.name}</td>
-                            <td className="px-5 py-3.5 text-slate-400 font-mono">{d.count} ครั้ง</td>
-                            <td className="px-5 py-3.5 text-right font-black text-sm text-brand-400">
+                          <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="px-5 py-3.5 font-bold text-sm text-slate-700">{medals[idx] || idx + 1}</td>
+                            <td className="px-5 py-3.5 font-semibold text-slate-900">{d.name}</td>
+                            <td className="px-5 py-3.5 text-slate-500 font-mono">{d.count} ครั้ง</td>
+                            <td className="px-5 py-3.5 text-right font-black text-sm text-emerald-600">
                               {d.amount.toLocaleString('th-TH')} ฿
                             </td>
                           </tr>

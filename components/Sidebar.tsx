@@ -89,11 +89,11 @@ export function Sidebar({ streamerId }: SidebarProps) {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs transition-colors ${
                 isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20'
-                  : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                  ? 'bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+              <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
               <span className="truncate">{item.name}</span>
             </Link>
           );
@@ -103,16 +103,16 @@ export function Sidebar({ streamerId }: SidebarProps) {
   );
 
   return (
-    <aside className="w-60 flex-shrink-0 hidden lg:block border-r border-white/[0.08] bg-[#090c13] p-3 min-h-[calc(100vh-4rem)]">
+    <aside className="w-60 flex-shrink-0 hidden lg:block border-r border-slate-200/80 bg-white p-3 min-h-[calc(100vh-4rem)]">
       <div className="space-y-4">
         {/* Top Mode Switcher (สตรีมเมอร์ | สมาชิก) */}
-        <div className="p-1 rounded-lg bg-white/[0.03] border border-white/[0.08] flex items-center gap-1">
+        <div className="p-1 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center gap-1">
           <button
             onClick={() => setMode('streamer')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               mode === 'streamer'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-emerald-600 text-white font-semibold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Tv className="h-3.5 w-3.5" />
@@ -121,10 +121,10 @@ export function Sidebar({ streamerId }: SidebarProps) {
 
           <button
             onClick={() => setMode('member')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               mode === 'member'
-                ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-emerald-600 text-white font-semibold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Headphones className="h-3.5 w-3.5" />
@@ -135,17 +135,17 @@ export function Sidebar({ streamerId }: SidebarProps) {
         {/* Navigation Sections */}
         <div className="space-y-4">
           {renderNavGroup('ทั่วไป', generalItems)}
-          <div className="h-px bg-white/[0.06] mx-2" />
+          <div className="h-px bg-slate-100 mx-2" />
           {renderNavGroup('การรับเงิน & วิดเจ็ต', paymentItems)}
-          <div className="h-px bg-white/[0.06] mx-2" />
+          <div className="h-px bg-slate-100 mx-2" />
           {renderNavGroup('สังกัด & ตลาด', [...agencyItems, ...marketItems])}
-          <div className="h-px bg-white/[0.06] mx-2" />
+          <div className="h-px bg-slate-100 mx-2" />
 
           {/* Sign Out */}
           <div className="pt-1">
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
             >
               <LogOut className="h-4 w-4" />
               <span>ออกจากระบบ</span>

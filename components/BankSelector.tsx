@@ -25,16 +25,16 @@ export function BankSelector({ value, onChange, label = 'ธนาคาร' }: 
 
   return (
     <div>
-      {label && <label className="block text-xs font-semibold text-slate-300 mb-1.5">{label}</label>}
+      {label && <label className="block text-xs font-semibold text-slate-700 mb-1.5">{label}</label>}
       <div className="relative">
         <div
           className="absolute left-3.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full flex-shrink-0"
-          style={{ backgroundColor: selected?.color ?? '#64748b' }}
+          style={{ backgroundColor: selected?.color ?? '#94a3b8' }}
         />
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-[#121620] border border-white/[0.08] rounded-lg pl-8 pr-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500 transition-colors appearance-none cursor-pointer"
+          className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-4 py-2.5 text-slate-900 text-xs sm:text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors appearance-none cursor-pointer shadow-xs"
         >
           <option value="">-- เลือกธนาคาร --</option>
           {BANKS.map((bank) => (

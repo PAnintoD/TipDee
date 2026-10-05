@@ -31,12 +31,12 @@ module.exports = {
           600: '#4a5568',
         },
         surface: {
-          ground: '#080a0f',
-          subtle: '#0d1017',
-          card: '#11151e',
-          elevated: '#171d2a',
-          border: 'rgba(255, 255, 255, 0.08)',
-          'border-strong': 'rgba(255, 255, 255, 0.16)',
+          ground: '#F8FAFC',
+          subtle: '#F1F5F9',
+          card: '#FFFFFF',
+          elevated: '#FFFFFF',
+          border: '#E2E8F0',
+          'border-strong': '#CBD5E1',
         }
       },
       fontFamily: {
