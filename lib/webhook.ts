@@ -11,6 +11,38 @@ export interface WebhookDonationPayload {
   isTest?: boolean;
 }
 
+// Exponential backoff fetch helper with strict 5-second timeout
+async function fetchWithRetry(url: string, options: RequestInit, maxRetries: number = 2): Promise<Response> {
+  let attempt = 0;
+  let lastError: any = null;
+
+  while (attempt <= maxRetries) {
+    try {
+      const res = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(5000), // 5s timeout per attempt
+      });
+
+      // If server error (5xx) and retries remain, exponential backoff
+      if (res.status >= 500 && attempt < maxRetries) {
+        attempt++;
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+        continue;
+      }
+
+      return res;
+    } catch (err) {
+      lastError = err;
+      attempt++;
+      if (attempt <= maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+      }
+    }
+  }
+
+  throw lastError || new Error('Webhook dispatch failed after retries');
+}
+
 /**
  * Sends a webhook notification to the streamer's configured Webhook URL (Discord / Custom API)
  */
@@ -80,11 +112,10 @@ export async function triggerStreamerWebhook(
         ],
       };
 
-      const res = await fetch(webhookUrl, {
+      const res = await fetchWithRetry(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(discordPayload),
-        signal: AbortSignal.timeout(10000),
       });
 
       return {
@@ -112,7 +143,7 @@ export async function triggerStreamerWebhook(
       .update(payloadString)
       .digest('hex');
 
-    const res = await fetch(webhookUrl, {
+    const res = await fetchWithRetry(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +152,6 @@ export async function triggerStreamerWebhook(
         'X-TipDee-Signature': signature,
       },
       body: payloadString,
-      signal: AbortSignal.timeout(10000),
     });
 
     return {

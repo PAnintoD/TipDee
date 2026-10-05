@@ -57,6 +57,16 @@ export const prisma =
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 
+// Enable SQLite Write-Ahead Logging (WAL) and 5000ms busy timeout to prevent SQLITE_BUSY under concurrent write spikes
+if (!globalForPrisma.prisma && (dbUrl.startsWith('file:') || !process.env.DATABASE_URL?.includes('postgres'))) {
+  prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;')
+    .then(() => prisma.$queryRawUnsafe('PRAGMA busy_timeout = 5000;'))
+    .then(() => prisma.$queryRawUnsafe('PRAGMA synchronous = NORMAL;'))
+    .catch(() => {
+      // In-memory or non-SQLite environment
+    });
+}
+
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }

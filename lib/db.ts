@@ -657,6 +657,127 @@ export async function addDonation(donation: Omit<Donation, 'id' | 'createdAt'>):
   };
 }
 
+/**
+ * Atomically processes and confirms a slip donation using Prisma interactive transaction.
+ * Guarantees idempotency and prevents race conditions from concurrent duplicate submissions.
+ */
+export async function processDonationSlip({
+  streamerId,
+  donorName,
+  amount,
+  message,
+  paymentRef,
+  slipImage,
+  slipRef,
+  slipHash,
+  enableTTS = true,
+}: {
+  streamerId: string;
+  donorName: string;
+  amount: number;
+  message?: string;
+  paymentRef?: string;
+  slipImage?: string;
+  slipRef?: string;
+  slipHash?: string;
+  enableTTS?: boolean;
+}): Promise<Donation> {
+  const newId = `don_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const now = new Date();
+
+  return await prisma.$transaction(
+    async (tx) => {
+      // 1. Idempotency Check within atomic transaction
+      if (slipRef || slipHash) {
+        const existing = await tx.donation.findFirst({
+          where: {
+            OR: [
+              ...(slipRef ? [{ slipRef }] : []),
+              ...(slipHash ? [{ slipHash }] : []),
+            ],
+            status: 'completed',
+          },
+        });
+
+        if (existing) {
+          throw new Error('ALREADY_PROCESSED: สลิปนี้ถูกใช้งานไปแล้วในระบบ ไม่สามารถใช้ซ้ำได้');
+        }
+      }
+
+      // 2. Atomic create donation with status 'completed'
+      const created = await tx.donation.create({
+        data: {
+          id: newId,
+          streamerId,
+          donorName,
+          amount,
+          message: message || '',
+          paymentMethod: 'slip',
+          paymentRef: paymentRef || slipRef,
+          status: 'completed',
+          enableTTS,
+          isTest: false,
+          slipImage,
+          slipRef: slipRef || null,
+          slipHash: slipHash || null,
+          verifiedAt: now,
+        },
+      });
+
+      // 3. Atomically update Goal currentAmount
+      await tx.goalSettings.updateMany({
+        where: { streamerId },
+        data: {
+          currentAmount: {
+            increment: amount,
+          },
+        },
+      });
+
+      // Also mirror to Firestore if configured
+      if (isFirebaseConfigured && adminDb) {
+        try {
+          await adminDb.collection('donations').doc(newId).set({
+            id: newId,
+            streamerId,
+            donorName,
+            amount,
+            message: message || '',
+            paymentMethod: 'slip',
+            status: 'completed',
+            enableTTS,
+            createdAt: now.toISOString(),
+          });
+        } catch (fbErr) {
+          console.warn('[processDonationSlip] Firebase mirror warning:', fbErr);
+        }
+      }
+
+      return {
+        id: created.id,
+        streamerId: created.streamerId,
+        donorName: created.donorName,
+        amount: created.amount,
+        message: created.message || '',
+        paymentMethod: created.paymentMethod as any,
+        paymentRef: created.paymentRef || undefined,
+        status: created.status as any,
+        enableTTS: created.enableTTS,
+        isTest: created.isTest,
+        slipImage: created.slipImage || undefined,
+        slipRef: created.slipRef || undefined,
+        slipHash: created.slipHash || undefined,
+        verifiedAt: created.verifiedAt?.toISOString(),
+        createdAt: created.createdAt.toISOString(),
+      };
+    },
+    {
+      timeout: 10000,
+      maxWait: 5000,
+    }
+  );
+}
+
 export async function getDonationStats(streamerId: string = 'streamerza') {
   const donations = await getDonations(streamerId);
   const completed = donations.filter((d) => d.status === 'completed');

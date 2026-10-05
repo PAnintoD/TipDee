@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySlipImage } from '@/lib/slipScanner';
-import { addDonation } from '@/lib/db';
+import { processDonationSlip } from '@/lib/db';
 import { broadcastDonation } from '@/lib/events';
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '@/lib/rateLimit';
 import { sanitizeDonorName, sanitizeMessage } from '@/lib/sanitize';
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request);
 
     // Rate limit: max 8 verify requests per minute per IP
-    const rateCheck = checkRateLimit(`slip:${ip}`, 8, 60);
+    const rateCheck = await checkRateLimit(`slip:${ip}`, 8, 60);
     if (!rateCheck.success) {
       return rateLimitExceededResponse(rateCheck.resetInSeconds);
     }
@@ -89,20 +89,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create completed donation record
-    const donation = await addDonation({
+    // Atomically process and confirm donation with idempotency transaction lock
+    const donation = await processDonationSlip({
       streamerId: activeStreamerId,
       donorName,
       amount: Number(amount),
       message,
-      paymentMethod: 'slip',
       paymentRef: result.transRef,
-      status: 'completed',
-      enableTTS,
-      isTest: false,
       slipImage: base64Image,
       slipRef: result.transRef,
       slipHash: result.slipHash,
+      enableTTS,
     });
 
     // Broadcast to OBS and Dashboard immediately!
@@ -128,6 +125,12 @@ export async function POST(request: NextRequest) {
       message: 'ตรวจสอบสลิปสำเร็จ แจ้งเตือนขึ้นหน้าจอ OBS เรียบร้อยแล้ว!',
     });
   } catch (error: any) {
+    if (error.message?.includes('ALREADY_PROCESSED') || error.code === 'P2002') {
+      return NextResponse.json(
+        { success: false, error: 'สลิปนี้ถูกใช้งานไปแล้วในระบบ ไม่สามารถใช้ซ้ำได้ (Duplicate Slip Detected)' },
+        { status: 409 }
+      );
+    }
     console.error('Slip verification error', error);
     return NextResponse.json(
       { success: false, error: error.message || 'เกิดข้อผิดพลาดในการประมวลผลสลิป' },

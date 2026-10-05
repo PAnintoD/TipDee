@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request);
 
     // Rate limit: max 20 donation submissions per minute per IP
-    const rateCheck = checkRateLimit(`donate:${ip}`, 20, 60);
+    const rateCheck = await checkRateLimit(`donate:${ip}`, 20, 60);
     if (!rateCheck.success) {
       return rateLimitExceededResponse(rateCheck.resetInSeconds);
     }

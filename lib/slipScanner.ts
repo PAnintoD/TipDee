@@ -111,39 +111,90 @@ export async function verifySlipImage(
     };
   }
 
+// Circuit Breaker state for external Slip verification APIs
+interface CircuitBreakerState {
+  failures: number;
+  lastFailureTime: number;
+  isOpen: boolean;
+}
+
+const circuitBreakers = new Map<string, CircuitBreakerState>();
+const FAILURE_THRESHOLD = 3;
+const COOLDOWN_PERIOD_MS = 60000; // 60 seconds
+
+function checkCircuit(apiKey: string): boolean {
+  const breaker = circuitBreakers.get(apiKey);
+  if (!breaker || !breaker.isOpen) return true;
+
+  // Check if cooldown elapsed
+  if (Date.now() - breaker.lastFailureTime > COOLDOWN_PERIOD_MS) {
+    // Half-open: allow probe request
+    breaker.isOpen = false;
+    breaker.failures = 0;
+    return true;
+  }
+  return false;
+}
+
+function recordCircuitResult(apiKey: string, success: boolean) {
+  const breaker = circuitBreakers.get(apiKey) || { failures: 0, lastFailureTime: 0, isOpen: false };
+  if (success) {
+    breaker.failures = 0;
+    breaker.isOpen = false;
+  } else {
+    breaker.failures += 1;
+    breaker.lastFailureTime = Date.now();
+    if (breaker.failures >= FAILURE_THRESHOLD) {
+      breaker.isOpen = true;
+      console.warn(`[CircuitBreaker] External Slip API circuit tripped OPEN for key ${apiKey.slice(0, 6)}... Bypassing for ${COOLDOWN_PERIOD_MS / 1000}s`);
+    }
+  }
+  circuitBreakers.set(apiKey, breaker);
+}
+
   // 2. If streamer has third-party SlipOK or EasySlip API configured
   if (streamer?.slipApiKey && rawPayload) {
-    try {
-      const slipOkRes = await fetch(`https://api.slipok.com/api/line/apikey/${streamer.slipApiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: rawPayload,
-          log: true,
-          amount: expectedAmount,
-        }),
-      });
+    const isCircuitHealthy = checkCircuit(streamer.slipApiKey);
 
-      const slipOkData = await slipOkRes.json();
-      if (slipOkData.success && slipOkData.data?.success) {
-        return {
-          success: true,
-          transRef: slipOkData.data.transRef || `slip_${Date.now()}`,
-          amount: slipOkData.data.amount || expectedAmount,
-          date: slipOkData.data.transDate || new Date().toISOString(),
-          senderName: slipOkData.data.sender?.displayName || 'ผู้โอน',
-          receiverName: slipOkData.data.receiver?.displayName || streamer.displayName,
-          slipHash,
-          rawPayload,
-        };
-      } else if (slipOkData.message) {
-        return {
-          success: false,
-          error: `SlipOK: ${slipOkData.message}`,
-        };
+    if (isCircuitHealthy) {
+      try {
+        const slipOkRes = await fetch(`https://api.slipok.com/api/line/apikey/${streamer.slipApiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: rawPayload,
+            log: true,
+            amount: expectedAmount,
+          }),
+          signal: AbortSignal.timeout(5000), // 5-second strict timeout to prevent thread blocking
+        });
+
+        const slipOkData = await slipOkRes.json();
+        if (slipOkData.success && slipOkData.data?.success) {
+          recordCircuitResult(streamer.slipApiKey, true);
+          return {
+            success: true,
+            transRef: slipOkData.data.transRef || `slip_${Date.now()}`,
+            amount: slipOkData.data.amount || expectedAmount,
+            date: slipOkData.data.transDate || new Date().toISOString(),
+            senderName: slipOkData.data.sender?.displayName || 'ผู้โอน',
+            receiverName: slipOkData.data.receiver?.displayName || streamer.displayName,
+            slipHash,
+            rawPayload,
+          };
+        } else if (slipOkData.message) {
+          recordCircuitResult(streamer.slipApiKey, false);
+          return {
+            success: false,
+            error: `SlipOK: ${slipOkData.message}`,
+          };
+        }
+      } catch (apiErr) {
+        recordCircuitResult(streamer.slipApiKey, false);
+        console.warn('External Slip API timeout/error, falling back to smart built-in analyzer', apiErr);
       }
-    } catch (apiErr) {
-      console.warn('External Slip API error, falling back to smart built-in analyzer', apiErr);
+    } else {
+      console.warn('[CircuitBreaker] Bypassing external SlipOK API because circuit is OPEN, using built-in analyzer');
     }
   }
 

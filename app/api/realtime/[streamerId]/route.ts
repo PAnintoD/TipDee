@@ -19,34 +19,58 @@ export async function GET(
       where: {
         OR: [{ id: paramId }, { username: paramId }],
       },
+      select: { id: true, username: true },
     });
     if (streamer) {
       streamerId = streamer.id;
       username = streamer.username;
     }
-  } catch {}
+  } catch (err) {
+    console.warn('[SSE] Streamer lookup error:', err);
+  }
 
   const responseStream = new TransformStream();
   const writer = responseStream.writable.getWriter();
   const encoder = new TextEncoder();
 
-  // Send initial connection event
-  const initialPayload = `data: ${JSON.stringify({
-    type: 'connected',
-    streamerId,
-    username,
-    timestamp: new Date().toISOString(),
-  })}\n\n`;
-  writer.write(encoder.encode(initialPayload));
+  let isClosed = false;
+  let heartbeatTimer: NodeJS.Timeout | null = null;
+  let lifecycleTimer: NodeJS.Timeout | null = null;
+
+  const cleanup = () => {
+    if (isClosed) return;
+    isClosed = true;
+
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    if (lifecycleTimer) clearTimeout(lifecycleTimer);
+
+    donationEmitter.off(`streamer:${streamerId}`, listener);
+    if (username !== streamerId) {
+      donationEmitter.off(`streamer:${username}`, listener);
+    }
+
+    try {
+      writer.close();
+    } catch {
+      // Stream may already be closed
+    }
+  };
+
+  // Safe write helper
+  const safeWrite = async (chunk: string) => {
+    if (isClosed) return false;
+    try {
+      await writer.write(encoder.encode(chunk));
+      return true;
+    } catch {
+      cleanup();
+      return false;
+    }
+  };
 
   // Event listener for this specific streamer
   const listener = (event: DonationAlertEvent) => {
-    try {
-      const data = `data: ${JSON.stringify(event)}\n\n`;
-      writer.write(encoder.encode(data));
-    } catch (e) {
-      console.error('Error writing to SSE stream', e);
-    }
+    safeWrite(`data: ${JSON.stringify(event)}\n\n`);
   };
 
   // Register listeners on both ID and username
@@ -55,35 +79,35 @@ export async function GET(
     donationEmitter.on(`streamer:${username}`, listener);
   }
 
-  // Keep-alive heartbeat every 15s to prevent connection dropouts on OBS / Nginx / Proxies
-  const intervalId = setInterval(() => {
-    try {
-      writer.write(encoder.encode(': ping\n\n'));
-    } catch (e) {
-      clearInterval(intervalId);
-    }
+  // Send initial connection payload with retry configuration (1000ms reconnect)
+  await safeWrite(`retry: 1000\ndata: ${JSON.stringify({
+    type: 'connected',
+    streamerId,
+    username,
+    timestamp: new Date().toISOString(),
+  })}\n\n`);
+
+  // Keep-alive heartbeat every 15s to keep connections alive through proxies/OBS
+  heartbeatTimer = setInterval(() => {
+    safeWrite(': ping\n\n');
   }, 15000);
 
-  // Cleanup on connection close
-  request.signal.addEventListener('abort', () => {
-    clearInterval(intervalId);
-    donationEmitter.off(`streamer:${streamerId}`, listener);
-    if (username !== streamerId) {
-      donationEmitter.off(`streamer:${username}`, listener);
-    }
-    try {
-      writer.close();
-    } catch (e) {
-      // already closed
-    }
-  });
+  // Maximum stream duration (50s) to gracefully recycle connection on serverless/edge runtimes
+  // before hard timeouts occur, allowing EventSource to reconnect seamlessly.
+  lifecycleTimer = setTimeout(() => {
+    safeWrite('event: reconnect\ndata: {}\n\n').then(() => cleanup());
+  }, 50000);
+
+  // Connection close event from client
+  request.signal.addEventListener('abort', cleanup);
 
   return new Response(responseStream.readable, {
     headers: {
       'Content-Type': 'text/event-stream; charset=utf-8',
-      'Cache-Control': 'no-cache, no-transform',
+      'Cache-Control': 'no-cache, no-transform, no-store, must-revalidate',
       'Connection': 'keep-alive',
       'X-Accel-Buffering': 'no',
+      'Content-Encoding': 'none',
     },
   });
 }
