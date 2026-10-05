@@ -9,8 +9,11 @@ export interface StreamerProfile {
   bio: string;
   avatarUrl: string;
   bannerUrl: string;
+  promptpayId?: string;
   promptpayTarget: string;
   promptpayName: string;
+  accountName?: string;
+  bankCode?: string;
   bankName?: string;
   truemoneyPhone: string;
   minAmount: number;
@@ -319,9 +322,12 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
       bio: streamer.bio || '',
       avatarUrl: streamer.avatarUrl || DEFAULT_STREAMER.avatarUrl,
       bannerUrl: streamer.bannerUrl || DEFAULT_STREAMER.bannerUrl,
-      promptpayTarget: streamer.promptpayTarget || '0812345678',
-      promptpayName: streamer.promptpayName || 'สตรีมเมอร์',
-      bankName: streamer.bankName || '',
+      promptpayId: streamer.promptpayId || streamer.promptpayTarget || '',
+      promptpayTarget: streamer.promptpayTarget || streamer.promptpayId || '',
+      promptpayName: streamer.promptpayName || streamer.accountName || '',
+      accountName: streamer.accountName || streamer.promptpayName || '',
+      bankCode: streamer.bankCode || streamer.bankName || '',
+      bankName: streamer.bankName || streamer.bankCode || '',
       truemoneyPhone: streamer.truemoneyPhone || '',
       minAmount: streamer.minAmount,
       presetAmounts,
@@ -413,9 +419,21 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
     if (updates.bio !== undefined) dataToUpdate.bio = updates.bio;
     if (updates.avatarUrl !== undefined) dataToUpdate.avatarUrl = updates.avatarUrl;
     if (updates.bannerUrl !== undefined) dataToUpdate.bannerUrl = updates.bannerUrl;
-    if (updates.promptpayTarget !== undefined) dataToUpdate.promptpayTarget = updates.promptpayTarget;
-    if (updates.promptpayName !== undefined) dataToUpdate.promptpayName = updates.promptpayName;
-    if (updates.bankName !== undefined) dataToUpdate.bankName = updates.bankName;
+    const finalPromptPay = updates.promptpayId !== undefined ? updates.promptpayId : updates.promptpayTarget;
+    if (finalPromptPay !== undefined) {
+      dataToUpdate.promptpayId = finalPromptPay;
+      dataToUpdate.promptpayTarget = finalPromptPay;
+    }
+    const finalAccountName = updates.accountName !== undefined ? updates.accountName : updates.promptpayName;
+    if (finalAccountName !== undefined) {
+      dataToUpdate.promptpayName = finalAccountName;
+      dataToUpdate.accountName = finalAccountName;
+    }
+    const finalBank = updates.bankCode !== undefined ? updates.bankCode : updates.bankName;
+    if (finalBank !== undefined) {
+      dataToUpdate.bankCode = finalBank;
+      dataToUpdate.bankName = finalBank;
+    }
     if (updates.truemoneyPhone !== undefined) dataToUpdate.truemoneyPhone = updates.truemoneyPhone;
     if (updates.minAmount !== undefined) dataToUpdate.minAmount = Number(updates.minAmount) || 5;
     if (updates.presetAmounts !== undefined) dataToUpdate.presetAmounts = JSON.stringify(updates.presetAmounts);

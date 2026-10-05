@@ -7,14 +7,14 @@ import { Sidebar } from '@/components/Sidebar';
 import { BankSelector } from '@/components/BankSelector';
 import {
   Wallet, QrCode, Save, CheckCircle2, AlertCircle,
-  Sparkles, ScanLine, ShieldCheck, Key, Webhook,
-  ToggleLeft, ToggleRight, RefreshCw, Send, Loader2,
+  Sparkles, ScanLine, Send, Loader2, RefreshCw,
+  ToggleLeft, ToggleRight, Building2,
 } from 'lucide-react';
 
 interface FormState {
-  promptpayTarget: string;
-  promptpayName: string;
-  bankName: string;
+  promptpayId: string;
+  accountName: string;
+  bankCode: string;
   truemoneyPhone: string;
   minAmount: number;
   presetAmountsStr: string;
@@ -38,10 +38,11 @@ export default function PaymentPage() {
   const [webhookResult, setWebhookResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [streamerId, setStreamerId] = useState('');
 
+  // Initial form state with empty strings - NO mock data
   const [form, setForm] = useState<FormState>({
-    promptpayTarget: '',
-    promptpayName: '',
-    bankName: '',
+    promptpayId: '',
+    accountName: '',
+    bankCode: '',
     truemoneyPhone: '',
     minAmount: 5,
     presetAmountsStr: '20, 50, 100, 300, 500, 1000',
@@ -51,78 +52,108 @@ export default function PaymentPage() {
     webhookUrl: '',
   });
 
-  const loadChannels = useCallback(() => {
-    fetch('/api/payment/channels')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && data.data) {
-          const s = data.data;
-          setStreamerId(s.id);
-          let presetStr = '20, 50, 100, 300, 500, 1000';
-          try {
-            if (Array.isArray(s.presetAmounts)) {
-              presetStr = s.presetAmounts.join(', ');
-            } else if (typeof s.presetAmounts === 'string' && s.presetAmounts.trim()) {
-              const parsed = JSON.parse(s.presetAmounts);
-              if (Array.isArray(parsed)) presetStr = parsed.join(', ');
-            }
-          } catch (e) {}
+  // Fetch real payment settings from database on mount
+  const loadChannels = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/payment/channels');
+      const data = await res.json();
 
-          setForm({
-            promptpayTarget: s.promptpayTarget || '',
-            promptpayName: s.promptpayName || '',
-            bankName: s.bankName || '',
-            truemoneyPhone: s.truemoneyPhone || '',
-            minAmount: s.minAmount || 5,
-            presetAmountsStr: presetStr,
-            enableAutoSlip: s.enableAutoSlip !== false,
-            slipApiKey: s.slipApiKey || '',
-            slipBranchId: s.slipBranchId || '',
-            webhookUrl: s.webhookUrl || '',
-          });
+      if (data.success && data.data) {
+        const s = data.data;
+        setStreamerId(s.id || '');
 
-          if (s.promptpayQR) {
-            setQrDataUrl(s.promptpayQR);
+        let presetStr = '20, 50, 100, 300, 500, 1000';
+        try {
+          if (Array.isArray(s.presetAmounts)) {
+            presetStr = s.presetAmounts.join(', ');
+          } else if (typeof s.presetAmounts === 'string' && s.presetAmounts.trim()) {
+            const parsed = JSON.parse(s.presetAmounts);
+            if (Array.isArray(parsed)) presetStr = parsed.join(', ');
           }
+        } catch (e) {
+          // ignore json parse error
         }
-      })
-      .catch((e) => console.error('Failed to load payment channels', e))
-      .finally(() => setLoading(false));
+
+        const promptpayValue = s.promptpayId || s.promptpayTarget || '';
+        const accountNameValue = s.accountName || s.promptpayName || '';
+        const bankValue = s.bankCode || s.bankName || '';
+
+        setForm({
+          promptpayId: promptpayValue,
+          accountName: accountNameValue,
+          bankCode: bankValue,
+          truemoneyPhone: s.truemoneyPhone || '',
+          minAmount: s.minAmount ?? 5,
+          presetAmountsStr: presetStr,
+          enableAutoSlip: s.enableAutoSlip !== false,
+          slipApiKey: s.slipApiKey || '',
+          slipBranchId: s.slipBranchId || '',
+          webhookUrl: s.webhookUrl || '',
+        });
+
+        if (s.promptpayQR) {
+          setQrDataUrl(s.promptpayQR);
+        } else if (promptpayValue) {
+          // fetch dynamic QR if available
+          fetchDynamicQR(promptpayValue);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load payment channels', e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     loadChannels();
   }, [loadChannels]);
 
-  const refreshQR = useCallback(() => {
-    setQrLoading(true);
-    fetch('/api/payment/channels')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && data.data?.promptpayQR) {
-          setQrDataUrl(data.data.promptpayQR);
-        } else if (username) {
-          return fetch(`/api/streamer?id=${username}`)
-            .then((r) => r.json())
-            .then((streamerData) => {
-              if (streamerData.success && streamerData.data?.promptpayQR) {
-                setQrDataUrl(streamerData.data.promptpayQR);
-              }
-            });
+  // Dynamic QR fetch helper
+  const fetchDynamicQR = useCallback(async (target: string) => {
+    const cleaned = target.trim().replace(/[^0-9]/g, '');
+    if (cleaned.length === 10 || cleaned.length === 13 || cleaned.length === 15) {
+      setQrLoading(true);
+      try {
+        const res = await fetch(`/api/payment/channels?target=${encodeURIComponent(cleaned)}`);
+        const data = await res.json();
+        if (data.success && data.qr) {
+          setQrDataUrl(data.qr);
         }
-      })
-      .catch((e) => console.error('Failed to refresh QR', e))
-      .finally(() => setQrLoading(false));
-  }, [username]);
+      } catch (err) {
+        console.error('Failed to generate preview QR', err);
+      } finally {
+        setQrLoading(false);
+      }
+    } else {
+      setQrDataUrl('');
+    }
+  }, []);
 
+  // Real-time dynamic QR code generation as user types PromptPay ID
   useEffect(() => {
-    if (username) refreshQR();
-  }, [username, refreshQR]);
+    const rawTarget = form.promptpayId.trim();
+    const cleaned = rawTarget.replace(/[^0-9]/g, '');
+
+    if (!cleaned) {
+      setQrDataUrl('');
+      return;
+    }
+
+    if (cleaned.length === 10 || cleaned.length === 13 || cleaned.length === 15) {
+      const timer = setTimeout(() => {
+        fetchDynamicQR(cleaned);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [form.promptpayId, fetchDynamicQR]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
+  // Save payment settings via PUT/POST to /api/payment/channels
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setIsSaving(true);
@@ -134,22 +165,27 @@ export default function PaymentPage() {
       .map((s) => Number(s.trim()))
       .filter((n) => !isNaN(n) && n > 0);
 
+    const payload = {
+      promptpayId: form.promptpayId.trim(),
+      promptpayTarget: form.promptpayId.trim(),
+      accountName: form.accountName.trim(),
+      promptpayName: form.accountName.trim(),
+      bankCode: form.bankCode,
+      bankName: form.bankCode,
+      truemoneyPhone: form.truemoneyPhone.trim(),
+      minAmount: Number(form.minAmount) || 5,
+      presetAmounts: presetAmounts.length > 0 ? presetAmounts : [20, 50, 100, 300, 500, 1000],
+      enableAutoSlip: form.enableAutoSlip,
+      slipApiKey: form.slipApiKey.trim(),
+      slipBranchId: form.slipBranchId.trim(),
+      webhookUrl: form.webhookUrl.trim(),
+    };
+
     try {
       const res = await fetch('/api/payment/channels', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          promptpayTarget: form.promptpayTarget.trim(),
-          promptpayName: form.promptpayName.trim(),
-          bankName: form.bankName,
-          truemoneyPhone: form.truemoneyPhone.trim(),
-          minAmount: Number(form.minAmount) || 5,
-          presetAmounts: presetAmounts.length > 0 ? presetAmounts : [20, 50, 100, 300, 500, 1000],
-          enableAutoSlip: form.enableAutoSlip,
-          slipApiKey: form.slipApiKey.trim(),
-          slipBranchId: form.slipBranchId.trim(),
-          webhookUrl: form.webhookUrl.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -159,16 +195,16 @@ export default function PaymentPage() {
         setSaveSuccess(true);
         if (data.data?.promptpayQR) {
           setQrDataUrl(data.data.promptpayQR);
-        } else {
-          refreshQR();
+        } else if (form.promptpayId.trim()) {
+          fetchDynamicQR(form.promptpayId.trim());
         }
         setTimeout(() => setSaveSuccess(false), 4000);
       } else {
-        setSaveError(data.error || 'บันทึกไม่สำเร็จ');
+        setSaveError(data.error || 'บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
       }
     } catch (err: any) {
       setIsSaving(false);
-      setSaveError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      setSaveError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     }
   }
 
@@ -176,32 +212,41 @@ export default function PaymentPage() {
     if (!streamerId || !form.webhookUrl) return;
     setWebhookTesting(true);
     setWebhookResult(null);
-    const res = await fetch('/api/webhook/trigger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        streamerId,
-        donation: {
-          id: `test_${Date.now()}`,
-          donorName: 'ทดสอบ Webhook',
-          amount: 100,
-          message: 'ทดสอบ Webhook จาก TipDee Dashboard',
-          paymentMethod: 'test',
-          createdAt: new Date().toISOString(),
-        },
-      }),
-    });
-    const data = await res.json();
-    setWebhookTesting(false);
-    setWebhookResult({ ok: data.success, msg: data.message });
-    setTimeout(() => setWebhookResult(null), 5000);
+    try {
+      const res = await fetch('/api/webhook/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          streamerId,
+          donation: {
+            id: `test_${Date.now()}`,
+            donorName: 'ทดสอบ Webhook',
+            amount: 100,
+            message: 'ทดสอบ Webhook จาก TipDee Dashboard',
+            paymentMethod: 'test',
+            createdAt: new Date().toISOString(),
+          },
+        }),
+      });
+      const data = await res.json();
+      setWebhookTesting(false);
+      setWebhookResult({ ok: data.success, msg: data.message || 'ส่งข้อมูลเรียบร้อย' });
+      setTimeout(() => setWebhookResult(null), 5000);
+    } catch (e: any) {
+      setWebhookTesting(false);
+      setWebhookResult({ ok: false, msg: e.message || 'การเชื่อมต่อล้มเหลว' });
+      setTimeout(() => setWebhookResult(null), 5000);
+    }
   }
 
   const InputRow = ({ label, name, type = 'text', placeholder = '', help = '' }: any) => (
     <div>
       <label className="block text-xs font-semibold text-slate-700 mb-1.5">{label}</label>
       <input
-        type={type} name={name} value={(form as any)[name]} onChange={handleChange}
+        type={type}
+        name={name}
+        value={(form as any)[name] ?? ''}
+        onChange={handleChange}
         placeholder={placeholder}
         className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors shadow-2xs"
       />
@@ -212,7 +257,9 @@ export default function PaymentPage() {
   const SectionCard = ({ icon: Icon, title, color = 'text-emerald-600', children }: any) => (
     <div className="bg-white border border-slate-200/80 rounded-xl p-5 sm:p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
-        <div className="p-2 bg-slate-50 rounded-lg border border-slate-200"><Icon className={`h-4 w-4 ${color}`} /></div>
+        <div className="p-2 bg-slate-50 rounded-lg border border-slate-200">
+          <Icon className={`h-4 w-4 ${color}`} />
+        </div>
         <h2 className="text-sm sm:text-base font-bold text-slate-900">{title}</h2>
       </div>
       <div className="space-y-4">{children}</div>
@@ -225,8 +272,23 @@ export default function PaymentPage() {
         <Navbar streamerId={username} />
         <div className="flex flex-1">
           <Sidebar streamerId={username} />
-          <div className="flex-1 flex items-center justify-center">
-            <Loader2 className="h-6 w-6 text-emerald-600 animate-spin" />
+          <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full space-y-6">
+            <div className="space-y-2">
+              <div className="h-7 w-48 bg-slate-200 rounded animate-pulse" />
+              <div className="h-4 w-72 bg-slate-200 rounded animate-pulse" />
+            </div>
+            <div className="bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm space-y-4">
+              <div className="h-5 w-40 bg-slate-200 rounded animate-pulse" />
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="h-10 bg-slate-100 rounded-lg animate-pulse" />
+                <div className="h-10 bg-slate-100 rounded-lg animate-pulse" />
+              </div>
+              <div className="h-28 bg-slate-50 rounded-lg animate-pulse" />
+            </div>
+            <div className="flex items-center justify-center py-6 text-slate-400 gap-2">
+              <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+              <span className="text-xs sm:text-sm">กำลังโหลดข้อมูลช่องทางรับเงิน...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -241,13 +303,16 @@ export default function PaymentPage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto w-full space-y-6">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900">ตั้งค่าช่องทางรับเงิน</h1>
-            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">จัดการช่องทางรับโดเนท บัญชีพร้อมเพย์ และการแจ้งเตือน</p>
+            <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
+              จัดการช่องทางรับโดเนท บัญชีพร้อมเพย์ และระบบตรวจสอบสลิปอัตโนมัติ
+            </p>
           </div>
 
+          {/* Feedback Banners */}
           {saveSuccess && (
             <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm animate-alert-pop">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-              <span>บันทึกการตั้งค่าสำเร็จเรียบร้อยแล้ว</span>
+              <span>บันทึกการตั้งค่าช่องทางรับเงินลงฐานข้อมูลเรียบร้อยแล้ว</span>
             </div>
           )}
           {saveError && (
@@ -262,41 +327,79 @@ export default function PaymentPage() {
             <SectionCard icon={QrCode} title="1. ตั้งค่าพร้อมเพย์ (PromptPay)">
               <div className="grid sm:grid-cols-2 gap-4">
                 <InputRow
-                  label="เบอร์ / เลขบัตรประชาชน (PromptPay ID)"
-                  name="promptpayTarget"
-                  placeholder="0812345678"
-                  help="รองรับเบอร์โทร 10 หลัก (08x...), เลขบัตร 13 หลัก"
+                  label="เบอร์โทร / เลขบัตรประชาชน (PromptPay ID)"
+                  name="promptpayId"
+                  placeholder="เช่น 0812345678 หรือ 1234567890123"
+                  help="รองรับเบอร์โทร 10 หลัก (08x...), เลขบัตร 13 หลัก หรือ e-Wallet ID 15 หลัก"
                 />
                 <InputRow
                   label="ชื่อบัญชีผู้รับเงิน (Account Name)"
-                  name="promptpayName"
-                  placeholder="ชื่อ-นามสกุล"
-                  help="ชื่อที่แสดงให้ผู้บริจาคตรวจสอบก่อนกดยืนยัน"
+                  name="accountName"
+                  placeholder="เช่น นายสมชาย ใจดี"
+                  help="ชื่อบัญชีที่ผู้บริจาคจะตรวจสอบตอนสแกนชำระเงิน"
                 />
               </div>
-              <BankSelector value={form.bankName} onChange={(v) => setForm((f) => ({ ...f, bankName: v }))} label="ธนาคารหลัก" />
 
-              {/* QR Preview */}
+              <BankSelector
+                value={form.bankCode}
+                onChange={(v) => setForm((f) => ({ ...f, bankCode: v }))}
+                label="ธนาคารหลักของบัญชี"
+              />
+
+              {/* Dynamic QR Preview Card */}
               <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-slate-700">ตัวอย่าง QR Code พร้อมเพย์</p>
-                  <button
-                    type="button" onClick={refreshQR}
-                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
-                  >
-                    <RefreshCw className="h-3 w-3" /> รีเฟรช QR
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <QrCode className="h-4 w-4 text-emerald-600" />
+                    <p className="text-xs font-semibold text-slate-700">ตัวอย่าง QR Code พร้อมเพย์ (สร้างแบบเรียลไทม์)</p>
+                  </div>
+                  {form.promptpayId.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => fetchDynamicQR(form.promptpayId)}
+                      className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${qrLoading ? 'animate-spin' : ''}`} /> รีเฟรช QR
+                    </button>
+                  )}
                 </div>
+
                 {qrLoading ? (
-                  <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 text-emerald-600 animate-spin" /></div>
+                  <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-500 text-xs">
+                    <Loader2 className="h-6 w-6 text-emerald-600 animate-spin" />
+                    <span>กำลังสร้าง QR Code ตามข้อมูลที่ระบุ...</span>
+                  </div>
                 ) : qrDataUrl ? (
-                  <div className="flex justify-center">
-                    <img src={qrDataUrl} alt="PromptPay QR" className="w-36 h-36 rounded-lg bg-white p-2 shadow-xs border border-slate-200" />
+                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
+                    <div className="bg-white p-3 rounded-xl shadow-xs border border-slate-200 inline-block text-center">
+                      <img
+                        src={qrDataUrl}
+                        alt="Dynamic PromptPay QR Code"
+                        className="w-40 h-40 object-contain mx-auto"
+                      />
+                      <div className="mt-2 pt-2 border-t border-slate-100 text-center">
+                        <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full">
+                          พร้อมเพย์
+                        </span>
+                        {form.accountName && (
+                          <p className="text-xs font-semibold text-slate-800 mt-1">{form.accountName}</p>
+                        )}
+                        {form.promptpayId && (
+                          <p className="text-[11px] text-slate-500 font-mono">{form.promptpayId}</p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      💡 QR Code นี้สร้างขึ้นอัตโนมัติตามเบอร์หรือรหัสที่กรอกด้านบน
+                    </p>
                   </div>
                 ) : (
-                  <p className="text-center text-slate-500 text-xs py-4">
-                    บันทึกการตั้งค่าพร้อมเพย์ก่อนเพื่อดูตัวอย่าง QR Code
-                  </p>
+                  <div className="text-center py-6 px-4 border border-dashed border-slate-200 rounded-lg bg-white/60">
+                    <p className="text-xs font-medium text-slate-600">ยังไม่มีตัวอย่าง QR Code</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      กรอกหมายเลขพร้อมเพย์ (เบอร์โทร 10 หลัก หรือเลขบัตร 13 หลัก) เพื่อสร้าง QR Code อัตโนมัติ
+                    </p>
+                  </div>
                 )}
               </div>
             </SectionCard>
@@ -306,11 +409,11 @@ export default function PaymentPage() {
               <InputRow
                 label="เบอร์โทรศัพท์ TrueMoney Wallet"
                 name="truemoneyPhone"
-                placeholder="0812345678"
-                help="ผู้ชมจะจ่ายเงินเข้า wallet ของคุณโดยตรง ไม่ผ่านระบบคนกลาง"
+                placeholder="เช่น 0812345678"
+                help="ผู้ชมจะจ่ายเงินเข้ากระเป๋า TrueMoney Wallet ของคุณโดยตรง ไม่ผ่านตัวกลาง"
               />
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs">
-                💡 เงินเข้า TrueMoney Wallet ของคุณโดยตรง TipDee ไม่เก็บค่าธรรมเนียมใด ๆ
+                💡 เงินเข้า TrueMoney Wallet ของคุณโดยตรง TipDee ไม่หักค่าธรรมเนียมใด ๆ
               </div>
             </SectionCard>
 
@@ -319,16 +422,18 @@ export default function PaymentPage() {
               <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/80 rounded-lg">
                 <div>
                   <p className="font-semibold text-xs sm:text-sm text-slate-900">เปิดใช้งานตรวจสลิปอัตโนมัติ</p>
-                  <p className="text-xs text-slate-500 mt-0.5">ระบบจะสแกน QR Code บนสลิปธนาคารเพื่อยืนยันการโอน</p>
+                  <p className="text-xs text-slate-500 mt-0.5">ระบบจะสแกน QR Code บนสลิปธนาคารเพื่อยืนยันยอดเงินจริง</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, enableAutoSlip: !f.enableAutoSlip }))}
                   className="transition-colors"
                 >
-                  {form.enableAutoSlip
-                    ? <ToggleRight className="h-8 w-8 text-emerald-600" />
-                    : <ToggleLeft className="h-8 w-8 text-slate-300" />}
+                  {form.enableAutoSlip ? (
+                    <ToggleRight className="h-8 w-8 text-emerald-600" />
+                  ) : (
+                    <ToggleLeft className="h-8 w-8 text-slate-300" />
+                  )}
                 </button>
               </div>
 
@@ -336,7 +441,7 @@ export default function PaymentPage() {
                 label="SlipOK API Key (ไม่บังคับ — เสริมความแม่นยำ)"
                 name="slipApiKey"
                 placeholder="sk-xxxxxxxxxxxxxxxx"
-                help="สำหรับสตรีมเมอร์ที่ต้องการเชื่อมต่อ API เพิ่มเติม"
+                help="สำหรับสตรีมเมอร์ที่ต้องการเชื่อมต่อ API ตรวจสลิปภายนอกเพิ่มเติม"
               />
               <InputRow
                 label="SlipOK Branch ID (ไม่บังคับ)"
@@ -354,7 +459,7 @@ export default function PaymentPage() {
                 label="Webhook URL"
                 name="webhookUrl"
                 placeholder="https://your-bot.example.com/webhook"
-                help="ระบบจะส่ง POST request ไปที่ URL นี้ทุกครั้งที่มีรายการโดเนทสำเร็จ"
+                help="ระบบจะส่ง HTTP POST ไปที่ URL นี้ทุกครั้งที่มีรายการโดเนทสำเร็จ"
               />
               <div className="flex items-center gap-3">
                 <button
@@ -382,7 +487,10 @@ export default function PaymentPage() {
                     ยอดขั้นต่ำ (บาท)
                   </label>
                   <input
-                    type="number" name="minAmount" value={form.minAmount} min={1}
+                    type="number"
+                    name="minAmount"
+                    value={form.minAmount}
+                    min={1}
                     onChange={(e) => setForm((f) => ({ ...f, minAmount: Number(e.target.value) }))}
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors shadow-2xs"
                   />
@@ -391,19 +499,31 @@ export default function PaymentPage() {
                   label="ปุ่มจำนวนเงินสำเร็จรูป (คั่นด้วยจุลภาค)"
                   name="presetAmountsStr"
                   placeholder="20, 50, 100, 300, 500, 1000"
+                  help="ปุ่มลัดเลือกจำนวนเงินในหน้าโดเนท"
                 />
               </div>
             </SectionCard>
 
             {/* Save Button */}
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-xs"
-            >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              <span>{isSaving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่าทั้งหมด'}</span>
-            </button>
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-3.5 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base shadow-sm cursor-pointer"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>กำลังบันทึกข้อมูลลงฐานข้อมูล...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    <span>บันทึกการตั้งค่าช่องทางรับเงิน</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </main>
       </div>

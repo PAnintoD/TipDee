@@ -166,7 +166,10 @@ export async function POST(request: NextRequest) {
     let status: 'pending' = 'pending';
 
     if (paymentMethod === 'promptpay') {
-      const target = streamer.promptpayTarget || '0812345678';
+      const target = streamer.promptpayTarget || streamer.promptpayId;
+      if (!target) {
+        return NextResponse.json({ success: false, error: 'สตรีมเมอร์ยังไม่ได้ตั้งค่าพร้อมเพย์สำหรับการรับเงิน' }, { status: 400 });
+      }
       qrPayload = generatePromptPayPayload(target, amount);
       qrDataUrl = await generatePromptPayQRCode(target, amount);
     } else if (paymentMethod === 'truemoney') {
