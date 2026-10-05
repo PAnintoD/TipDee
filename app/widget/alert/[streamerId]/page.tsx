@@ -191,8 +191,17 @@ export default function AlertBoxWidgetPage() {
     };
   }, [streamerId, streamer]);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.background = 'transparent';
+      document.documentElement.style.backgroundColor = 'transparent';
+      document.body.style.background = 'transparent';
+      document.body.style.backgroundColor = 'transparent';
+    }
+  }, []);
+
   const settings = streamer?.alertSettings || {
-    imageUrl: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1anE4d2dmaHk4NXVycG43dnEycW10M2d4YWR0NmsyMzB5enFqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif',
+    imageUrl: '/mascot.svg',
     textColor: '#ffffff',
     highlightColor: '#22c55e',
     template: '{name} โดเนท {amount} บาท: {message}',
@@ -218,17 +227,17 @@ export default function AlertBoxWidgetPage() {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-6 select-none overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center p-6 select-none overflow-hidden !bg-transparent"
       style={{ backgroundColor: 'transparent' }}
     >
-      {/* Pop-up Alert (Transparent Overlay matching streamer style) */}
+      {/* Pop-up Alert (100% Transparent Overlay without any background cards) */}
       {isShowing && currentAlert && (
-        <div className="relative z-10 flex items-center justify-center gap-5 sm:gap-7 animate-alert-pop max-w-3xl">
+        <div className="relative z-10 flex items-center justify-center gap-5 sm:gap-7 animate-alert-pop max-w-3xl !bg-transparent">
           {/* Animated Mascot / Character (Left) */}
-          {settings.imageUrl && (
+          {(settings.imageUrl || '/mascot.svg') && (
             <div className="flex-shrink-0 animate-character-bounce">
               <img
-                src={settings.imageUrl}
+                src={settings.imageUrl || '/mascot.svg'}
                 alt="Donation Mascot"
                 className="h-36 w-36 sm:h-48 sm:w-48 md:h-56 md:w-56 object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.9)]"
               />
@@ -267,12 +276,12 @@ export default function AlertBoxWidgetPage() {
               {currentAlert.amount.toLocaleString('th-TH')}฿
             </div>
 
-            {/* Line 3: Donor Message (Profanity Filtered) */}
+            {/* Line 3: Donor Message (Pure text with outline, no background box) */}
             {cleanMessage && (
-              <div className="mt-2 max-w-md">
-                <p className="inline-block text-sm sm:text-base font-bold text-white stream-text-stroke-sm bg-black/60 px-4 py-1.5 rounded-xl border border-white/20 backdrop-blur-sm shadow-xl">
+              <div className="mt-1.5 max-w-md">
+                <span className="text-xl sm:text-2xl font-black text-white stream-text-stroke leading-snug">
                   "{cleanMessage}"
-                </p>
+                </span>
               </div>
             )}
           </div>

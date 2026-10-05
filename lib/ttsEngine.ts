@@ -48,7 +48,7 @@ export function getAvailableVoices(): Promise<SpeechSynthesisVoice[]> {
  * Speaks text using normalized speech synthesis
  */
 export async function speakText(rawText: string, options: TTSOptions = {}): Promise<void> {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+  if (typeof window === 'undefined') {
     return;
   }
 
@@ -57,9 +57,52 @@ export async function speakText(rawText: string, options: TTSOptions = {}): Prom
     return;
   }
 
+  // 1. First priority: Natural Thai TTS Audio endpoint (Guaranteed to work in OBS Studio & browsers without Windows Thai voice pack)
+  try {
+    const audioUrl = `/api/tts?text=${encodeURIComponent(text.slice(0, 200))}`;
+    const audio = new Audio(audioUrl);
+    audio.volume = Math.max(0, Math.min(1, (options.volume !== undefined ? options.volume : 90) / 100));
+    if (options.speed && options.speed !== 1.0) {
+      audio.playbackRate = Math.max(0.5, Math.min(2.0, options.speed));
+    }
+
+    const played = await new Promise<boolean>((resolve) => {
+      audio.onended = () => resolve(true);
+      audio.onerror = () => resolve(false);
+
+      // Timeout safety
+      const timer = setTimeout(() => resolve(true), Math.max(4000, text.length * 250));
+
+      audio
+        .play()
+        .then(() => {
+          // Audio started playing successfully
+        })
+        .catch((err) => {
+          console.warn('[TTS] Audio element play failed, falling back to Web Speech:', err);
+          clearTimeout(timer);
+          resolve(false);
+        });
+    });
+
+    if (played) {
+      return;
+    }
+  } catch (err) {
+    console.warn('[TTS] Audio endpoint error, trying Web Speech API:', err);
+  }
+
+  // 2. Fallback to Web Speech API (speechSynthesis)
+  return fallbackSpeechSynthesis(text, options);
+}
+
+function fallbackSpeechSynthesis(text: string, options: TTSOptions): Promise<void> {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return Promise.resolve();
+  }
+
   return new Promise(async (resolve) => {
     try {
-      // Cancel any current utterance
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(text);
@@ -69,8 +112,6 @@ export async function speakText(rawText: string, options: TTSOptions = {}): Prom
       utterance.lang = options.voiceLang || 'th-TH';
 
       const voices = await getAvailableVoices();
-
-      // Find best Thai voice (or fallback to user preferred)
       const thaiVoice = voices.find(
         (v) =>
           v.lang.toLowerCase().startsWith('th') ||
@@ -95,17 +136,16 @@ export async function speakText(rawText: string, options: TTSOptions = {}): Prom
 
       utterance.onend = finish;
       utterance.onerror = (err) => {
-        console.warn('TTS error', err);
+        console.warn('SpeechSynthesis error:', err);
         finish();
       };
 
-      // Safety timeout in case onend never fires (common in older Chrome / OBS CEF)
       const maxTime = Math.max(3500, text.length * 250);
       setTimeout(finish, maxTime);
 
       window.speechSynthesis.speak(utterance);
     } catch (err) {
-      console.error('TTS speakText execution error', err);
+      console.error('SpeechSynthesis error:', err);
       resolve();
     }
   });

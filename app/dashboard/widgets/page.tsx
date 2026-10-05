@@ -26,11 +26,11 @@ import { SOUND_PRESETS, playAlertSound } from '@/lib/soundEffects';
 import { speakText } from '@/lib/ttsEngine';
 
 const GIF_PRESETS = [
-  { id: 'chibi', name: '🎀 จิบิอนิเมะ (Anime Mascot)', url: 'https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif' },
+  { id: 'mascot', name: '🎀 มาสคอตจิบิ TipDee (โปร่งใส 100%)', url: '/mascot.svg' },
+  { id: 'anime_jump', name: '✨ อนิเมะจิบิ (Anime Mascot)', url: 'https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif' },
   { id: 'cat', name: '🐱 แมวดุ๊กดิ๊ก (Dancing Cat)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1anE4d2dmaHk4NXVycG43dnEycW10M2d4YWR0NmsyMzB5enFqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif' },
-  { id: 'anime_jump', name: '✨ อนิเมะดีใจ (Anime Jump)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpjOTd2MGF2Z3M5a3U0anF6bTNxcm0xb3BveHdyMm5odDNqdnF2dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v9Nvyq0oDflgS0TigN/giphy.gif' },
-  { id: 'coins', name: '💰 เหรียญทองระเบิด (Gold Coins)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2phdG1rZmd1cmY2ZHBqZ2R5M3N2NXE2aHFqZ3phdW81eHB1dzcxNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/l0Ex6kAKAoFRsFh6M/giphy.gif' },
-  { id: 'cheer', name: '🎉 ฉลองชัยชนะ (Victory Cheer)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpqdWZicTZoNmoxM3A5anF4MGRrOG95OTZ6OTd2dG14bjN2d29ybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o7TKSjRrfIPjeiVyM/giphy.gif' },
+  { id: 'coins', name: '💰 เหรียญทองระเบิด (Gold Coins)', url: 'https://media.giphy.com/media/l0Ex6kAKAoFRsFh6M/giphy.gif' },
+  { id: 'cheer', name: '🎉 ฉลองชัยชนะ (Victory Cheer)', url: 'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif' },
 ];
 
 export default function WidgetsPage() {

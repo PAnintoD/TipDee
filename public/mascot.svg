@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#e0e7ff" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+    <linearGradient id="hoodieGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="headsetGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="40%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <!-- Drop Shadow for Anime Outlines -->
+    <filter id="stickerOutline" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+  </defs>
+
+  <g filter="url(#stickerOutline)">
+    <!-- Back Hair -->
+    <path d="M 90 140 C 60 170, 50 240, 75 260 C 85 240, 100 210, 110 180 Z" fill="url(#hairGrad)" stroke="#1e1b4b" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 230 140 C 260 170, 270 240, 245 260 C 235 240, 220 210, 210 180 Z" fill="url(#hairGrad)" stroke="#1e1b4b" stroke-width="4" stroke-linejoin="round"/>
+
+    <!-- Headphone Band -->
+    <path d="M 85 145 C 75 70, 245 70, 235 145" fill="none" stroke="url(#headsetGrad)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 92 140 C 85 80, 235 80, 228 140" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Body / Cute Streamer Hoodie -->
+    <path d="M 115 210 Q 160 225 205 210 L 225 295 Q 160 305 95 295 Z" fill="url(#hoodieGrad)" stroke="#090d16" stroke-width="5" stroke-linejoin="round"/>
+    <!-- Hoodie Strings -->
+    <path d="M 145 220 Q 140 250 142 265" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="142" cy="266" r="3.5" fill="#38bdf8"/>
+    <path d="M 175 220 Q 180 250 178 265" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="178" cy="266" r="3.5" fill="#38bdf8"/>
+
+    <!-- Face (Chibi Soft Rounded) -->
+    <path d="M 100 140 Q 95 205 160 208 Q 225 205 220 140 Q 215 105 160 105 Q 105 105 100 140 Z" fill="#fff1ee" stroke="#1e1b4b" stroke-width="4.5" stroke-linejoin="round"/>
+
+    <!-- Blushing Cheeks -->
+    <ellipse cx="120" cy="175" rx="14" ry="7" fill="#fb7185" opacity="0.6"/>
+    <ellipse cx="200" cy="175" rx="14" ry="7" fill="#fb7185" opacity="0.6"/>
+
+    <!-- Eyes (Big Sparkling Anime Eyes) -->
+    <!-- Left Eye -->
+    <g>
+      <ellipse cx="132" cy="155" rx="16" ry="22" fill="#0f172a"/>
+      <ellipse cx="132" cy="158" rx="14" ry="19" fill="url(#eyeGrad)"/>
+      <circle cx="127" cy="146" r="6" fill="#ffffff"/>
+      <circle cx="138" cy="165" r="3" fill="#ffffff"/>
+      <!-- Eyelash -->
+      <path d="M 114 142 Q 132 130 150 142" fill="none" stroke="#090d16" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M 116 138 L 110 134" stroke="#090d16" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Right Eye -->
+    <g>
+      <ellipse cx="188" cy="155" rx="16" ry="22" fill="#0f172a"/>
+      <ellipse cx="188" cy="158" rx="14" ry="19" fill="url(#eyeGrad)"/>
+      <circle cx="183" cy="146" r="6" fill="#ffffff"/>
+      <circle cx="194" cy="165" r="3" fill="#ffffff"/>
+      <!-- Eyelash -->
+      <path d="M 170 142 Q 188 130 206 142" fill="none" stroke="#090d16" stroke-width="5.5" stroke-linecap="round"/>
+      <path d="M 204 138 L 210 134" stroke="#090d16" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Tiny Cute Mouth & Smile -->
+    <path d="M 154 180 Q 160 186 166 180" fill="none" stroke="#e11d48" stroke-width="3.5" stroke-linecap="round"/>
+
+    <!-- Front Anime Bangs Hair -->
+    <path d="M 95 130 C 95 90, 225 90, 225 130 C 215 130, 205 138, 200 145 C 190 125, 175 125, 168 148 C 158 128, 140 128, 132 152 C 122 132, 108 135, 95 130 Z" fill="url(#hairGrad)" stroke="#1e1b4b" stroke-width="4.5" stroke-linejoin="round"/>
+    <path d="M 130 115 Q 138 135 135 150" fill="none" stroke="#c7d2fe" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 162 110 Q 166 130 168 145" fill="none" stroke="#c7d2fe" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Cute Little Hair Horns / Ribbon Clips -->
+    <!-- Left Ribbon -->
+    <path d="M 108 105 L 90 92 L 102 114 Z" fill="#3b82f6" stroke="#1e1b4b" stroke-width="3"/>
+    <circle cx="106" cy="107" r="4.5" fill="#facc15"/>
+    <!-- Right Ribbon -->
+    <path d="M 212 105 L 230 92 L 218 114 Z" fill="#3b82f6" stroke="#1e1b4b" stroke-width="3"/>
+    <circle cx="214" cy="107" r="4.5" fill="#facc15"/>
+
+    <!-- Headphone Earcups -->
+    <g>
+      <!-- Left Ear Cup -->
+      <rect x="74" y="132" width="22" height="42" rx="10" fill="#0f172a" stroke="#3b82f6" stroke-width="4"/>
+      <circle cx="85" cy="153" r="5" fill="#38bdf8"/>
+      <!-- Right Ear Cup -->
+      <rect x="224" y="132" width="22" height="42" rx="10" fill="#0f172a" stroke="#3b82f6" stroke-width="4"/>
+      <circle cx="235" cy="153" r="5" fill="#38bdf8"/>
+    </g>
+
+    <!-- Sparkle Stars -->
+    <g transform="translate(245, 95) scale(0.7)">
+      <path d="M 20 0 L 25 15 L 40 20 L 25 25 L 20 40 L 15 25 L 0 20 L 15 15 Z" fill="url(#starGrad)"/>
+    </g>
+    <g transform="translate(50, 180) scale(0.55)">
+      <path d="M 20 0 L 25 15 L 40 20 L 25 25 L 20 40 L 15 25 L 0 20 L 15 15 Z" fill="url(#starGrad)"/>
+    </g>
+  </g>
+</svg>
