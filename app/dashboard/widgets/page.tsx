@@ -185,7 +185,7 @@ export default function WidgetsPage() {
               <button
                 onClick={handleSaveSettings}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
               >
                 {saveSuccess ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
                 <span>{isSaving ? 'กำลังบันทึก...' : saveSuccess ? 'บันทึกเรียบร้อย!' : 'บันทึกการตั้งค่า'}</span>
@@ -194,53 +194,57 @@ export default function WidgetsPage() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-2 border-b border-white/[0.06] pb-2 overflow-x-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pb-3 border-b border-white/[0.06]">
             <button
               onClick={() => setActiveTab('alert')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              aria-pressed={activeTab === 'alert'}
+              className={`h-11 w-full flex items-center justify-center gap-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                 activeTab === 'alert'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
               }`}
             >
-              <Bell className="h-4 w-4" />
-              <span>กล่องแจ้งเตือน (Alert Box)</span>
+              <Bell className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">กล่องแจ้งเตือน (Alert Box)</span>
             </button>
 
             <button
               onClick={() => setActiveTab('goal')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              aria-pressed={activeTab === 'goal'}
+              className={`h-11 w-full flex items-center justify-center gap-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                 activeTab === 'goal'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
               }`}
             >
-              <Target className="h-4 w-4" />
-              <span>แถบเป้าหมาย (Donation Goal)</span>
+              <Target className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">แถบเป้าหมาย (Donation Goal)</span>
             </button>
 
             <button
               onClick={() => setActiveTab('top')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              aria-pressed={activeTab === 'top'}
+              className={`h-11 w-full flex items-center justify-center gap-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                 activeTab === 'top'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
               }`}
             >
-              <Trophy className="h-4 w-4" />
-              <span>อันดับผู้บริจาค (Top Donors)</span>
+              <Trophy className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">อันดับผู้บริจาค (Top Donors)</span>
             </button>
 
             <button
               onClick={() => setActiveTab('recent')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              aria-pressed={activeTab === 'recent'}
+              className={`h-11 w-full flex items-center justify-center gap-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                 activeTab === 'recent'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
               }`}
             >
-              <Layers className="h-4 w-4" />
-              <span>ผู้บริจาคล่าสุด (Recent Feed)</span>
+              <Layers className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">ผู้บริจาคล่าสุด (Recent Feed)</span>
             </button>
           </div>
 
@@ -251,15 +255,15 @@ export default function WidgetsPage() {
               <div className="lg:col-span-7 space-y-5">
                 {/* OBS URL Box */}
                 <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                     <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Tv className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Alert Box (OBS)
+                      <Tv className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" /> ลิงก์ URL สำหรับ Alert Box (OBS)
                     </span>
                     <span className="text-[11px] font-semibold text-emerald-400">
                       ขนาดแนะนำ: {alertSize === 'sm' ? '650 x 240' : alertSize === 'lg' ? '1000 x 380' : alertSize === 'xl' ? '1200 x 450' : '800 x 300'} px
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
                       type="text"
                       readOnly
@@ -268,31 +272,34 @@ export default function WidgetsPage() {
                           ? `${window.location.origin}/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`
                           : `/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`
                       }
-                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                      className="w-full flex-1 min-w-0 rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                     />
-                    <button
-                      onClick={() =>
-                        copyToClipboard(`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`, 'alert-box')
-                      }
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
-                    >
-                      {copiedUrl === 'alert-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      <span>{copiedUrl === 'alert-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
-                    </button>
-                    <Link
-                      href={`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`}
-                      target="_blank"
-                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
-                      title="เปิดหน้าต่างแยก"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
+                    <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                      <button
+                        onClick={() =>
+                          copyToClipboard(`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`, 'alert-box')
+                        }
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      >
+                        {copiedUrl === 'alert-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        <span>{copiedUrl === 'alert-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                      </button>
+                      <Link
+                        href={`/widget/alert/${streamerId}${alertSize !== 'md' ? `?size=${alertSize}` : ''}`}
+                        target="_blank"
+                        className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                        title="เปิดหน้าต่างแยก"
+                        aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Alert Size Selector */}
-                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+                  <div className="pt-2 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <span className="text-xs text-slate-400">ขนาดความคมชัด (Resolution Size):</span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {[
                         { id: 'sm', label: 'กะทัดรัด (650px)' },
                         { id: 'md', label: 'มาตรฐาน (800px)' },
@@ -303,7 +310,7 @@ export default function WidgetsPage() {
                           key={s.id}
                           type="button"
                           onClick={() => setAlertSize(s.id as any)}
-                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                             alertSize === s.id
                               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
                               : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 border-white/[0.08]'
@@ -563,14 +570,14 @@ export default function WidgetsPage() {
               {/* Live Preview Column */}
               <div className="lg:col-span-5 space-y-4">
                 <div className="sticky top-20 rounded-xl border border-white/[0.08] bg-[#0c1017] p-5 space-y-4 shadow-sm">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Tv className="h-4 w-4 text-emerald-400" />
+                      <Tv className="h-4 w-4 text-emerald-400 flex-shrink-0" />
                       <span>ตัวอย่างแสดงผลสด (Live Preview)</span>
                     </h3>
                     <button
                       onClick={handleTriggerTestAlert}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors shadow-sm"
+                      className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
                     >
                       ยิงทดสอบทันที
                     </button>
@@ -635,15 +642,15 @@ export default function WidgetsPage() {
               <div className="lg:col-span-7 space-y-5">
                 {/* OBS URL Box */}
                 <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                     <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Target className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Goal Widget (OBS)
+                      <Target className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" /> ลิงก์ URL สำหรับ Goal Widget (OBS)
                     </span>
                     <span className="text-[11px] font-semibold text-emerald-400">
                       ขนาดแนะนำ: {goalSize === 'sm' ? '450 x 100' : goalSize === 'lg' ? '750 x 160' : goalSize === 'xl' ? '900 x 190' : '600 x 130'} px
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
                       type="text"
                       readOnly
@@ -652,30 +659,34 @@ export default function WidgetsPage() {
                           ? `${window.location.origin}/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`
                           : `/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`
                       }
-                      className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                      className="w-full flex-1 min-w-0 rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                     />
-                    <button
-                      onClick={() =>
-                        copyToClipboard(`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`, 'goal-box')
-                      }
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
-                    >
-                      {copiedUrl === 'goal-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      <span>{copiedUrl === 'goal-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
-                    </button>
-                    <Link
-                      href={`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`}
-                      target="_blank"
-                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Link>
+                    <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                      <button
+                        onClick={() =>
+                          copyToClipboard(`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`, 'goal-box')
+                        }
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      >
+                        {copiedUrl === 'goal-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        <span>{copiedUrl === 'goal-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                      </button>
+                      <Link
+                        href={`/widget/goal/${streamerId}${goalSize !== 'md' ? `?size=${goalSize}` : ''}`}
+                        target="_blank"
+                        className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                        title="เปิดหน้าต่างแยก"
+                        aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Goal Size Selector */}
-                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
+                  <div className="pt-2 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <span className="text-xs text-slate-400">ขนาดความคมชัด (Resolution Size):</span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {[
                         { id: 'sm', label: 'กะทัดรัด (450px)' },
                         { id: 'md', label: 'มาตรฐาน (600px)' },
@@ -686,7 +697,7 @@ export default function WidgetsPage() {
                           key={s.id}
                           type="button"
                           onClick={() => setGoalSize(s.id as any)}
-                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                          className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                             goalSize === s.id
                               ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold'
                               : 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 border-white/[0.08]'
@@ -887,33 +898,37 @@ export default function WidgetsPage() {
           {activeTab === 'top' && (
             <div className="space-y-5">
               <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                   <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <Trophy className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)
+                    <Trophy className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" /> ลิงก์ URL สำหรับ Top Donors Leaderboard (OBS)
                   </span>
                   <span className="text-[10px] text-slate-400">ขนาดแนะนำ: 400 x 500 px</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <input
                     type="text"
                     readOnly
                     value={typeof window !== 'undefined' ? `${window.location.origin}/widget/top-donors/${streamerId}` : `/widget/top-donors/${streamerId}`}
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full flex-1 min-w-0 rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
-                  <button
-                    onClick={() => copyToClipboard(`/widget/top-donors/${streamerId}`, 'top-box')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
-                  >
-                    {copiedUrl === 'top-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                    <span>{copiedUrl === 'top-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
-                  </button>
-                  <Link
-                    href={`/widget/top-donors/${streamerId}`}
-                    target="_blank"
-                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                    <button
+                      onClick={() => copyToClipboard(`/widget/top-donors/${streamerId}`, 'top-box')}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                    >
+                      {copiedUrl === 'top-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      <span>{copiedUrl === 'top-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                    </button>
+                    <Link
+                      href={`/widget/top-donors/${streamerId}`}
+                      target="_blank"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      title="เปิดหน้าต่างแยก"
+                      aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -951,15 +966,15 @@ export default function WidgetsPage() {
           {activeTab === 'recent' && (
             <div className="space-y-5">
               <div className="p-4 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-2.5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
                   <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                    <Layers className="h-3.5 w-3.5 text-emerald-400" /> ลิงก์ URL สำหรับ Recent Donors (OBS)
+                    <Layers className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" /> ลิงก์ URL สำหรับ Recent Donors (OBS)
                   </span>
                   <span className="text-[10px] text-slate-400">
                     {recentMode === 'ticker' ? 'ขนาดแนะนำ: 800 x 80 px (Ticker)' : 'ขนาดแนะนำ: 360 x 480 px (List)'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <input
                     type="text"
                     readOnly
@@ -968,33 +983,37 @@ export default function WidgetsPage() {
                         ? `${window.location.origin}/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
                         : `/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`
                     }
-                    className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none"
+                    className="w-full flex-1 min-w-0 rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs font-mono text-slate-300 select-all focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
-                  <button
-                    onClick={() => copyToClipboard(`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`, 'recent-box')}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors flex-shrink-0"
-                  >
-                    {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                    <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
-                  </button>
-                  <Link
-                    href={`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`}
-                    target="_blank"
-                    className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-1.5 flex-shrink-0 justify-end sm:justify-start">
+                    <button
+                      onClick={() => copyToClipboard(`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`, 'recent-box')}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                    >
+                      {copiedUrl === 'recent-box' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      <span>{copiedUrl === 'recent-box' ? 'คัดลอกแล้ว' : 'คัดลอก'}</span>
+                    </button>
+                    <Link
+                      href={`/widget/recent-donors/${streamerId}?mode=${recentMode}&limit=5`}
+                      target="_blank"
+                      className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+                      title="เปิดหน้าต่างแยก"
+                      aria-label="เปิดหน้าต่างวิดเจ็ตในแท็บใหม่"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
               <div className="p-5 rounded-xl border border-white/[0.08] bg-[#0c1017] space-y-4 max-w-xl">
                 <h3 className="text-sm font-bold text-white">รูปแบบการแสดงผล (Display Layout)</h3>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setRecentMode('list')}
-                    className={`p-3.5 rounded-lg border text-left transition-colors ${
+                    className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                       recentMode === 'list'
                         ? 'border-emerald-500 bg-emerald-500/10 text-white font-semibold'
                         : 'border-white/[0.08] bg-white/[0.02] text-slate-400 hover:text-white'
@@ -1007,7 +1026,7 @@ export default function WidgetsPage() {
                   <button
                     type="button"
                     onClick={() => setRecentMode('ticker')}
-                    className={`p-3.5 rounded-lg border text-left transition-colors ${
+                    className={`p-3.5 rounded-lg border text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 ${
                       recentMode === 'ticker'
                         ? 'border-emerald-500 bg-emerald-500/10 text-white font-semibold'
                         : 'border-white/[0.08] bg-white/[0.02] text-slate-400 hover:text-white'
