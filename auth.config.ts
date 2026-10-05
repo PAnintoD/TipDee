@@ -5,6 +5,8 @@ import { z } from 'zod';
 
 // Edge-compatible config (no Prisma import here)
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'tipdee_super_secret_key_change_in_production_2026',
   pages: {
     signIn: '/login',
     error: '/login',

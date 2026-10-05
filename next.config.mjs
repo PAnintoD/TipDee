@@ -7,12 +7,17 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  experimental: {
+    outputFileTracingIncludes: {
+      '/**': ['./prisma/prisma/dev.db'],
+    },
+  },
   webpack: (config) => {
     config.resolve.alias['@'] = path.resolve(__dirname);
     return config;
   },
   images: {
-    domains: ['images.unsplash.com', 'api.dicebear.com', 'tipdee.vercel.app'],
+    domains: ['images.unsplash.com', 'api.dicebear.com', 'tipdee.vercel.app', 'lh3.googleusercontent.com'],
   },
   async headers() {
     return [

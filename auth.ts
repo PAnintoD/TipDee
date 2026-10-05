@@ -9,6 +9,8 @@ import { authConfig } from './auth.config';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'tipdee_super_secret_key_change_in_production_2026',
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' },
   providers: [
@@ -19,9 +21,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async profile(profile) {
         return {
           id: profile.sub,
-          name: profile.name,
+          name: profile.name || profile.email?.split('@')[0] || 'User',
           email: profile.email,
-          image: profile.picture,
+          image: profile.picture || null,
           role: 'STREAMER',
         };
       },
@@ -77,20 +79,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user, account }) {
       // For OAuth sign-ins, create streamer profile if it doesn't exist
       if (account?.provider !== 'credentials' && user.id) {
-        const existing = await prisma.streamer.findUnique({
-          where: { userId: user.id },
-        });
-        if (!existing && user.email) {
-          const username = user.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
-          const safeUsername = await getUniqueUsername(username);
-          await prisma.streamer.create({
-            data: {
-              userId: user.id,
-              username: safeUsername,
-              displayName: user.name ?? safeUsername,
-              avatarUrl: user.image ?? '',
-            },
+        try {
+          const existing = await prisma.streamer.findUnique({
+            where: { userId: user.id },
           });
+          if (!existing && user.email) {
+            const username = user.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const safeUsername = await getUniqueUsername(username);
+            await prisma.streamer.create({
+              data: {
+                userId: user.id,
+                username: safeUsername,
+                displayName: user.name ?? safeUsername,
+                avatarUrl: user.image ?? '',
+              },
+            });
+          }
+        } catch (err) {
+          console.error('[auth.ts events.signIn] Error creating streamer profile:', err);
         }
       }
     },
@@ -107,28 +113,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Ensure streamerId and username are populated for OAuth sign-ins or updates
       if (token.id && (!token.streamerId || !token.username || trigger === 'update')) {
-        let streamer = await prisma.streamer.findUnique({
-          where: { userId: token.id as string },
-        });
-
-        // Auto-create streamer record if missing (OAuth first login)
-        if (!streamer && (token.email || user?.email)) {
-          const email = ((token.email || user?.email) as string);
-          const baseName = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
-          const safeUsername = await getUniqueUsername(baseName);
-          streamer = await prisma.streamer.create({
-            data: {
-              userId: token.id as string,
-              username: safeUsername,
-              displayName: (token.name as string) || (user?.name as string) || safeUsername,
-              avatarUrl: (token.picture as string) || (user?.image as string) || '',
-            },
+        try {
+          let streamer = await prisma.streamer.findUnique({
+            where: { userId: token.id as string },
           });
-        }
 
-        if (streamer) {
-          token.streamerId = streamer.id;
-          token.username = streamer.username;
+          // Auto-create streamer record if missing (OAuth first login)
+          if (!streamer && (token.email || user?.email)) {
+            const email = ((token.email || user?.email) as string);
+            const baseName = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+            const safeUsername = await getUniqueUsername(baseName);
+            streamer = await prisma.streamer.create({
+              data: {
+                userId: token.id as string,
+                username: safeUsername,
+                displayName: (token.name as string) || (user?.name as string) || safeUsername,
+                avatarUrl: (token.picture as string) || (user?.image as string) || '',
+              },
+            });
+          }
+
+          if (streamer) {
+            token.streamerId = streamer.id;
+            token.username = streamer.username;
+          }
+        } catch (err) {
+          console.error('[auth.ts jwt] Error ensuring streamer profile:', err);
         }
       }
 
