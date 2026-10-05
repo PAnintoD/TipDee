@@ -84,8 +84,16 @@ function LoginForm() {
       )}
 
       {(err || error) && (
-        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-lg text-rose-400 text-xs">
-          {getErrorMessage(error, err)}
+        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-lg text-rose-400 text-xs flex items-center justify-between gap-2">
+          <span>{getErrorMessage(error, err)}</span>
+          <button
+            type="button"
+            onClick={() => { setErr(''); router.replace('/login'); }}
+            className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-white/[0.06] transition-colors"
+            title="ปิดการแจ้งเตือน"
+          >
+            ✕
+          </button>
         </div>
       )}
 
