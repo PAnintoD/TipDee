@@ -24,7 +24,7 @@ function LoginForm() {
     if (!errParam) return '';
     switch (errParam) {
       case 'Configuration':
-        return 'ระบบยังไม่ได้ตั้งค่า Google Client ID & Secret ใน .env.local';
+        return 'ยังไม่ได้ตั้งค่า Google Client ID & Secret ใน Vercel Environment Variables (หรือ .env.local)';
       case 'AccessDenied':
         return 'การเข้าสู่ระบบถูกปฏิเสธ';
       case 'OAuthSignin':
