@@ -1,10 +1,15 @@
+// ==============================================================================
+// TIPDEE PRISMA SCHEMA (PostgreSQL / Supabase / Neon / AWS RDS)
+// ==============================================================================
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ==========================================
@@ -12,15 +17,15 @@ datasource db {
 // ==========================================
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  emailVerified   DateTime?
-  passwordHash    String?
-  name            String?
-  image           String?
-  role            String    @default("STREAMER") // ADMIN | STREAMER | VIEWER
-  active          Boolean   @default(true)
-  twoFactorEnabled Boolean  @default(false)
+  id               String    @id @default(cuid())
+  email            String    @unique
+  emailVerified    DateTime?
+  passwordHash     String?
+  name             String?
+  image            String?
+  role             String    @default("STREAMER") // ADMIN | STREAMER | VIEWER
+  active           Boolean   @default(true)
+  twoFactorEnabled Boolean   @default(false)
   twoFactorSecret  String?
   promptpayId      String?
   promptpayName    String?
@@ -31,10 +36,10 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-  streamer        Streamer?
-  auditLogs       AuditLog[]
+  accounts           Account[]
+  sessions           Session[]
+  streamer           Streamer?
+  auditLogs          AuditLog[]
   verificationTokens VerificationToken[]
 }
 
@@ -44,14 +49,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -78,13 +83,13 @@ model VerificationToken {
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  action     String   // LOGIN | LOGOUT | CHANGE_PASSWORD | CHANGE_PROMPTPAY | CHANGE_SETTINGS | etc.
-  detail     String?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // LOGIN | LOGOUT | CHANGE_PASSWORD | CHANGE_PROMPTPAY | CHANGE_SETTINGS | etc.
+  detail    String?  @db.Text
+  ipAddress String?
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
@@ -94,40 +99,40 @@ model AuditLog {
 // ==========================================
 
 model Streamer {
-  id               String          @id @default(cuid())
-  userId           String          @unique
-  username         String          @unique
-  displayName      String
-  bio              String?
-  avatarUrl        String?
-  bannerUrl        String?
-  promptpayId      String?
-  promptpayTarget  String?
-  promptpayName    String?
-  accountName      String?
-  bankCode         String?
-  bankName         String?
-  truemoneyPhone   String?
-  minAmount        Float           @default(5)
-  presetAmounts    String          @default("[20,50,100,300,500,1000]")
-  socialLinks      String?
-  topDonorsSettings String?
-  recentDonorsSettings String?
-  adsSettings      String?
-  membershipsSettings String?
-  agencySettings   String?
-  widgetToken      String          @default("widget_token_abc123")
-  enableAutoSlip   Boolean         @default(true)
-  slipApiKey       String?
-  slipBranchId     String?
-  webhookUrl       String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id                   String          @id @default(cuid())
+  userId               String          @unique
+  username             String          @unique
+  displayName          String
+  bio                  String?         @db.Text
+  avatarUrl            String?         @db.Text
+  bannerUrl            String?         @db.Text
+  promptpayId          String?
+  promptpayTarget      String?
+  promptpayName        String?
+  accountName          String?
+  bankCode             String?
+  bankName             String?
+  truemoneyPhone       String?
+  minAmount            Float           @default(5)
+  presetAmounts        String          @default("[20,50,100,300,500,1000]") @db.Text
+  socialLinks          String?         @db.Text
+  topDonorsSettings    String?         @db.Text
+  recentDonorsSettings String?         @db.Text
+  adsSettings          String?         @db.Text
+  membershipsSettings  String?         @db.Text
+  agencySettings       String?         @db.Text
+  widgetToken          String          @default("widget_token_abc123")
+  enableAutoSlip       Boolean         @default(true)
+  slipApiKey           String?
+  slipBranchId         String?
+  webhookUrl           String?         @db.Text
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
 
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  donations        Donation[]
-  widgetSettings   WidgetSettings?
-  goalSettings     GoalSettings?
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  donations      Donation[]
+  widgetSettings WidgetSettings?
+  goalSettings   GoalSettings?
 }
 
 model Donation {
@@ -135,19 +140,19 @@ model Donation {
   streamerId    String
   donorName     String
   amount        Float
-  message       String?
+  message       String?   @db.Text
   paymentMethod String    // 'promptpay' | 'truemoney' | 'slip' | 'test'
   paymentRef    String?
   status        String    @default("pending") // 'completed' | 'pending' | 'failed'
   enableTTS     Boolean   @default(true)
   isTest        Boolean   @default(false)
-  slipImage     String?
+  slipImage     String?   @db.Text
   slipRef       String?   @unique
   slipHash      String?   @unique
   verifiedAt    DateTime?
   createdAt     DateTime  @default(now())
 
-  streamer      Streamer  @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamer Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
 
   @@index([streamerId, status])
   @@index([createdAt])
@@ -156,13 +161,13 @@ model Donation {
 model WidgetSettings {
   id                String   @id @default(cuid())
   streamerId        String   @unique
-  template          String   @default("{name} โดเนท {amount} บาท: {message}")
+  template          String   @default("{name} โดเนท {amount} บาท: {message}") @db.Text
   minAmountForAlert Float    @default(5)
   minAmountForTTS   Float    @default(10)
   duration          Int      @default(7)
-  soundUrl          String   @default("levelup")
+  soundUrl          String   @default("levelup") @db.Text
   soundVolume       Int      @default(80)
-  imageUrl          String   @default("https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif")
+  imageUrl          String   @default("https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif") @db.Text
   ttsEnabled        Boolean  @default(true)
   ttsVoice          String   @default("th-TH")
   ttsSpeed          Float    @default(1.0)
@@ -172,13 +177,13 @@ model WidgetSettings {
   highlightColor    String   @default("#22c55e")
   fontFamily        String   @default("Prompt, sans-serif")
 
-  streamer          Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamer Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
 }
 
 model GoalSettings {
   id              String   @id @default(cuid())
   streamerId      String   @unique
-  title           String   @default("🎯 เป้าหมายการโดเนท")
+  title           String   @default("🎯 เป้าหมายการโดเนท") @db.Text
   targetAmount    Float    @default(1000)
   currentAmount   Float    @default(0)
   endDate         String?
@@ -187,5 +192,5 @@ model GoalSettings {
   textColor       String   @default("#ffffff")
   showPercentage  Boolean  @default(true)
 
-  streamer        Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamer Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
 }
