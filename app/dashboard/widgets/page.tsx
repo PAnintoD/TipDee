@@ -26,9 +26,10 @@ import { SOUND_PRESETS, playAlertSound } from '@/lib/soundEffects';
 import { speakText } from '@/lib/ttsEngine';
 
 const GIF_PRESETS = [
+  { id: 'chibi', name: '🎀 จิบิอนิเมะ (Anime Mascot)', url: 'https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif' },
   { id: 'cat', name: '🐱 แมวดุ๊กดิ๊ก (Dancing Cat)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z1anE4d2dmaHk4NXVycG43dnEycW10M2d4YWR0NmsyMzB5enFqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif' },
-  { id: 'coins', name: '💰 เหรียญทองระเบิด (Gold Coins Explosion)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2phdG1rZmd1cmY2ZHBqZ2R5M3N2NXE2aHFqZ3phdW81eHB1dzcxNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/l0Ex6kAKAoFRsFh6M/giphy.gif' },
-  { id: 'anime', name: '✨ อนิเมะดีใจ (Anime Hype)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWc1bXFxdXJ1aWpqZXNuZTh1M2JndWhrZXFwb3gwdm5xOWY4c2N5eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/artj92V8o75VPL7AeQ/giphy.gif' },
+  { id: 'anime_jump', name: '✨ อนิเมะดีใจ (Anime Jump)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpjOTd2MGF2Z3M5a3U0anF6bTNxcm0xb3BveHdyMm5odDNqdnF2dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/v9Nvyq0oDflgS0TigN/giphy.gif' },
+  { id: 'coins', name: '💰 เหรียญทองระเบิด (Gold Coins)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2phdG1rZmd1cmY2ZHBqZ2R5M3N2NXE2aHFqZ3phdW81eHB1dzcxNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/l0Ex6kAKAoFRsFh6M/giphy.gif' },
   { id: 'cheer', name: '🎉 ฉลองชัยชนะ (Victory Cheer)', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpqdWZicTZoNmoxM3A5anF4MGRrOG95OTZ6OTd2dG14bjN2d29ybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3o7TKSjRrfIPjeiVyM/giphy.gif' },
 ];
 
@@ -55,8 +56,8 @@ export default function WidgetsPage() {
     ttsSpeed: 1.0,
     ttsPitch: 1.0,
     ttsVolume: 90,
-    textColor: '#ffffff',
-    highlightColor: '#22c55e',
+    textColor: '#00e5ff',
+    highlightColor: '#ff9800',
     fontFamily: 'Prompt, sans-serif',
   });
 
@@ -147,9 +148,9 @@ export default function WidgetsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         streamerId,
-        donorName: 'ผู้ชมตัวอย่าง ⭐',
-        amount: 150,
-        message: 'ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงาม 100%!',
+        donorName: '039thanapoom_',
+        amount: 500,
+        message: 'ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงามคมชัด 100%!',
         enableTTS: alertSettings.ttsEnabled,
       }),
     });
@@ -427,7 +428,7 @@ export default function WidgetsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1.5">สีเน้นไฮไลต์ (Highlight Color):</label>
+                      <label className="block text-xs text-slate-400 mb-1.5">สีชื่อผู้โดเนท (Donor Name Color):</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
@@ -442,6 +443,58 @@ export default function WidgetsPage() {
                           className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1.5">สีจำนวนเงิน (Amount Color):</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={alertSettings.textColor}
+                          onChange={(e) => setAlertSettings({ ...alertSettings, textColor: e.target.value })}
+                          className="h-8 w-10 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <input
+                          type="text"
+                          value={alertSettings.textColor}
+                          onChange={(e) => setAlertSettings({ ...alertSettings, textColor: e.target.value })}
+                          className="w-full rounded-lg bg-white/[0.03] border border-white/[0.08] px-3 py-1.5 text-xs text-white font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Color Presets */}
+                  <div className="pt-2 border-t border-white/[0.06]">
+                    <span className="block text-[11px] text-slate-400 mb-2">ชุดสียอดนิยม (Quick Color Presets):</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAlertSettings({ ...alertSettings, highlightColor: '#ff9800', textColor: '#00e5ff' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ff9800]"></span>
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#00e5ff]"></span>
+                        ⭐ สตรีมเมอร์โปร (ส้ม/ฟ้า)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAlertSettings({ ...alertSettings, highlightColor: '#ec4899', textColor: '#38bdf8' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ec4899]"></span>
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#38bdf8]"></span>
+                        💎 Cyberpunk (ชมพู/ฟ้า)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAlertSettings({ ...alertSettings, highlightColor: '#22c55e', textColor: '#ffffff' })}
+                        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-white/[0.04] hover:bg-white/[0.08] text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]"></span>
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#ffffff]"></span>
+                        🌿 Classic Emerald (เขียว/ขาว)
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -474,31 +527,35 @@ export default function WidgetsPage() {
                       }}
                     />
 
-                    {/* Pop-up Alert Preview Item */}
-                    <div className="relative z-10 flex flex-col items-center space-y-3 animate-alert-pop">
+                    {/* Pop-up Alert Preview Item (Side-by-side streamer layout matching Image 2) */}
+                    <div className="relative z-10 flex items-center justify-center gap-3.5 sm:gap-5 animate-alert-pop p-2">
                       {alertSettings.imageUrl && (
-                        <img
-                          src={alertSettings.imageUrl}
-                          alt="Alert Animation"
-                          className="h-24 w-24 object-contain"
-                        />
+                        <div className="flex-shrink-0 animate-character-bounce">
+                          <img
+                            src={alertSettings.imageUrl}
+                            alt="Alert Animation"
+                            className="h-20 w-20 sm:h-24 sm:w-24 object-contain filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]"
+                          />
+                        </div>
                       )}
 
-                      <div className="space-y-1">
-                        <h4
-                          className="text-base sm:text-lg font-bold tracking-wide"
-                          style={{ color: alertSettings.textColor }}
-                        >
-                          <span style={{ color: alertSettings.highlightColor }}>
-                            น้องมิว สายเปย์
-                          </span>{' '}
-                          โดเนท{' '}
-                          <span style={{ color: alertSettings.highlightColor }} className="tabular-nums">
-                            500 บาท
+                      <div className="flex flex-col items-start text-left select-none space-y-0.5">
+                        <div className="flex items-baseline flex-wrap gap-x-1.5 text-base sm:text-xl font-black leading-tight stream-text-stroke">
+                          <span style={{ color: alertSettings.highlightColor || '#ff9800' }}>
+                            039thanapoom_
                           </span>
-                        </h4>
-                        <p className="text-xs text-slate-200 max-w-xs bg-black/60 px-3 py-1.5 rounded border border-white/[0.08]">
-                          "เป็นกำลังใจให้พี่สตรีมเมอร์ สู้ๆ นะครับ!"
+                          <span className="text-white">
+                            โดเนทมา
+                          </span>
+                        </div>
+                        <div
+                          className="text-2xl sm:text-3xl font-black tracking-tight leading-none my-0.5 stream-text-stroke"
+                          style={{ color: alertSettings.textColor === '#ffffff' ? '#00e5ff' : alertSettings.textColor || '#00e5ff' }}
+                        >
+                          500฿
+                        </div>
+                        <p className="text-[11px] font-bold text-white stream-text-stroke-sm bg-black/60 px-2.5 py-0.5 rounded-lg border border-white/20 shadow-md max-w-xs mt-1">
+                          "ทดสอบป๊อปอัปแจ้งเตือน TipDee สวยงามคมชัด 100%!"
                         </p>
                       </div>
                     </div>

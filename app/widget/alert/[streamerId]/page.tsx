@@ -198,77 +198,79 @@ export default function AlertBoxWidgetPage() {
     template: '{name} โดเนท {amount} บาท: {message}',
   };
 
-  // Tier specific styles
-  const tierStyles = {
-    bronze: 'border-emerald-500/30 shadow-[0_0_30px_rgba(34,197,94,0.3)] bg-slate-950/80',
-    silver: 'border-cyan-400/40 shadow-[0_0_40px_rgba(56,189,248,0.4)] bg-slate-950/85',
-    gold: 'border-amber-400/60 shadow-[0_0_50px_rgba(234,179,8,0.5)] bg-slate-950/90 ring-2 ring-amber-400/40',
-    diamond: 'border-purple-400/80 shadow-[0_0_60px_rgba(168,85,247,0.7)] bg-slate-950/95 ring-4 ring-pink-500/50 animate-pulse',
-  };
+  const donorNameColor =
+    tier === 'diamond'
+      ? '#ec4899'
+      : tier === 'gold'
+      ? '#facc15'
+      : settings.highlightColor && settings.highlightColor !== '#22c55e'
+      ? settings.highlightColor
+      : '#ff9800'; // Vibrant streamer orange like user reference
+
+  const amountColor =
+    tier === 'diamond'
+      ? '#38bdf8'
+      : settings.textColor && settings.textColor !== '#ffffff'
+      ? settings.textColor
+      : '#00e5ff'; // Electric cyan like user reference
 
   const cleanMessage = currentAlert ? filterProfanity(currentAlert.message).cleanText : '';
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-4 select-none overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center p-6 select-none overflow-hidden"
       style={{ backgroundColor: 'transparent' }}
     >
-      {/* Pop-up Alert Box */}
+      {/* Pop-up Alert (Transparent Overlay matching streamer style) */}
       {isShowing && currentAlert && (
-        <div className={`relative z-10 flex flex-col items-center text-center space-y-3 animate-alert-pop max-w-lg w-full p-5 rounded-3xl border backdrop-blur-md ${tierStyles[tier]}`}>
-          {/* Tier Badge */}
-          {tier === 'diamond' && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs shadow-lg animate-bounce">
-              <Gem className="h-3.5 w-3.5" /> DIAMOND DONATION 💎
-            </div>
-          )}
-          {tier === 'gold' && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black text-xs shadow-lg">
-              <Crown className="h-3.5 w-3.5" /> GOLD DONATION 👑
-            </div>
-          )}
-          {tier === 'silver' && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold text-xs border border-cyan-400/30">
-              <Sparkles className="h-3.5 w-3.5" /> SUPER DONATION ✨
-            </div>
-          )}
-
-          {/* Animated Image / GIF */}
+        <div className="relative z-10 flex items-center justify-center gap-5 sm:gap-7 animate-alert-pop max-w-3xl">
+          {/* Animated Mascot / Character (Left) */}
           {settings.imageUrl && (
-            <div className="relative">
+            <div className="flex-shrink-0 animate-character-bounce">
               <img
                 src={settings.imageUrl}
-                alt="Donation Animation"
-                className="h-36 w-36 sm:h-44 sm:w-44 object-contain filter drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]"
+                alt="Donation Mascot"
+                className="h-36 w-36 sm:h-48 sm:w-48 md:h-56 md:w-56 object-contain filter drop-shadow-[0_14px_28px_rgba(0,0,0,0.9)]"
               />
             </div>
           )}
 
-          {/* Text Title */}
-          <div className="space-y-1 drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
-            <h1
-              className="text-2xl sm:text-3xl font-black tracking-wide"
-              style={{ color: settings.textColor || '#ffffff' }}
-            >
-              <span
-                style={{ color: tier === 'diamond' ? '#ec4899' : tier === 'gold' ? '#facc15' : settings.highlightColor || '#22c55e' }}
-                className="text-glow"
-              >
-                {currentAlert.donorName}
-              </span>{' '}
-              โดเนท{' '}
-              <span
-                style={{ color: tier === 'diamond' ? '#38bdf8' : tier === 'gold' ? '#facc15' : settings.highlightColor || '#22c55e' }}
-                className="text-glow"
-              >
-                {currentAlert.amount.toLocaleString('th-TH')} บาท
-              </span>
-            </h1>
+          {/* Text Content (Right) */}
+          <div className="flex flex-col items-start text-left select-none space-y-1">
+            {/* Tier Badge for big donations */}
+            {tier === 'diamond' && (
+              <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xs shadow-lg animate-bounce mb-1">
+                <Gem className="h-3.5 w-3.5" /> DIAMOND DONATION 💎
+              </div>
+            )}
+            {tier === 'gold' && (
+              <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black text-xs shadow-lg mb-1">
+                <Crown className="h-3.5 w-3.5" /> GOLD DONATION 👑
+              </div>
+            )}
 
-            {/* Donor Message (Profanity Filtered) */}
+            {/* Line 1: Donor Name + โดเนทมา (Stroked) */}
+            <div className="flex items-baseline flex-wrap gap-x-2.5 text-2xl sm:text-3xl md:text-4xl font-black leading-tight stream-text-stroke tracking-normal">
+              <span style={{ color: donorNameColor }}>
+                {currentAlert.donorName}
+              </span>
+              <span className="text-white">
+                โดเนทมา
+              </span>
+            </div>
+
+            {/* Line 2: Amount (Huge, Bold Cyan with heavy stroke) */}
+            <div
+              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-none my-1 stream-text-stroke"
+              style={{ color: amountColor }}
+            >
+              {currentAlert.amount.toLocaleString('th-TH')}฿
+            </div>
+
+            {/* Line 3: Donor Message (Profanity Filtered) */}
             {cleanMessage && (
-              <div className="mt-2">
-                <p className="inline-block text-sm sm:text-base font-semibold text-slate-100 bg-black/75 px-5 py-2.5 rounded-2xl border border-white/20 shadow-2xl backdrop-blur-md max-w-md">
+              <div className="mt-2 max-w-md">
+                <p className="inline-block text-sm sm:text-base font-bold text-white stream-text-stroke-sm bg-black/60 px-4 py-1.5 rounded-xl border border-white/20 backdrop-blur-sm shadow-xl">
                   "{cleanMessage}"
                 </p>
               </div>

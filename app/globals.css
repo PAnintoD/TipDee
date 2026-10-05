@@ -95,10 +95,14 @@ body {
 }
 
 /* Animation utilities for streamer overlay alerts */
-@keyframes alertPop {
+@keyframes alertPopIn {
   0% {
-    transform: scale(0.92) translateY(12px);
+    transform: scale(0.85) translateY(16px);
     opacity: 0;
+  }
+  65% {
+    transform: scale(1.04) translateY(-3px);
+    opacity: 1;
   }
   100% {
     transform: scale(1) translateY(0);
@@ -107,5 +111,42 @@ body {
 }
 
 .animate-alert-pop {
-  animation: alertPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: alertPopIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+@keyframes characterBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
+}
+
+.animate-character-bounce {
+  animation: characterBounce 2.2s ease-in-out infinite;
+}
+
+/* Streamer Overlay Typography (Bold outline for high contrast on OBS stream) */
+.stream-text-stroke {
+  -webkit-text-stroke: 4.5px #000000;
+  paint-order: stroke fill;
+  text-shadow: 
+    3px 3px 0 #000000,
+    -3px -3px 0 #000000,
+    3px -3px 0 #000000,
+    -3px 3px 0 #000000,
+    0 4px 14px rgba(0, 0, 0, 0.95);
+}
+
+.stream-text-stroke-sm {
+  -webkit-text-stroke: 2.5px #000000;
+  paint-order: stroke fill;
+  text-shadow: 
+    2px 2px 0 #000000,
+    -2px -2px 0 #000000,
+    2px -2px 0 #000000,
+    -2px 2px 0 #000000,
+    0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
