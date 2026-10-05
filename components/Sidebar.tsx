@@ -27,6 +27,7 @@ import {
   LogOut,
   Sparkles,
   Building2,
+  QrCode,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -54,6 +55,7 @@ export function Sidebar({ streamerId }: SidebarProps) {
     { name: 'บัญชีรับเงิน', href: '/dashboard/payment', icon: Wallet },
     { name: 'หน้ารับเงิน', href: '/dashboard/profile', icon: Tv },
     { name: 'วิดเจ็ต', href: '/dashboard/widgets', icon: Bell },
+    { name: 'สร้าง QR Code', href: '/dashboard/qrcode', icon: QrCode },
     { name: 'คลังเสียง', href: '/dashboard/sounds', icon: Music },
     { name: 'คลังสติกเกอร์', href: '/dashboard/stickers', icon: Smile },
     { name: 'โซนผู้พัฒนา', href: '/dashboard/developer', icon: Code2 },

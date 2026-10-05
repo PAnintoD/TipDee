@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="36" fill="url(#grad)"/>
+  <!-- Heart and Sparkle TipDee Symbol -->
+  <path d="M80 126 C40 98 25 78 25 54 C25 36 39 24 55 24 C67 24 75 30 80 38 C85 30 93 24 105 24 C121 24 135 36 135 54 C135 78 120 98 80 126 Z" fill="#FFFFFF"/>
+  <circle cx="80" cy="62" r="16" fill="#22c55e"/>
+  <text x="80" y="68" font-family="'Prompt', sans-serif" font-size="18" font-weight="900" fill="#FFFFFF" text-anchor="middle">฿</text>
+</svg>

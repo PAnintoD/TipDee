@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <rect width="160" height="160" rx="36" fill="#003D6B"/>
+  <!-- PromptPay Arrows symbol -->
+  <g transform="translate(30, 24) scale(0.62)">
+    <path d="M80 0 L150 70 L115 105 L80 70 L45 105 L10 70 Z" fill="#FFFFFF"/>
+    <path d="M80 50 L120 90 L80 130 L40 90 Z" fill="#FDB813"/>
+    <path d="M80 95 L105 120 L80 145 L55 120 Z" fill="#FFFFFF"/>
+  </g>
+  <text x="80" y="138" font-family="'Prompt', -apple-system, sans-serif" font-size="18" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">PROMPTPAY</text>
+</svg>
