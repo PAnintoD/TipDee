@@ -155,6 +155,7 @@ model WidgetSettings {
   ttsVolume         Int      @default(90)
   textColor         String   @default("#ffffff")
   highlightColor    String   @default("#22c55e")
+  fontFamily        String   @default("Prompt, sans-serif")
 
   streamer          Streamer @relation(fields: [streamerId], references: [id], onDelete: Cascade)
 }

@@ -175,8 +175,10 @@ export async function getStreamer(id: string = 'streamerza'): Promise<StreamerPr
 
   // Local Prisma DB
   try {
-    let streamer = await prisma.streamer.findUnique({
-      where: { id },
+    let streamer = await prisma.streamer.findFirst({
+      where: {
+        OR: [{ id }, { username: id }],
+      },
       include: { widgetSettings: true, goalSettings: true },
     });
 
@@ -342,6 +344,25 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
 
   // Local Prisma DB
   try {
+    // Resolve streamer by ID or username
+    let existing = await prisma.streamer.findFirst({
+      where: {
+        OR: [{ id }, { username: id }],
+      },
+    });
+
+    if (!existing) {
+      // Auto-create if not yet exists
+      existing = await prisma.streamer.create({
+        data: {
+          userId: 'system',
+          username: id,
+          displayName: updates.displayName || DEFAULT_STREAMER.displayName,
+        },
+      });
+    }
+
+    const streamerDbId = existing.id;
     const dataToUpdate: any = {};
     if (updates.displayName !== undefined) dataToUpdate.displayName = updates.displayName;
     if (updates.bio !== undefined) dataToUpdate.bio = updates.bio;
@@ -350,42 +371,100 @@ export async function updateStreamer(id: string, updates: Partial<StreamerProfil
     if (updates.promptpayTarget !== undefined) dataToUpdate.promptpayTarget = updates.promptpayTarget;
     if (updates.promptpayName !== undefined) dataToUpdate.promptpayName = updates.promptpayName;
     if (updates.truemoneyPhone !== undefined) dataToUpdate.truemoneyPhone = updates.truemoneyPhone;
-    if (updates.minAmount !== undefined) dataToUpdate.minAmount = updates.minAmount;
+    if (updates.minAmount !== undefined) dataToUpdate.minAmount = Number(updates.minAmount) || 5;
     if (updates.presetAmounts !== undefined) dataToUpdate.presetAmounts = JSON.stringify(updates.presetAmounts);
     if (updates.socialLinks !== undefined) dataToUpdate.socialLinks = JSON.stringify(updates.socialLinks);
-    if (updates.enableAutoSlip !== undefined) dataToUpdate.enableAutoSlip = updates.enableAutoSlip;
+    if (updates.enableAutoSlip !== undefined) dataToUpdate.enableAutoSlip = Boolean(updates.enableAutoSlip);
     if (updates.slipApiKey !== undefined) dataToUpdate.slipApiKey = updates.slipApiKey;
     if (updates.slipBranchId !== undefined) dataToUpdate.slipBranchId = updates.slipBranchId;
     if (updates.topDonorsSettings !== undefined) dataToUpdate.topDonorsSettings = JSON.stringify(updates.topDonorsSettings);
     if (updates.recentDonorsSettings !== undefined) dataToUpdate.recentDonorsSettings = JSON.stringify(updates.recentDonorsSettings);
 
     if (updates.alertSettings) {
+      const {
+        template = '{name} โดเนท {amount} บาท: {message}',
+        minAmountForAlert = 5,
+        minAmountForTTS = 10,
+        duration = 7,
+        soundUrl = 'levelup',
+        soundVolume = 80,
+        imageUrl = '',
+        ttsEnabled = true,
+        ttsVoice = 'th-TH',
+        ttsSpeed = 1.0,
+        ttsPitch = 1.0,
+        ttsVolume = 90,
+        textColor = '#ffffff',
+        highlightColor = '#22c55e',
+        fontFamily = 'Prompt, sans-serif',
+      } = updates.alertSettings as any;
+
+      const safeAlertData = {
+        template: String(template ?? ''),
+        minAmountForAlert: Math.max(0, Number(minAmountForAlert) || 0),
+        minAmountForTTS: Math.max(0, Number(minAmountForTTS) || 0),
+        duration: Math.max(1, Number(duration) || 7),
+        soundUrl: String(soundUrl ?? 'levelup'),
+        soundVolume: Math.min(100, Math.max(0, Number(soundVolume) || 80)),
+        imageUrl: String(imageUrl ?? ''),
+        ttsEnabled: Boolean(ttsEnabled),
+        ttsVoice: String(ttsVoice ?? 'th-TH'),
+        ttsSpeed: Number(ttsSpeed) || 1.0,
+        ttsPitch: Number(ttsPitch) || 1.0,
+        ttsVolume: Math.min(100, Math.max(0, Number(ttsVolume) || 90)),
+        textColor: String(textColor ?? '#ffffff'),
+        highlightColor: String(highlightColor ?? '#22c55e'),
+        fontFamily: String(fontFamily ?? 'Prompt, sans-serif'),
+      };
+
       await prisma.widgetSettings.upsert({
-        where: { streamerId: id },
-        create: { streamerId: id, ...updates.alertSettings },
-        update: updates.alertSettings,
+        where: { streamerId: streamerDbId },
+        create: { streamerId: streamerDbId, ...safeAlertData },
+        update: safeAlertData,
       });
     }
 
     if (updates.goalSettings) {
+      const {
+        title = '🎯 เป้าหมายการโดเนท',
+        targetAmount = 1000,
+        currentAmount = 0,
+        endDate,
+        barColor = '#00a8ff',
+        backgroundColor = 'rgba(24, 24, 27, 0.85)',
+        textColor = '#ffffff',
+        showPercentage = true,
+      } = updates.goalSettings as any;
+
+      const safeGoalData = {
+        title: String(title ?? ''),
+        targetAmount: Math.max(1, Number(targetAmount) || 1000),
+        currentAmount: Math.max(0, Number(currentAmount) || 0),
+        endDate: endDate ? String(endDate) : null,
+        barColor: String(barColor ?? '#00a8ff'),
+        backgroundColor: String(backgroundColor ?? 'rgba(24, 24, 27, 0.85)'),
+        textColor: String(textColor ?? '#ffffff'),
+        showPercentage: Boolean(showPercentage),
+      };
+
       await prisma.goalSettings.upsert({
-        where: { streamerId: id },
-        create: { streamerId: id, ...updates.goalSettings },
-        update: updates.goalSettings,
+        where: { streamerId: streamerDbId },
+        create: { streamerId: streamerDbId, ...safeGoalData },
+        update: safeGoalData,
       });
     }
 
     if (Object.keys(dataToUpdate).length > 0) {
       await prisma.streamer.update({
-        where: { id },
+        where: { id: streamerDbId },
         data: dataToUpdate,
       });
     }
 
-    return getStreamer(id);
+    return getStreamer(streamerDbId);
   } catch (err) {
-    console.error('Error updating streamer in Prisma', err);
-    return getStreamer(id);
+    console.error('Error updating streamer in Prisma:', err);
+    throw err;
   }
 }
 

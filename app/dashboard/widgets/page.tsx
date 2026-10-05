@@ -127,9 +127,12 @@ export default function WidgetsPage() {
     }
   };
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSaveSettings = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
+    setSaveError(null);
     try {
       const res = await fetch('/api/streamer', {
         method: 'POST',
@@ -143,12 +146,23 @@ export default function WidgetsPage() {
         }),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         setSaveSuccess(true);
+        if (data.data?.alertSettings) setAlertSettings((prev) => ({ ...prev, ...data.data.alertSettings }));
+        if (data.data?.goalSettings) setGoalSettings((prev) => ({ ...prev, ...data.data.goalSettings }));
+        if (data.data?.topDonorsSettings) setTopSettings((prev) => ({ ...prev, ...data.data.topDonorsSettings }));
+        if (data.data?.recentDonorsSettings) setRecentSettings((prev) => ({ ...prev, ...data.data.recentDonorsSettings }));
         setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        setSaveError(data.error || 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+        setTimeout(() => setSaveError(null), 5000);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Save settings error:', err);
+      setSaveError(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      setTimeout(() => setSaveError(null), 5000);
     } finally {
       setIsSaving(false);
     }
@@ -204,7 +218,12 @@ export default function WidgetsPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {saveError && (
+                <span className="text-xs font-semibold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200 animate-shake">
+                  ⚠️ {saveError}
+                </span>
+              )}
               <button
                 onClick={handleSaveSettings}
                 disabled={isSaving}

@@ -35,18 +35,50 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     const body = await request.json();
-    const owner = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
-    if (!owner) return NextResponse.json({ success: false, error: 'Streamer not found' }, { status: 404 });
-    const streamerId = owner.id;
-    
-    const updated = await updateStreamer(streamerId, body);
+
+    let targetStreamerId: string | null = null;
+
+    if (session?.user?.id) {
+      const owner = await prisma.streamer.findUnique({ where: { userId: session.user.id } });
+      if (owner) {
+        targetStreamerId = owner.id;
+      }
+    }
+
+    // Fallback: If not found by userId, check body.id (username or streamerId)
+    if (!targetStreamerId && body.id) {
+      const byBodyId = await prisma.streamer.findFirst({
+        where: {
+          OR: [{ id: body.id }, { username: body.id }],
+        },
+      });
+      if (byBodyId) {
+        targetStreamerId = byBodyId.id;
+      }
+    }
+
+    // Fallback for default streamer if not logged in
+    if (!targetStreamerId && !session?.user?.id) {
+      const defaultStreamer = await prisma.streamer.findFirst({ where: { username: 'streamerza' } });
+      if (defaultStreamer) {
+        targetStreamerId = defaultStreamer.id;
+      } else {
+        return NextResponse.json({ success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำการบันทึก' }, { status: 401 });
+      }
+    }
+
+    if (!targetStreamerId) {
+      return NextResponse.json({ success: false, error: 'ไม่พบข้อมูลสตรีมเมอร์' }, { status: 404 });
+    }
+
+    const updated = await updateStreamer(targetStreamerId, body);
     return NextResponse.json({
       success: true,
       data: updated,
     });
   } catch (error: any) {
+    console.error('POST /api/streamer error:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to update streamer data' },
       { status: 500 }
